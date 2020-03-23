@@ -1,6 +1,7 @@
 package com.company;
 
-import java.awt.*;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 public class Main {
 
@@ -8,25 +9,22 @@ public class Main {
 
         Schema schema = new Schema();
 
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                System.out.print(schema.getArray()[i][j].getColor() + " ");
+        new Drawer(schema, "field", false);
+        new Drawer(schema, "fieldAdmin", true);
+
+
+
+
+        Scanner scanner = new Scanner(System.in);
+        try {
+            while (true) {
+                String line = scanner.nextLine();
+                if (schema.checkWord(line))
+                    new Drawer(schema, "field", false);
             }
-            System.out.println();
+        } catch(IllegalStateException | NoSuchElementException e) {
+            e.printStackTrace();
         }
-
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                System.out.print(schema.getArray()[i][j].getWord() + " ");
-            }
-            System.out.println();
-        }
-
-
-
-        Drawer drawer = new Drawer();
-        drawer.drawCard(schema.getArray()[0][0]);
-        drawer.save("test_file");
 
     }
 

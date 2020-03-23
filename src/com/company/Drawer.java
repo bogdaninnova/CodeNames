@@ -13,20 +13,41 @@ public class Drawer {
     private BufferedImage bi;
     private Graphics2D g;
 
-    public Drawer() {
+    public Drawer(Schema schema, String fileName, boolean isAdmin) {
         setBufferedImage(new BufferedImage(5*sizeX, 5*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
         this.g = getBackgroundedGraphics2D(bi, Color.white);
         this.g.setFont(new Font( "SansSerif", Font.BOLD, 48 ));
+        drawGrid();
+
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                drawCard(schema.getArray()[i][j], i, j, isAdmin);
+        save(fileName);
     }
 
-    public void drawCard(Card card) {
-        g.setColor(card.getColor());
-        g.setStroke(new BasicStroke(5.0f));
-        g.fillRect(0, 0, sizeX, sizeY);
+    private void drawCard(Card card, int i, int j, boolean isAdmin) {
+
+        g.setColor(Color.GREEN);
+        if (card.isOpen() || isAdmin)
+            g.setColor(card.getColor());
+
+        g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
         g.setColor(Color.BLACK);
-        g.drawString(card.getWord(), 50, 120);
+        if (card.getColor().equals(Color.BLACK) && (card.isOpen() || isAdmin))
+            g.setColor(Color.WHITE);
+        g.drawString(card.getWord(), i * sizeX + 150, j * sizeY + 120);
 
     }
+
+    private void drawGrid() {
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(5.0f));
+
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                g.drawRect(i * sizeX, j * sizeY, sizeX, sizeY);
+    }
+
 
     public void setBufferedImage(BufferedImage bi) {
         this.bi = bi;

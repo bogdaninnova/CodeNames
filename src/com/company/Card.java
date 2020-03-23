@@ -37,4 +37,5 @@ public class Card {
     public void setColor(Color cardColor) {
         this.color = cardColor;
     }
+
 }

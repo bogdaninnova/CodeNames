@@ -16,6 +16,18 @@ public class Schema {
         setArray(isRedFirst());
     }
 
+
+    public boolean checkWord(String word) {
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase())) {
+                    array[i][j].setOpen(true);
+                    return true;
+                }
+        return false;
+    }
+
+
     private void setColorsOnCard(Color color, int count) {
         while (count > 0) {
             int i = rand.nextInt(5);
