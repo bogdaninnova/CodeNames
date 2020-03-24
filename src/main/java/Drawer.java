@@ -1,5 +1,3 @@
-package com.company;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -62,7 +60,7 @@ public class Drawer {
 
     public void save(String path) {
         try {
-            ImageIO.write(bi, "PNG", new File(path + ".jpg"));
+            ImageIO.write(bi, "PNG", new File("src\\main\\images\\" + path + ".jpg"));
         } catch (IOException e) {
             e.printStackTrace();
         }

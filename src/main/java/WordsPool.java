@@ -1,5 +1,3 @@
-package com.company;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,7 +10,7 @@ public class WordsPool {
     private Random rand = new Random();
 
     public WordsPool() {
-        setWordList(getData("src\\com\\company\\resources\\wordSet.txt"));
+        setWordList(getData("src\\main\\resources\\wordSet.txt"));
     }
 
     private List<String> getData(String path) {
