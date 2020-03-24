@@ -18,7 +18,7 @@ public class Schema {
     public boolean checkWord(String word) {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
-                if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase())) {
+                if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase()) && !array[i][j].isOpen()) {
                     array[i][j].setOpen(true);
                     return true;
                 }
