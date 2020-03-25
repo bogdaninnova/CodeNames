@@ -13,8 +13,8 @@ public class Drawer {
 
     public Drawer(Schema schema, String fileName, boolean isAdmin) {
         setBufferedImage(new BufferedImage(5*sizeX, 5*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
-        this.g = getBackgroundedGraphics2D(bi, Color.white);
-        this.g.setFont(new Font( "SansSerif", Font.BOLD, 48 ));
+        this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
+        this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
         drawGrid();
 
         for (int i = 0; i < 5; i++)
@@ -28,12 +28,12 @@ public class Drawer {
         g.setColor(Color.GREEN);
         if (card.isOpen() || isAdmin)
             g.setColor(card.getColor());
-
         g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
+
         g.setColor(Color.BLACK);
-        if (card.getColor().equals(Color.BLACK) && (card.isOpen() || isAdmin))
+        if ((card.getColor().equals(Color.BLACK) || card.getColor().equals(Color.BLUE)|| card.getColor().equals(Color.RED)) && (card.isOpen() || isAdmin))
             g.setColor(Color.WHITE);
-        g.drawString(card.getWord(), i * sizeX + 150, j * sizeY + 120);
+        g.drawString(card.getWord(), i * sizeX + 100, j * sizeY + 120);
 
     }
 

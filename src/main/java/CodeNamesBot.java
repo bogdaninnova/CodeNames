@@ -27,7 +27,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 
@@ -72,9 +71,19 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             if (text.toLowerCase().substring(0, 7).equals("/caps @")) {
                 Set<String> set = new HashSet<>(Arrays.asList(text.toLowerCase().replace(" ", "").substring(text.indexOf("@")).split("@")));
                 if (set.size() == 2) {
+
+                    for (String cap : set) {
+                        if (!usersList.allUsers.containsKey(cap)) {
+                            sendSimpleMessage("User @" + cap + " is not registered. Please send me /start in private message", chatId);
+                            return;
+                        }
+                    }
+
                     caps.clear();
                     caps.addAll(set);
                     sendCaptains(chatId);
+
+
                 } else {
                     sendSimpleMessage("Капитана должно быть два!", chatId);
                 }
