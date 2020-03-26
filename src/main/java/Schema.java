@@ -25,6 +25,21 @@ public class Schema {
         return false;
     }
 
+    public void openCards() {
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                array[i][j].setOpen(true);
+    }
+
+    public int howMuchLeft(GameColor gameColor) {
+        int count = 0;
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                if (array[i][j].getGameColor() == gameColor && !array[i][j].isOpen())
+                    count++;
+
+        return count;
+    }
 
     private void setColorsOnCard(GameColor gameColor, int count) {
         while (count > 0) {

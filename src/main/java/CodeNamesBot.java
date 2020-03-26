@@ -78,12 +78,28 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
 
         if (games.get(chatId).getSchema().checkWord(text.substring(1))) {
-            sendPicture(games.get(chatId), chatId, false);
-            for (String cap : games.get(chatId).getCaps())
-                sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
+
+            int blackLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLACK);
+            int redLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.RED);
+            int blueLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLUE);
+
+            if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
+                for (String cap : games.get(chatId).getCaps())
+                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
+                sendPicture(games.get(chatId), chatId, false);
+            } else {
+                games.get(chatId).getSchema().openCards();
+                sendPicture(games.get(chatId), chatId, false);
+                games.remove(chatId);
+                if (redLeft == 0) {
+                    sendSimpleMessage("Red team win!", chatId);
+                } else if (blueLeft == 0) {
+                    sendSimpleMessage("Blue team win!", chatId);
+                } else
+                    sendSimpleMessage("Black card was open! Game over!", chatId);
+            }
         }
     }
-
 
     private void sendSimpleMessage(String text, long chatId) {
         SendMessage message = new SendMessage();
@@ -95,7 +111,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
 
     private void sendCaptains(Game game) {
         SendMessage message = new SendMessage();
@@ -118,9 +133,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         String filepath = getFilePath(game.getChatId(), isAdmin);
         new Drawer(game.getSchema(), filepath, isAdmin);
         try {
-            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(new File(filepath)));
+            File file = new File(filepath);
+            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file));
             photo.setChatId(chatId);
             this.execute(photo);
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }

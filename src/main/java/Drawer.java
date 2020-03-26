@@ -35,7 +35,6 @@ public class Drawer {
             colors = getAdminCardColor(card);
         }
 
-
         g.setColor(colors[0]);
         g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
         g.setColor(colors[1]);

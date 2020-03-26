@@ -28,10 +28,6 @@ public class WordsPool {
         return set;
     }
 
-    public List<String> getWordList() {
-        return wordList;
-    }
-
     public void setWordList(List<String> wordList) {
         this.wordList = wordList;
     }

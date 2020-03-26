@@ -2,13 +2,11 @@ import java.awt.*;
 
 public class Colors {
 
-
     public static final Color RED_CARD = new Color(255,100,80);
     public static final Color BLUE_CARD = new Color(80,187,255);
     public static final Color WHITE_CARD = new Color(255,255,255);
     public static final Color BLACK_CARD = new Color(68,68,68);
     public static final Color YELLOW_CARD = new Color(255,252,245);
-
 
     public static final Color BLUE_TEXT = new Color(0,84,138);
     public static final Color RED_TEXT = new Color(138,16,0);
