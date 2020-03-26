@@ -5,11 +5,11 @@ public class Card {
     private String word;
 
     private boolean isOpen;
-    private Color color;
+    private GameColor gameColor;
 
-    public Card(String word, Color cardColor) {
+    public Card(String word, GameColor gameColor) {
         setWord(word);
-        setColor(cardColor);
+        setGameColor(gameColor);
     }
 
     public String getWord() {
@@ -28,12 +28,12 @@ public class Card {
         isOpen = open;
     }
 
-    public Color getColor() {
-        return color;
+    public GameColor getGameColor() {
+        return gameColor;
     }
 
-    public void setColor(Color cardColor) {
-        this.color = cardColor;
+    public void setGameColor(GameColor gameColor) {
+        this.gameColor = gameColor;
     }
 
 }

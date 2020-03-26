@@ -11,11 +11,10 @@ import java.util.*;
 
 public class CodeNamesBot extends TelegramLongPollingBot {
 
-    Schema schema;
     UsersList usersList = new UsersList();
-    Set<String> caps = new HashSet<>();
     private String token = "";
 
+    private Map<Long, Game> games = new HashMap<>();
 
     public CodeNamesBot() {
         try {
@@ -40,65 +39,49 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         System.out.println(text);
         System.out.println(user);
 
-        if (text.toLowerCase().equals("/new") || text.equals("/new@CheCodeNamesBot")) {
-            if (caps.size() == 0) {
-                sendSimpleMessage("Пожалуйста выберите капитанов", chatId);
-                return;
-            }
-            schema = new Schema();
-            sendPicture(chatId, "field");
-            usersList.print();
-            for (String cap : caps) {
-                if (usersList.allUsers.containsKey(cap)) {
-                    new Drawer(schema, "fieldAdmin", true);
-                    sendPicture(usersList.allUsers.get(cap), "fieldAdmin");
-                } else {
-                    sendSimpleMessage("User @" + cap + " is not registered. Please send me /start in private message", chatId);
-                }
-            }
+        if (text.equals("/start")) {
+            usersList.addUser(user.getUserName(), user.getId());
             return;
         }
 
-        if (text.equals("/start")) {
-            usersList.addUser(user.getUserName(), user.getId());
+        if (text.equals("/caps")) {
+            if (games.containsKey(chatId))
+                sendCaptains(games.get(chatId));
+            else
+                sendSimpleMessage("The game has not started", chatId);
+            return;
         }
 
-        if (text.equals("/привет")) {
-            sendSimpleMessage("Ну привет, " + user.getFirstName(), chatId);
-        }
-
-        if (text.length() > 7)
-            if (text.toLowerCase().substring(0, 7).equals("/caps @")) {
+        if (text.length() > 10)
+            if (text.toLowerCase().substring(0, 10).equals("/newgame @")) {
                 Set<String> set = new HashSet<>(Arrays.asList(text.toLowerCase().replace(" ", "").substring(text.indexOf("@")).split("@")));
-                if (set.size() == 2) {
-
-                    for (String cap : set) {
-                        if (!usersList.allUsers.containsKey(cap)) {
-                            sendSimpleMessage("User @" + cap + " is not registered. Please send me /start in private message", chatId);
-                            return;
-                        }
-                    }
-
-                    caps.clear();
-                    caps.addAll(set);
-                    sendCaptains(chatId);
-
-
-                } else {
-                    sendSimpleMessage("Капитана должно быть два!", chatId);
+                if (set.size() != 2) {
+                    sendSimpleMessage("You need to choose two captains!", chatId);
+                    return;
                 }
+                for (String cap : set) {
+                    if (!usersList.allUsers.containsKey(cap)) {
+                        sendSimpleMessage("User @" + cap + " is not registered. Please send me /start in private message", chatId);
+                        return;
+                    }
+                }
+
+                Game game = new Game(chatId);
+                game.setCaps(set);
+                game.createSchema();
+                games.put(chatId, game);
+
+                sendPicture(games.get(chatId), chatId, false);
+                for (String cap : set)
+                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
+                return;
             }
 
-        if (text.equals("/caps")) {
-            sendCaptains(chatId);
+        if (games.get(chatId).getSchema().checkWord(text.substring(1))) {
+            sendPicture(games.get(chatId), chatId, false);
+            for (String cap : games.get(chatId).getCaps())
+                sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
         }
-
-        if (schema.checkWord(text.substring(1))) {
-            new Drawer(schema, "field", false);
-            sendPicture(chatId, "field");
-        }
-
-
     }
 
 
@@ -114,11 +97,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
 
-    private void sendCaptains(long chatId) {
+    private void sendCaptains(Game game) {
         SendMessage message = new SendMessage();
-        message.setChatId(chatId);
+        message.setChatId(game.getChatId());
         StringBuilder sb = new StringBuilder("Captains:");
-        for (String cap : caps) {
+        for (String cap : game.getCaps()) {
             sb.append(" @");
             sb.append(cap);
         }
@@ -131,17 +114,21 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-
-
-    private void sendPicture(long chatId, String name) {
-        new Drawer(schema, "field", false);
+    private void sendPicture(Game game, long chatId, boolean isAdmin) {
+        String filepath = getFilePath(game.getChatId(), isAdmin);
+        new Drawer(game.getSchema(), filepath, isAdmin);
         try {
-            SendPhoto photo = new SendPhoto().setPhoto("field", new FileInputStream(new File("src\\main\\images\\" + name + ".jpg")));
+            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(new File(filepath)));
             photo.setChatId(chatId);
             this.execute(photo);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String getFilePath(long chatId, boolean isAdmin) {
+        String name = chatId + "_admin" + isAdmin + ".jpg";
+        return "src\\main\\images\\" + name;
     }
 
     @Override

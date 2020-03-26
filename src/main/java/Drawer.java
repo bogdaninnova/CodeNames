@@ -12,6 +12,9 @@ public class Drawer {
     private Graphics2D g;
 
     public Drawer(Schema schema, String fileName, boolean isAdmin) {
+
+        System.out.println("Drawer");
+
         setBufferedImage(new BufferedImage(5*sizeX, 5*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
         this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
         this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
@@ -24,17 +27,44 @@ public class Drawer {
     }
 
     private void drawCard(Card card, int i, int j, boolean isAdmin) {
-
-        g.setColor(Color.GREEN);
+        Color[] colors = new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
         if (card.isOpen() || isAdmin)
-            g.setColor(card.getColor());
+            colors = getCardColor(card);
+
+        if (card.isOpen() && isAdmin) {
+            colors = getAdminCardColor(card);
+        }
+
+
+        g.setColor(colors[0]);
         g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
-
-        g.setColor(Color.BLACK);
-        if ((card.getColor().equals(Color.BLACK) || card.getColor().equals(Color.BLUE)|| card.getColor().equals(Color.RED)) && (card.isOpen() || isAdmin))
-            g.setColor(Color.WHITE);
+        g.setColor(colors[1]);
         g.drawString(card.getWord(), i * sizeX + 100, j * sizeY + 120);
+    }
 
+
+    private static Color[] getCardColor(Card card) {
+        if (card.getGameColor() == GameColor.RED)
+            return new Color[]{Colors.RED_CARD, Colors.RED_TEXT};
+        if (card.getGameColor() == GameColor.BLUE)
+            return new Color[]{Colors.BLUE_CARD, Colors.BLUE_TEXT};
+        if (card.getGameColor() == GameColor.BLACK)
+            return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
+        if (card.getGameColor() == GameColor.YELLOW)
+            return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
+        return null;
+    }
+
+    private static Color[] getAdminCardColor(Card card) {
+        if (card.getGameColor() == GameColor.RED)
+            return new Color[]{Colors.RED_OPEN_CARD, Colors.RED_OPEN_TEXT};
+        if (card.getGameColor() == GameColor.BLUE)
+            return new Color[]{Colors.BLUE_OPEN_CARD, Colors.BLUE_OPEN_TEXT};
+        if (card.getGameColor() == GameColor.BLACK)
+            return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
+        if (card.getGameColor() == GameColor.YELLOW)
+            return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_OPEN_TEXT};
+        return null;
     }
 
     private void drawGrid() {
@@ -60,7 +90,7 @@ public class Drawer {
 
     public void save(String path) {
         try {
-            ImageIO.write(bi, "PNG", new File("src\\main\\images\\" + path + ".jpg"));
+            ImageIO.write(bi, "PNG", new File(path));
         } catch (IOException e) {
             e.printStackTrace();
         }
