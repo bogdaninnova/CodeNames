@@ -32,7 +32,7 @@ public class Game {
         return schema;
     }
 
-    public void createSchema() {
-        this.schema = new Schema();
+    public void createSchema(String lang) {
+        this.schema = new Schema(lang);
     }
 }

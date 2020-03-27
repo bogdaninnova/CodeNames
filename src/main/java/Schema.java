@@ -6,10 +6,11 @@ public class Schema {
     private Card[][] array = new Card[5][5];
     private boolean isRedFirst;
     private Random rand = new Random();
-    private WordsPool wordsPool = new WordsPool();
+    private WordsPool wordsPool;
 
 
-    public Schema() {
+    public Schema(String lang) {
+        wordsPool = new WordsPool(lang);
         setRedFirst(rand.nextBoolean());
         setArray(isRedFirst());
     }

@@ -9,8 +9,8 @@ public class WordsPool {
     private List<String> wordList;
     private Random rand = new Random();
 
-    public WordsPool() {
-        setWordList(getData("src\\main\\resources\\wordSet.txt"));
+    public WordsPool(String lang) {
+        setWordList(getData("src\\main\\resources\\" + lang + "WordSet.txt"));
     }
 
     private List<String> getData(String path) {
