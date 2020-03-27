@@ -13,8 +13,6 @@ public class Drawer {
 
     public Drawer(Schema schema, String fileName, boolean isAdmin) {
 
-        System.out.println("Drawer");
-
         setBufferedImage(new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
         this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
         this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));

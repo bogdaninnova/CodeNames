@@ -28,16 +28,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-
     @Override
     public void onUpdateReceived(Update update) {
 
         String text = update.getMessage().getText();
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
-
-        System.out.println(text);
-        System.out.println(user);
 
         if (text.equals("/start")) {
             usersList.addUser(user.getUserName(), user.getId());
@@ -54,6 +50,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         if (text.length() > 10)
             if (text.toLowerCase().substring(0, 10).equals("/newgame @")) {
+
+                String lang = "Russian";
+                if (text.substring(text.lastIndexOf(" ") + 1).equals("eng")) {
+                    lang = "English";
+                    text = text.substring(0, text.lastIndexOf(" "));
+                }
+
                 Set<String> set = new HashSet<>(Arrays.asList(text.toLowerCase().replace(" ", "").substring(text.indexOf("@")).split("@")));
                 if (set.size() != 2) {
                     sendSimpleMessage("You need to choose two captains!", chatId);
@@ -66,19 +69,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     }
                 }
 
-                Game game = new Game(chatId);
-                game.setCaps(set);
+                games.put(chatId, new Game(chatId, set, lang));
+                sendPicture(games.get(chatId), chatId, false);
 
-
-                if (text.toLowerCase().substring(text.lastIndexOf("/") + 1).equals("eng"))
-                    game.createSchema("English");
-                else
-                    game.createSchema("Russian");
-                games.put(chatId, game);
-
-                sendPicture(game, chatId, false);
-
-                if (game.getSchema().howMuchLeft(GameColor.RED) == 9)
+                if (games.get(chatId).getSchema().howMuchLeft(GameColor.RED) == 9)
                     sendSimpleMessage("Red team starts", chatId);
                 else
                     sendSimpleMessage("Blue team starts", chatId);

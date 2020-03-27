@@ -7,8 +7,10 @@ public class Game {
     private Set<String> caps = new HashSet<>();
     private Schema schema;
 
-    public Game(long chatId) {
+    public Game(long chatId, Set<String> caps, String lang) {
         setChatId(chatId);
+        createSchema(lang);
+        setCaps(caps);
     }
 
     public long getChatId() {
@@ -23,7 +25,7 @@ public class Game {
         return caps;
     }
 
-    public void setCaps(Set<String> set) {
+    private void setCaps(Set<String> set) {
         caps = new HashSet<>();
         caps.addAll(set);
     }
@@ -32,7 +34,7 @@ public class Game {
         return schema;
     }
 
-    public void createSchema(String lang) {
+    private void createSchema(String lang) {
         this.schema = new Schema(lang);
     }
 }

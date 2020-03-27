@@ -25,16 +25,9 @@ public class UsersList {
                 String value = properties.getProperty(key);
                 allUsers.put(key, Integer.valueOf(value));
             }
-            print();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-
-    public void print() {
-        for (String key : allUsers.keySet())
-            System.out.println(key + " " + allUsers.get(key));
     }
 
     public void addUser(String userName, int id) {
