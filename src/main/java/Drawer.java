@@ -12,10 +12,7 @@ public class Drawer {
     private Graphics2D g;
 
     public Drawer(Schema schema, String fileName, boolean isAdmin) {
-
-        System.out.println("Drawer");
-
-        setBufferedImage(new BufferedImage(5*sizeX, 5*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
+        setBufferedImage(new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
         this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
         this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
         drawGrid();
@@ -23,6 +20,8 @@ public class Drawer {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 drawCard(schema.getArray()[i][j], i, j, isAdmin);
+
+        drawScores(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
         save(fileName);
     }
 
@@ -39,6 +38,21 @@ public class Drawer {
         g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
         g.setColor(colors[1]);
         g.drawString(card.getWord(), i * sizeX + 100, j * sizeY + 120);
+    }
+
+    private void drawScores(int redLeft, int blueLeft) {
+        g.setColor(Colors.RED_CARD);
+        g.fillRect(0, 5 * sizeY + 2, sizeX * 5 / 2 - 1, sizeY);
+
+        g.setColor(Colors.BLUE_CARD);
+        g.fillRect(sizeX * 5 / 2 + 1, 5 * sizeY + 2, sizeX * 5 / 2 - 2, sizeY);
+
+        g.setFont(new Font( "Arial", Font.BOLD, 150 ));
+        g.setColor(Colors.RED_TEXT);
+        g.drawString(String.valueOf(redLeft), sizeX * 5/4, 6 * sizeY - 50);
+
+        g.setColor(Colors.BLUE_TEXT);
+        g.drawString(String.valueOf(blueLeft), sizeX * 15/4, 6 * sizeY - 50);
     }
 
 

@@ -71,7 +71,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 game.createSchema();
                 games.put(chatId, game);
 
-                sendPicture(games.get(chatId), chatId, false);
+                sendPicture(game, chatId, false);
+
+                if (game.getSchema().howMuchLeft(GameColor.RED) == 9)
+                    sendSimpleMessage("Red team starts", chatId);
+                else
+                    sendSimpleMessage("Blue team starts", chatId);
                 for (String cap : set)
                     sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
                 return;
