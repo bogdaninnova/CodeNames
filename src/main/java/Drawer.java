@@ -15,7 +15,7 @@ public class Drawer {
 
         System.out.println("Drawer");
 
-        setBufferedImage(new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
+        setBufferedImage(new BufferedImage(5*sizeX, 5*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
         this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
         this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
         drawGrid();
@@ -23,7 +23,6 @@ public class Drawer {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 drawCard(schema.getArray()[i][j], i, j, isAdmin);
-        drawScored(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
         save(fileName);
     }
 
@@ -53,20 +52,6 @@ public class Drawer {
         if (card.getGameColor() == GameColor.YELLOW)
             return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
         return null;
-    }
-
-    private void drawScored(int redLeft, int blueLeft) {
-        g.setColor(Colors.RED_CARD);
-        g.fillRect(0, sizeY * 5, sizeX * 5 / 2, sizeY);
-        g.setColor(Colors.BLUE_CARD);
-        g.fillRect(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeY);
-
-        g.setFont(new Font( "Arial", Font.BOLD, 150 ));
-        g.setColor(Colors.RED_TEXT);
-        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4 - 50, sizeY * 11 / 2 + 50);
-        g.setColor(Colors.BLUE_TEXT);
-        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4 - 50, sizeY * 11 / 2 + 50);
-
     }
 
     private static Color[] getAdminCardColor(Card card) {
