@@ -16,12 +16,12 @@ public class Drawer {
         setBufferedImage(new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
         this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
         this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
-        drawGrid();
 
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 drawCard(schema.getArray()[i][j], i, j, isAdmin);
         drawScores(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
+        drawGrid();
         save(fileName);
     }
 

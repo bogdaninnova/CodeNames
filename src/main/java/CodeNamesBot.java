@@ -35,6 +35,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
+
+        System.out.println(text);
+        System.out.println(user);
+        System.out.println(chatId);
+
         if (text.equals("/start")) {
             usersList.addUser(user.getUserName(), user.getId());
             return;

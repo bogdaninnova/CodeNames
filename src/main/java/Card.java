@@ -1,5 +1,3 @@
-import java.awt.*;
-
 public class Card {
 
     private String word;
