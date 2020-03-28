@@ -55,6 +55,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 if (text.substring(text.lastIndexOf(" ") + 1).equals("eng")) {
                     lang = "English";
                     text = text.substring(0, text.lastIndexOf(" "));
+                } else if (text.substring(text.lastIndexOf(" ") + 1).equals("ukr")) {
+                    lang = "Ukrainian";
+                    text = text.substring(0, text.lastIndexOf(" "));
                 }
 
                 Set<String> set = new HashSet<>(Arrays.asList(text.toLowerCase().replace(" ", "").substring(text.indexOf("@")).split("@")));
