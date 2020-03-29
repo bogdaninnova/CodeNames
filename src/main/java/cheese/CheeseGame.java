@@ -11,6 +11,7 @@ public class CheeseGame {
     private int turn;
     private ArrayList<CheeseCard> cards;
     private ArrayList<CheeseCard> tableCards = new ArrayList<>();
+    private int die = 0;
 
     private Random rand = new Random();
 
@@ -21,6 +22,7 @@ public class CheeseGame {
         for (String userName : usersLogin)
             players.add(new CheesePlayer(userName));
         turn = rand.nextInt(players.size()-1);
+        setDie();
     }
 
     public ArrayList<CheeseCard> getTable() {
@@ -115,4 +117,11 @@ public class CheeseGame {
     }
 
 
+    public int getDie() {
+        return die;
+    }
+
+    public void setDie() {
+        this.die = rand.nextInt(5) + 1;
+    }
 }

@@ -23,7 +23,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
 
-//    CheeseGame cheeseGame;
+    //CheeseGame cheeseGame;
 
     public CodeNamesBot() {
         try {
@@ -74,6 +74,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 //                        errors++;
 //                    }
 //                }
+//
 //                if (errors > 0)
 //                    return;
 //
@@ -81,8 +82,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 //
 //                List<InlineKeyboardButton> buttonsGet = new ArrayList<>();
 //                List<InlineKeyboardButton> buttonsThrow = new ArrayList<>();
-//
 //                cheeseGame = new CheeseGame(playersSet);
+//                int count = 0;
 //                for (CheeseCard card : cheeseGame.getTable()) {
 //                    buttonsGet.add(new InlineKeyboardButton()
 //                            .setText(String.valueOf(card.getValue()))
@@ -92,15 +93,20 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 //                            .setText(String.valueOf(card.getValue()))
 //                            .setCallbackData("Action " + card.getValue())
 //                    );
+//                    if (card.getValue() == cheeseGame.getDie())
+//                        count++;
 //                }
 //                List<List<InlineKeyboardButton>> rowList= new ArrayList<>();
 //                rowList.add(buttonsGet);
-//                rowList.add(buttonsThrow);
+//                if (count > 0)
+//                    rowList.add(buttonsThrow);
 //                inlineKeyboardMarkup.setKeyboard(rowList);
 //
 //                SendMessage message =
 //                        new SendMessage().setChatId(chatId)
-//                                .setText("Turn of @" + cheeseGame.getCurrentPlayer())
+//                                .setText(
+//                                        "Turn of @" + cheeseGame.getCurrentPlayer() + "!\n"
+//                                        + cheeseGame.getDie() + " fell on a die!")
 //                                .setReplyMarkup(inlineKeyboardMarkup);
 //                try {
 //                    execute(message);
