@@ -3,6 +3,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
@@ -13,7 +16,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     UsersList usersList = new UsersList();
     private String token = "";
-
+    private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
 
     public CodeNamesBot() {
@@ -35,17 +38,33 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
+        if (text.equals(" "))
+            return;
+
+        if (!text.substring(0, 1).equals("/"))
+            text = "/" + text;
 
         System.out.println(text);
         System.out.println(user);
         System.out.println(chatId);
+
+
+        if (text.equals("/keyboard") || text.equals("/keyboard@CheCodeNamesBot")) {
+            SendMessage message = new SendMessage().setChatId(chatId).setText("Keyboard Test");
+            message.setReplyMarkup(getKeyboard(chatId));
+            try {
+                execute(message);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
 
         if (text.equals("/start")) {
             usersList.addUser(user.getUserName(), user.getId());
             return;
         }
 
-        if (text.equals("/caps")) {
+        if (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@checodenamesbot")) {
             if (games.containsKey(chatId))
                 sendCaptains(games.get(chatId));
             else
@@ -78,14 +97,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 }
 
                 games.put(chatId, new Game(chatId, set, lang));
-                sendPicture(games.get(chatId), chatId, false);
+                sendPicture(games.get(chatId), chatId, useKeyboard, false);
 
                 if (games.get(chatId).getSchema().howMuchLeft(GameColor.RED) == 9)
                     sendSimpleMessage("Red team starts", chatId);
                 else
                     sendSimpleMessage("Blue team starts", chatId);
                 for (String cap : set)
-                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
+                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), false, true);
                 return;
             }
 
@@ -97,20 +116,43 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
             if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
                 for (String cap : games.get(chatId).getCaps())
-                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), true);
-                sendPicture(games.get(chatId), chatId, false);
+                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), false, true);
+                sendPicture(games.get(chatId), chatId, useKeyboard, false);
             } else {
                 games.get(chatId).getSchema().openCards();
-                sendPicture(games.get(chatId), chatId, false);
+                sendPicture(games.get(chatId), chatId, false, false);
                 games.remove(chatId);
                 if (redLeft == 0) {
                     sendSimpleMessage("Red team win!", chatId);
                 } else if (blueLeft == 0) {
                     sendSimpleMessage("Blue team win!", chatId);
                 } else
-                    sendSimpleMessage("Black card was open! Game over!", chatId);
+                    sendSimpleMessage("Black card opened! Game over!", chatId);
             }
         }
+    }
+
+    private ReplyKeyboardMarkup getKeyboard(long chatId) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+
+        replyKeyboardMarkup.setSelective(false);
+        replyKeyboardMarkup.setResizeKeyboard(false);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
+
+        List<KeyboardRow> keyboard= new ArrayList<>();
+        for (int j = 0; j < 5; j++) {
+            KeyboardRow keyboardRow = new KeyboardRow();
+            for (int i = 0; i < 5; i++) {
+                if (games.get(chatId).getSchema().getArray()[i][j].isOpen())
+                    keyboardRow.add(" ");
+                else
+                    keyboardRow.add(games.get(chatId).getSchema().getArray()[i][j].getWord());
+            }
+            keyboard.add(keyboardRow);
+        }
+        replyKeyboardMarkup.setKeyboard(keyboard);
+
+        return replyKeyboardMarkup;
     }
 
     private void sendSimpleMessage(String text, long chatId) {
@@ -141,12 +183,16 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendPicture(Game game, long chatId, boolean isAdmin) {
+    private void sendPicture(Game game, long chatId, boolean sendKeyboard, boolean isAdmin) {
         String filepath = getFilePath(game.getChatId(), isAdmin);
         new Drawer(game.getSchema(), filepath, isAdmin);
         try {
             File file = new File(filepath);
             SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file));
+            if (sendKeyboard) {
+                photo.setReplyMarkup(getKeyboard(chatId));
+            } else
+                photo.setReplyMarkup(new ReplyKeyboardRemove());
             photo.setChatId(chatId);
             this.execute(photo);
             //noinspection ResultOfMethodCallIgnored

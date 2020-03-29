@@ -85,6 +85,10 @@ public class Drawer {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 g.drawRect(i * sizeX, j * sizeY, sizeX, sizeY);
+            g.drawLine(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeY * 6);
+            g.drawLine(0, 0, 0, sizeY * 6);
+            g.drawLine(sizeX * 5, 0, sizeX * 5, sizeY * 6);
+            g.drawLine(sizeX * 5, sizeY * 6, 0, sizeY * 6);
     }
 
 
