@@ -1,10 +1,14 @@
+import cheese.CheeseCard;
+import cheese.CheeseGame;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -18,6 +22,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     private String token = "";
     private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
+
+//    CheeseGame cheeseGame;
 
     public CodeNamesBot() {
         try {
@@ -38,6 +44,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
+//        if (user.getId() != 119970632)
+//            return;
+
         if (text.equals(" "))
             return;
 
@@ -48,6 +57,57 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         System.out.println(user);
         System.out.println(chatId);
 
+//        if (text.length() > 9)
+//            if (text.toLowerCase().substring(0, 9).equals("/cheese @")) {
+//                Set<String> playersSet =
+//                        new HashSet<>(
+//                                Arrays.asList(text.toLowerCase()
+//                                        .replace(" ", "")
+//                                        .substring(text.indexOf("@")).split("@")
+//                                )
+//                        );
+//
+//                int errors = 0;
+//                for (String player : playersSet) {
+//                    if (!usersList.allUsers.containsKey(player)) {
+//                        sendSimpleMessage("User @" + player + " is not registered. Please send me /start in private message", chatId);
+//                        errors++;
+//                    }
+//                }
+//                if (errors > 0)
+//                    return;
+//
+//                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+//
+//                List<InlineKeyboardButton> buttonsGet = new ArrayList<>();
+//                List<InlineKeyboardButton> buttonsThrow = new ArrayList<>();
+//
+//                cheeseGame = new CheeseGame(playersSet);
+//                for (CheeseCard card : cheeseGame.getTable()) {
+//                    buttonsGet.add(new InlineKeyboardButton()
+//                            .setText(String.valueOf(card.getValue()))
+//                            .setCallbackData("Action " + card.getValue())
+//                    );
+//                    buttonsThrow.add(new InlineKeyboardButton()
+//                            .setText(String.valueOf(card.getValue()))
+//                            .setCallbackData("Action " + card.getValue())
+//                    );
+//                }
+//                List<List<InlineKeyboardButton>> rowList= new ArrayList<>();
+//                rowList.add(buttonsGet);
+//                rowList.add(buttonsThrow);
+//                inlineKeyboardMarkup.setKeyboard(rowList);
+//
+//                SendMessage message =
+//                        new SendMessage().setChatId(chatId)
+//                                .setText("Turn of @" + cheeseGame.getCurrentPlayer())
+//                                .setReplyMarkup(inlineKeyboardMarkup);
+//                try {
+//                    execute(message);
+//                } catch (TelegramApiException e) {
+//                    e.printStackTrace();
+//                }
+//            }
 
         if (text.equals("/keyboard") || text.equals("/keyboard@CheCodeNamesBot")) {
             SendMessage message = new SendMessage().setChatId(chatId).setText("Keyboard Test");
