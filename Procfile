@@ -1,1 +1,1 @@
-worker: sh target/bin/codeNames
+worker: sh target/codeNames
