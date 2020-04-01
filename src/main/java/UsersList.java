@@ -6,7 +6,7 @@ import java.util.Properties;
 public class UsersList {
 
     public Map<String, Integer> allUsers = new HashMap<>();
-    private String propertiesPath = "src\\main\\resources\\user.properties";
+    private String propertiesPath = "user.properties";
     private Properties properties = new Properties();
 
 

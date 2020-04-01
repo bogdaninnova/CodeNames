@@ -21,7 +21,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     public CodeNamesBot() {
         try {
-            FileInputStream fileInput = new FileInputStream(new File("src\\main\\resources\\token.properties"));
+            FileInputStream fileInput = new FileInputStream(new File("token.properties"));
             Properties properties = new Properties();
             properties.load(fileInput);
             fileInput.close();
@@ -213,8 +213,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private String getFilePath(long chatId, boolean isAdmin) {
-        String name = chatId + "_admin" + isAdmin + ".jpg";
-        return "src\\main\\images\\" + name;
+        return chatId + "_admin" + isAdmin + ".jpg";
     }
 
     @Override
