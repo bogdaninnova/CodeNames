@@ -32,11 +32,22 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     @Override
+    public void onClosing() {
+        for (long chatId : games.keySet()) {
+            sendSimpleMessage("Bot is dead, bye!", chatId);
+        }
+    }
+
+    @Override
     public void onUpdateReceived(Update update) {
 
         String text = update.getMessage().getText();
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
+
+        System.out.println(text);
+        System.out.println(user);
+        System.out.println(chatId);
 
 //        if (user.getId() != 119970632)
 //            return;
@@ -46,10 +57,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         if (!text.substring(0, 1).equals("/"))
             text = "/" + text;
-
-        System.out.println(text);
-        System.out.println(user);
-        System.out.println(chatId);
 
         if (text.equals("/keyboard") || text.equals("/keyboard@CheCodeNamesBot")) {
             SendMessage message = new SendMessage().setChatId(chatId).setText("Keyboard Test");
@@ -62,7 +69,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
 
         if (text.equals("/start")) {
-            usersList.addUser(user.getUserName(), user.getId());
+            if (chatId == user.getId())
+                usersList.addUser(user.getUserName().toLowerCase(), user.getId());
             return;
         }
 
