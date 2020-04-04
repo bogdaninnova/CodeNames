@@ -69,8 +69,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
 
         if (text.equals("/start")) {
-            if (chatId == user.getId())
+            if (chatId == user.getId()) {
                 usersList.addUser(user.getUserName().toLowerCase(), user.getId());
+                sendSimpleMessage("User @" + user.getUserName() + " with id = " + user.getId() + " is registered!", 119970632);
+            }
             return;
         }
 
