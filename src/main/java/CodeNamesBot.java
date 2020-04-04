@@ -14,7 +14,7 @@ import java.util.*;
 
 public class CodeNamesBot extends TelegramLongPollingBot {
 
-    UsersList usersList = new UsersList();
+    private UsersList usersList = new UsersList();
     private String token = "";
     private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
