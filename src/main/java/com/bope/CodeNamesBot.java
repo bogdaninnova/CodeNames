@@ -1,3 +1,6 @@
+package com.bope;
+
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -12,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
 
+@Component
 public class CodeNamesBot extends TelegramLongPollingBot {
 
     private UsersList usersList = new UsersList();
@@ -21,7 +25,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     public CodeNamesBot() {
         try {
-            FileInputStream fileInput = new FileInputStream(new File("token.properties"));
+            FileInputStream fileInput = new FileInputStream(new File("C:\\master\\CodeNames\\src\\main\\resources\\token.properties"));
             Properties properties = new Properties();
             properties.load(fileInput);
             fileInput.close();

@@ -1,4 +1,5 @@
-import java.awt.*;
+package com.bope;
+
 import java.util.Random;
 
 public class Schema {

@@ -1,3 +1,5 @@
+package com.bope;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +8,7 @@ import java.util.Properties;
 public class UsersList {
 
     public Map<String, Integer> allUsers = new HashMap<>();
-    private String propertiesPath = "user.properties";
+    private String propertiesPath = "C:\\master\\CodeNames\\src\\main\\resources\\user.properties";
     private Properties properties = new Properties();
 
 

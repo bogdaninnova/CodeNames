@@ -1,3 +1,5 @@
+package com.bope;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,7 +12,7 @@ public class WordsPool {
     private Random rand = new Random();
 
     public WordsPool(String lang) {
-        setWordList(getData(lang + "WordSet.txt"));
+        setWordList(getData("C:\\master\\CodeNames\\src\\main\\resources\\" + lang + "WordSet.txt"));
     }
 
     private List<String> getData(String path) {
