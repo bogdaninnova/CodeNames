@@ -1,8 +1,13 @@
 package com.bope;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import java.util.HashSet;
 import java.util.Set;
 
+//@Component
+//@Scope("prototype")
 public class Game {
 
     private long chatId;
@@ -14,6 +19,8 @@ public class Game {
         createSchema(lang);
         setCaps(caps);
     }
+
+    public void init() {}
 
     public long getChatId() {
         return chatId;

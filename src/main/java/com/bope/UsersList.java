@@ -1,10 +1,13 @@
 package com.bope;
 
+import org.springframework.stereotype.Component;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+@Component
 public class UsersList {
 
     public Map<String, Integer> allUsers = new HashMap<>();

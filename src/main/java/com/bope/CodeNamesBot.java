@@ -1,5 +1,7 @@
 package com.bope;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -18,29 +20,12 @@ import java.util.*;
 @Component
 public class CodeNamesBot extends TelegramLongPollingBot {
 
-    private UsersList usersList = new UsersList();
-    private String token = "";
+    @Autowired
+    private UsersList usersList;
+    @Value("${token}")
+    private String token;
     private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
-
-    public CodeNamesBot() {
-        try {
-            FileInputStream fileInput = new FileInputStream(new File("C:\\master\\CodeNames\\src\\main\\resources\\token.properties"));
-            Properties properties = new Properties();
-            properties.load(fileInput);
-            fileInput.close();
-            token = properties.getProperty("token");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onClosing() {
-        for (long chatId : games.keySet()) {
-            sendSimpleMessage("Bot is dead, bye!", chatId);
-        }
-    }
 
     @Override
     public void onUpdateReceived(Update update) {
