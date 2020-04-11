@@ -1,8 +1,10 @@
 package com.bope;
 
+import com.mongodb.*;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -10,43 +12,36 @@ import java.util.Properties;
 @Component
 public class UsersList {
 
-    public Map<String, Integer> allUsers = new HashMap<>();
-    private String propertiesPath = "C:\\master\\CodeNames\\src\\main\\resources\\user.properties";
-    private Properties properties = new Properties();
+    public long getUserId(String userName) {
+        long id = 0;
+        MongoClient mongo = new MongoClient( "localhost" , 27017 );
+        DB db = mongo.getDB("test");
+        DBCollection table = db.getCollection("users");
+
+        BasicDBObject searchQuery = new BasicDBObject();
+        searchQuery.put("userName", userName);
+
+        DBCursor cursor = table.find(searchQuery);
 
 
-    public UsersList() {
-        getProperties();
-    }
 
-    public void getProperties() {
-        try {
-            File file = new File(propertiesPath);
-            FileInputStream fileInput = new FileInputStream(file);
-            properties.load(fileInput);
-            fileInput.close();
-            for (Object keyObject : properties.keySet()) {
-                String key = (String) keyObject;
-                String value = properties.getProperty(key);
-                allUsers.put(key, Integer.valueOf(value));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (cursor.hasNext()) {
+            String ids = String.valueOf(cursor.next().get("userId"));
+            System.out.println(ids);
+            id = Long.parseLong(ids);
+            System.out.println("-------------------------------------------------");
         }
+        return id;
     }
 
     public void addUser(String userName, int id) {
-        if (!allUsers.containsKey(userName)) {
-            allUsers.put(userName, id);
-            try {
-                properties.setProperty(userName, String.valueOf(id));
-                FileOutputStream fileOut = new FileOutputStream(new File(propertiesPath));
-                properties.store(fileOut, "Users");
-                fileOut.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        MongoClient mongo = new MongoClient( "localhost" , 27017 );
+        DB db = mongo.getDB("test");
+        DBCollection table = db.getCollection("users");
+        BasicDBObject document = new BasicDBObject();
+        document.put("userName", userName);
+        document.put("userId", String.valueOf(id));
+        table.insert(document);
     }
 
 }

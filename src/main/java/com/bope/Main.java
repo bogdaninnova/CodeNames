@@ -17,6 +17,7 @@ public class Main {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
 
         ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
+
         try {
             telegramBotsApi.registerBot(ctx.getBean(CodeNamesBot.class));
         } catch (TelegramApiException e) {

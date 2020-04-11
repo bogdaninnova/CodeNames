@@ -27,6 +27,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
 
+    //private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public void onUpdateReceived(Update update) {
 
@@ -58,8 +60,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
 
         if (text.equals("/start")) {
-            if (chatId == user.getId())
-                usersList.addUser(user.getUserName().toLowerCase(), user.getId());
+            if (chatId == user.getId() && usersList.getUserId(user.getUserName()) == 0)
+                usersList.addUser(user.getUserName(), user.getId());
             return;
         }
 
@@ -83,13 +85,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     text = text.substring(0, text.lastIndexOf(" "));
                 }
 
-                Set<String> set = new HashSet<>(Arrays.asList(text.toLowerCase().replace(" ", "").substring(text.indexOf("@")).split("@")));
+                Set<String> set = new HashSet<>(Arrays.asList(text.replace(" ", "").substring(text.indexOf("@")).split("@")));
                 if (set.size() != 2) {
                     sendSimpleMessage("You need to choose two captains!", chatId);
                     return;
                 }
                 for (String cap : set) {
-                    if (!usersList.allUsers.containsKey(cap)) {
+                    if (usersList.getUserId(cap) == 0) {
                         sendSimpleMessage("User @" + cap + " is not registered. Please send me /start in private message", chatId);
                         return;
                     }
@@ -103,7 +105,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 else
                     sendSimpleMessage("Blue team starts", chatId);
                 for (String cap : set)
-                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), false, true);
+                    sendPicture(games.get(chatId), usersList.getUserId(cap), false, true);
                 return;
             }
 
@@ -115,7 +117,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
             if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
                 for (String cap : games.get(chatId).getCaps())
-                    sendPicture(games.get(chatId), usersList.allUsers.get(cap), false, true);
+                    sendPicture(games.get(chatId), usersList.getUserId(cap), false, true);
                 sendPicture(games.get(chatId), chatId, useKeyboard, false);
             } else {
                 games.get(chatId).getSchema().openCards();
