@@ -1,5 +1,7 @@
 package com.bope;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Schema {
@@ -7,15 +9,21 @@ public class Schema {
     private Card[][] array = new Card[5][5];
     private boolean isRedFirst;
     private Random rand = new Random();
-    private WordsPool wordsPool;
-
+    private List<WordMongo> wordList;
 
     public Schema(String lang) {
-        wordsPool = new WordsPool(lang);
+        wordList = getWordList(lang);
         setRedFirst(rand.nextBoolean());
         setArray(isRedFirst());
     }
 
+    public List<WordMongo> getWordList(String lang) {
+        List<WordMongo> allWordList = Main.ctx.getBean(WordsListMongo.class).findByLang(lang);
+        List<WordMongo> resultWordsList = new ArrayList<>();
+        for (int i = 0; i < 25; i++)
+            resultWordsList.add(allWordList.remove(rand.nextInt(allWordList.size())));
+        return resultWordsList;
+    }
 
     public boolean checkWord(String word) {
         for (int i = 0; i < 5; i++)
@@ -57,7 +65,7 @@ public class Schema {
     private void setArray(boolean isRedFirst) {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
-                array[i][j] = new Card(wordsPool.getRandomWord(), GameColor.YELLOW);
+                array[i][j] = new Card(getRandomWord(), GameColor.YELLOW);
 
         setColorsOnCard(GameColor.RED, 8);
         setColorsOnCard(GameColor.BLUE, 8);
@@ -79,5 +87,10 @@ public class Schema {
 
     public void setRedFirst(boolean redFirst) {
         isRedFirst = redFirst;
+    }
+
+    private String getRandomWord() {
+        String word = wordList.remove(rand.nextInt(wordList.size())).getWord();
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
 }

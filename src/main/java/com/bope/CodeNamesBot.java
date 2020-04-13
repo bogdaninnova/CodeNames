@@ -21,13 +21,12 @@ import java.util.*;
 public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Autowired
-    private UsersList usersList;
+    private UsersListMongo usersListMongo;
+
     @Value("${token}")
     private String token;
     private static final boolean useKeyboard = false;
     private Map<Long, Game> games = new HashMap<>();
-
-    //private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -60,8 +59,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
 
         if (text.equals("/start")) {
-            if (chatId == user.getId() && usersList.getUserId(user.getUserName()) == 0)
-                usersList.addUser(user.getUserName(), user.getId());
+            if (chatId == user.getId() && usersListMongo.findByUserName(user.getUserName()) == null)
+                usersListMongo.save(new UserMongo(user.getUserName(), String.valueOf(user.getId())));
             return;
         }
 
@@ -76,14 +75,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (text.length() > 10)
             if (text.toLowerCase().substring(0, 10).equals("/newgame @")) {
 
-                String lang = "Russian";
-                if (text.substring(text.lastIndexOf(" ") + 1).equals("eng")) {
-                    lang = "English";
-                    text = text.substring(0, text.lastIndexOf(" "));
-                } else if (text.substring(text.lastIndexOf(" ") + 1).equals("ukr")) {
-                    lang = "Ukrainian";
-                    text = text.substring(0, text.lastIndexOf(" "));
-                }
+                String lang = text.substring(text.lastIndexOf(" ") + 1);
+                if (!lang.equals("eng") && !lang.equals("ukr"))
+                    lang = "rus";
+                text = text.substring(0, text.lastIndexOf(" "));
 
                 Set<String> set = new HashSet<>(Arrays.asList(text.replace(" ", "").substring(text.indexOf("@")).split("@")));
                 if (set.size() != 2) {
@@ -91,7 +86,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     return;
                 }
                 for (String cap : set) {
-                    if (usersList.getUserId(cap) == 0) {
+                    if (usersListMongo.findByUserName(cap) == null) {
                         sendSimpleMessage("User @" + cap + " is not registered. Please send me /start in private message", chatId);
                         return;
                     }
@@ -105,7 +100,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 else
                     sendSimpleMessage("Blue team starts", chatId);
                 for (String cap : set)
-                    sendPicture(games.get(chatId), usersList.getUserId(cap), false, true);
+                    sendPicture(games.get(chatId), Long.parseLong(usersListMongo.findByUserName(cap).getUserId()), false, true);
                 return;
             }
 
@@ -117,7 +112,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
             if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
                 for (String cap : games.get(chatId).getCaps())
-                    sendPicture(games.get(chatId), usersList.getUserId(cap), false, true);
+                    sendPicture(games.get(chatId), Long.parseLong(usersListMongo.findByUserName(cap).getUserId()), false, true);
                 sendPicture(games.get(chatId), chatId, useKeyboard, false);
             } else {
                 games.get(chatId).getSchema().openCards();
