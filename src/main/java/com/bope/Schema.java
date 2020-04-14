@@ -11,7 +11,7 @@ public class Schema {
     private Random rand = new Random();
     private List<WordMongo> wordList;
     private List<WordMongo> allWordList = new ArrayList<>();
-    private String lang = "null";
+    private String lang = "rus";
 
     public void update(String lang) {
         wordList = getWordList(lang);

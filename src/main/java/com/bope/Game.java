@@ -9,10 +9,18 @@ public class Game {
     private Set<String> caps = new HashSet<>();
     private Schema schema = new Schema();
     private String lang;
+    private boolean useKeyboard;
+
+    public Game(long chatId, String lang, boolean useKeyboard) {
+        setChatId(chatId);
+        setLang(lang);
+        setUseKeyboard(useKeyboard);
+    }
 
     public Game(long chatId, String lang) {
         setChatId(chatId);
         setLang(lang);
+        setUseKeyboard(false);
     }
 
     public long getChatId() {
@@ -48,5 +56,13 @@ public class Game {
 
     public void setLang(String lang) {
         this.lang = lang;
+    }
+
+    public boolean isUseKeyboard() {
+        return useKeyboard;
+    }
+
+    public void setUseKeyboard(boolean useKeyboard) {
+        this.useKeyboard = useKeyboard;
     }
 }
