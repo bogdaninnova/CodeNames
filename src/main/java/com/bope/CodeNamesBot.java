@@ -63,11 +63,15 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
                     && update.getMessage().getReplyToMessage().getText().equals("Keyboard usage:")
             ) {
-                if (games.containsKey(chatId))
-                    games.get(chatId).setUseKeyboard(text.equals("Enable"));
-                else
-                    games.put(chatId, new Game(chatId, "rus", text.equals("Enable")));
                 sendSimpleMessage("Keyboard " + text + "d!", chatId, true);
+                boolean isEnable = text.equals("Enable");
+                if (games.containsKey(chatId)) {
+                    games.get(chatId).setUseKeyboard(isEnable);
+                    if (isEnable)
+                        sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
+                }
+                else
+                    games.put(chatId, new Game(chatId, "rus", isEnable));
                 return;
             }
         }
@@ -85,9 +89,18 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (text.equals("/start")) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/board") || text.toLowerCase().equals("/board@" + getBotUsername()))) {
+            if (games.containsKey(chatId))
+                sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
+            else
+                sendSimpleMessage("The game has not started", chatId, true);
+            return;
+        }
+
+        if (text.toLowerCase().equals("/start") || text.toLowerCase().equals("/start@" + getBotUsername())) {
             if (chatId == user.getId() && usersListMongo.findByUserName(user.getUserName()) == null)
                 usersListMongo.save(new UserMongo(user.getUserName(), String.valueOf(user.getId())));
+            sendSimpleMessage("For new game please type in chat next command:\n/start @captain1 @captain2", chatId, false);
             return;
         }
 
@@ -99,13 +112,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (text.toLowerCase().equals("/newgame") || text.toLowerCase().equals("/newgame@" + getBotUsername())) {
-            sendSimpleMessage("For new game please type in chat next command:\n/newgame @captain1 @captain2", chatId, false);
-            return;
-        }
-
-        if (text.length() > 10)
-            if (text.toLowerCase().substring(0, 10).equals("/newgame @")) {
+        if (text.length() > 8)
+            if (text.toLowerCase().substring(0, 8).equals("/start @")) {
 
                 Set<String> set = new HashSet<>(Arrays.asList(text.replace(" ", "").substring(text.indexOf("@")).split("@")));
                 if (set.size() != 2) {
