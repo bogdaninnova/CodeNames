@@ -44,37 +44,44 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (text.equals(" "))
             return;
 
-        if ((text.equals("eng") || text.equals("ukr") || text.equals("rus"))
-                && chatId != user.getId()
-                && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
-                && update.getMessage().getReplyToMessage().getText().equals("Choose the language:")
-        ) {
-            if (games.containsKey(chatId))
-                games.get(chatId).setLang(text);
-            else
-                games.put(chatId, new Game(chatId, text));
-            sendSimpleMessage("Set language: " + text, chatId, true);
-            return;
-        }
+        if (update.getMessage().getReplyToMessage() != null) {
+            if ((text.equals("eng") || text.equals("ukr") || text.equals("rus"))
+                    && chatId != user.getId()
+                    && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
+                    && update.getMessage().getReplyToMessage().getText().equals("Choose the language:")
+            ) {
+                if (games.containsKey(chatId))
+                    games.get(chatId).setLang(text);
+                else
+                    games.put(chatId, new Game(chatId, text));
+                sendSimpleMessage("Set language: " + text, chatId, true);
+                return;
+            }
 
-        if ((text.equals("Enable") || text.equals("Disable"))
-                && chatId != user.getId()
-                && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
-                && update.getMessage().getReplyToMessage().getText().equals("Keyboard usage:")
-        ) {
-            if (games.containsKey(chatId))
-                games.get(chatId).setUseKeyboard(text.equals("Enable"));
-            else
-                games.put(chatId, new Game(chatId, "rus", text.equals("Enable")));
-            sendSimpleMessage("Keyboard " + text + "d!", chatId, true);
-            return;
+            if ((text.equals("Enable") || text.equals("Disable"))
+                    && chatId != user.getId()
+                    && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
+                    && update.getMessage().getReplyToMessage().getText().equals("Keyboard usage:")
+            ) {
+                if (games.containsKey(chatId))
+                    games.get(chatId).setUseKeyboard(text.equals("Enable"));
+                else
+                    games.put(chatId, new Game(chatId, "rus", text.equals("Enable")));
+                sendSimpleMessage("Keyboard " + text + "d!", chatId, true);
+                return;
+            }
         }
 
         if (!text.substring(0, 1).equals("/"))
             text = "/" + text;
 
-        if (text.equals("/keyboard") || text.equals("/keyboard@" + getBotUsername())) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/keyboard") || text.toLowerCase().equals("/keyboard@" + getBotUsername()))) {
             sendSimpleMessage("Keyboard usage:", getKeyboard("Enable", "Disable"), chatId);
+            return;
+        }
+
+        if (chatId != user.getId() && (text.toLowerCase().equals("/lang") || text.toLowerCase().equals("/lang@" + getBotUsername()))) {
+            sendSimpleMessage("Choose the language:", getKeyboard("rus", "eng", "ukr"), chatId);
             return;
         }
 
@@ -84,16 +91,16 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@" + getBotUsername())) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@" + getBotUsername()))) {
             if (games.containsKey(chatId))
-                sendCaptains(games.get(chatId));
+                sendSimpleMessage(games.get(chatId).getCaptainsToString(), chatId, false);
             else
                 sendSimpleMessage("The game has not started", chatId, true);
             return;
         }
 
-        if (chatId != user.getId() && (text.toLowerCase().equals("/lang") || text.toLowerCase().equals("/lang@" + getBotUsername()))) {
-            sendSimpleMessage("Choose the language:", getKeyboard("rus", "eng", "ukr"), chatId);
+        if (text.toLowerCase().equals("/newgame") || text.toLowerCase().equals("/newgame@" + getBotUsername())) {
+            sendSimpleMessage("For new game please type in chat next command:\n/newgame @captain1 @captain2", chatId, false);
             return;
         }
 
@@ -155,7 +162,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-    private ReplyKeyboardMarkup getKeyboard(long chatId) {
+    private ReplyKeyboardMarkup getGameKeyboard(long chatId) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         replyKeyboardMarkup.setSelective(false);
@@ -198,8 +205,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-
-
     private void sendSimpleMessage(String text, ReplyKeyboardMarkup keyboard, long chatId) {
         try {
             execute(new SendMessage().setChatId(chatId).setText(text).setReplyMarkup(keyboard));
@@ -219,35 +224,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendCaptains(Game game) {
-        SendMessage message = new SendMessage();
-        message.setChatId(game.getChatId());
-        StringBuilder sb = new StringBuilder("Captains:");
-        for (String cap : game.getCaps()) {
-            sb.append(" @");
-            sb.append(cap);
-        }
-
-        message.setText(sb.toString());
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void sendPicture(Game game, long chatId, boolean sendKeyboard, boolean isAdmin) {
         String filepath = getFilePath(game.getChatId(), isAdmin);
         new Drawer(game.getSchema(), filepath, isAdmin);
         try {
             File file = new File(filepath);
-            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file));
-            if (sendKeyboard) {
-                photo.setReplyMarkup(getKeyboard(chatId));
-            } else
+            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
+            if (sendKeyboard)
+                photo.setReplyMarkup(getGameKeyboard(chatId));
+            else
                 photo.setReplyMarkup(new ReplyKeyboardRemove());
-            photo.setChatId(chatId);
-            this.execute(photo);
+            execute(photo);
             //noinspection ResultOfMethodCallIgnored
             file.delete();
         } catch (Exception e) {

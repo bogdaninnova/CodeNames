@@ -23,6 +23,15 @@ public class Game {
         setUseKeyboard(false);
     }
 
+    public String getCaptainsToString() {
+        StringBuilder sb = new StringBuilder("Captains:");
+        for (String cap : getCaps()) {
+            sb.append(" @");
+            sb.append(cap);
+        }
+        return sb.toString();
+    }
+
     public long getChatId() {
         return chatId;
     }
