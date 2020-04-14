@@ -10,15 +10,20 @@ public class Schema {
     private boolean isRedFirst;
     private Random rand = new Random();
     private List<WordMongo> wordList;
+    private List<WordMongo> allWordList = new ArrayList<>();
+    private String lang = "null";
 
-    public Schema(String lang) {
+    public void update(String lang) {
         wordList = getWordList(lang);
+        setLang(lang);
         setRedFirst(rand.nextBoolean());
         setArray(isRedFirst());
     }
 
     public List<WordMongo> getWordList(String lang) {
-        List<WordMongo> allWordList = Main.ctx.getBean(WordsListMongo.class).findByLang(lang);
+        if (allWordList.size() < 25 || !getLang().equals(lang))
+            allWordList = Main.ctx.getBean(WordsListMongo.class).findByLang(lang);
+
         List<WordMongo> resultWordsList = new ArrayList<>();
         for (int i = 0; i < 25; i++)
             resultWordsList.add(allWordList.remove(rand.nextInt(allWordList.size())));
@@ -92,5 +97,13 @@ public class Schema {
     private String getRandomWord() {
         String word = wordList.remove(rand.nextInt(wordList.size())).getWord();
         return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 }

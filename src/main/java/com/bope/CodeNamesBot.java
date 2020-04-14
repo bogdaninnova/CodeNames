@@ -45,10 +45,22 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (text.equals(" "))
             return;
 
+        if ((text.equals("eng") || text.equals("ukr") || text.equals("rus"))
+                && chatId != user.getId()
+                && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
+                && update.getMessage().getReplyToMessage().getText().equals("Choose the language:")
+        ) {
+            if (games.containsKey(chatId))
+                games.get(chatId).setLang(text);
+            else
+                games.put(chatId, new Game(chatId, text));
+            sendSimpleMessage("Set language: " + text, chatId);
+        }
+
         if (!text.substring(0, 1).equals("/"))
             text = "/" + text;
 
-        if (text.equals("/keyboard") || text.equals("/keyboard@CheCodeNamesBot")) {
+        if (text.equals("/keyboard") || text.equals("/keyboard@" + getBotUsername())) {
             SendMessage message = new SendMessage().setChatId(chatId).setText("Keyboard Test");
             message.setReplyMarkup(getKeyboard(chatId));
             try {
@@ -64,7 +76,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@checodenamesbot")) {
+        if (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@" + getBotUsername())) {
             if (games.containsKey(chatId))
                 sendCaptains(games.get(chatId));
             else
@@ -72,13 +84,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
+        if (chatId != user.getId() && (text.toLowerCase().equals("/lang") || text.toLowerCase().equals("/lang@" + getBotUsername()))) {
+            sendChooseLangMessage("Choose the language:", chatId);
+            return;
+        }
+
         if (text.length() > 10)
             if (text.toLowerCase().substring(0, 10).equals("/newgame @")) {
-
-                String lang = text.substring(text.lastIndexOf(" ") + 1);
-                if (!lang.equals("eng") && !lang.equals("ukr"))
-                    lang = "rus";
-                text = text.substring(0, text.lastIndexOf(" "));
 
                 Set<String> set = new HashSet<>(Arrays.asList(text.replace(" ", "").substring(text.indexOf("@")).split("@")));
                 if (set.size() != 2) {
@@ -92,7 +104,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     }
                 }
 
-                games.put(chatId, new Game(chatId, set, lang));
+                if (games.containsKey(chatId)) {
+                    String lang = games.get(chatId).getLang();
+                    games.put(chatId, new Game(chatId, lang).setCaps(set).createSchema());
+                } else {
+                    games.put(chatId, new Game(chatId, "rus").setCaps(set).createSchema());
+                }
+
                 sendPicture(games.get(chatId), chatId, useKeyboard, false);
 
                 if (games.get(chatId).getSchema().howMuchLeft(GameColor.RED) == 9)
@@ -151,12 +169,35 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    private void sendSimpleMessage(String text, long chatId) {
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText(text);
+    private ReplyKeyboardMarkup getLangKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+
+        replyKeyboardMarkup.setSelective(false);
+        replyKeyboardMarkup.setResizeKeyboard(false);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
+
+        List<KeyboardRow> keyboard= new ArrayList<>();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add("rus");
+        keyboardRow.add("eng");
+        keyboardRow.add("ukr");
+        keyboard.add(keyboardRow);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+
+        return replyKeyboardMarkup;
+    }
+
+    private void sendChooseLangMessage(String text, long chatId) {
         try {
-            execute(message);
+            execute(new SendMessage().setChatId(chatId).setText(text).setReplyMarkup(getLangKeyboard()));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendSimpleMessage(String text, long chatId) {
+        try {
+            execute(new SendMessage().setChatId(chatId).setText(text).setReplyMarkup(new ReplyKeyboardRemove()));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -204,7 +245,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "CodeNamesBot";
+        return "DevCodeNamesBot";
     }
 
     @Override

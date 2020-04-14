@@ -7,12 +7,12 @@ public class Game {
 
     private long chatId;
     private Set<String> caps = new HashSet<>();
-    private Schema schema;
+    private Schema schema = new Schema();
+    private String lang;
 
-    public Game(long chatId, Set<String> caps, String lang) {
+    public Game(long chatId, String lang) {
         setChatId(chatId);
-        createSchema(lang);
-        setCaps(caps);
+        setLang(lang);
     }
 
     public long getChatId() {
@@ -27,16 +27,26 @@ public class Game {
         return caps;
     }
 
-    private void setCaps(Set<String> set) {
+    public Game setCaps(Set<String> set) {
         caps = new HashSet<>();
         caps.addAll(set);
+        return this;
     }
 
     public Schema getSchema() {
         return schema;
     }
 
-    private void createSchema(String lang) {
-        this.schema = new Schema(lang);
+    public Game createSchema() {
+        schema.update(lang);
+        return this;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 }
