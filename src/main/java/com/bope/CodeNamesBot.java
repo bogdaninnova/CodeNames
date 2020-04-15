@@ -79,17 +79,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (!text.substring(0, 1).equals("/"))
             text = "/" + text;
 
-        if (chatId != user.getId() && (text.toLowerCase().equals("/keyboard") || text.toLowerCase().equals("/keyboard@" + getBotUsername()))) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/keyboard") || text.toLowerCase().equals("/keyboard@" + getBotUsername().toLowerCase()))) {
             sendSimpleMessage("Keyboard usage:", getKeyboard("Enable", "Disable"), chatId);
             return;
         }
 
-        if (chatId != user.getId() && (text.toLowerCase().equals("/lang") || text.toLowerCase().equals("/lang@" + getBotUsername()))) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/lang") || text.toLowerCase().equals("/lang@" + getBotUsername().toLowerCase()))) {
             sendSimpleMessage("Choose the language:", getKeyboard("rus", "eng", "ukr"), chatId);
             return;
         }
 
-        if (chatId != user.getId() && (text.toLowerCase().equals("/board") || text.toLowerCase().equals("/board@" + getBotUsername()))) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/board") || text.toLowerCase().equals("/board@" + getBotUsername().toLowerCase()))) {
             if (games.containsKey(chatId))
                 sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
             else
@@ -97,14 +97,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (text.toLowerCase().equals("/start") || text.toLowerCase().equals("/start@" + getBotUsername())) {
+        if (text.toLowerCase().equals("/start") || text.toLowerCase().equals("/start@" + getBotUsername().toLowerCase())) {
             if (chatId == user.getId() && usersListMongo.findByUserName(user.getUserName()) == null)
                 usersListMongo.save(new UserMongo(user.getUserName(), String.valueOf(user.getId())));
             sendSimpleMessage("For new game please type in chat next command:\n/start @captain1 @captain2", chatId, false);
             return;
         }
 
-        if (chatId != user.getId() && (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@" + getBotUsername()))) {
+        if (chatId != user.getId() && (text.toLowerCase().equals("/caps") || text.toLowerCase().equals("/caps@" + getBotUsername().toLowerCase()))) {
             if (games.containsKey(chatId))
                 sendSimpleMessage(games.get(chatId).getCaptainsToString(), chatId, false);
             else
