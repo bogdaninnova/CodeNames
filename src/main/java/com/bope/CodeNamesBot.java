@@ -34,9 +34,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
-        System.out.println(text);
-        System.out.println(user);
-        System.out.println(chatId);
+//        System.out.println(text);
+//        System.out.println(user);
+//        System.out.println(chatId);
 
 //        if (user.getId() != 119970632)
 //            return;
@@ -193,7 +193,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    private ReplyKeyboardMarkup getKeyboard(String firstArg, String... args) {
+    private ReplyKeyboardMarkup getKeyboard(String... args) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         replyKeyboardMarkup.setSelective(false);
@@ -203,7 +203,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         List<KeyboardRow> keyboard= new ArrayList<>();
         KeyboardRow keyboardRow = new KeyboardRow();
 
-        keyboardRow.add(firstArg);
         for (String arg : args)
             keyboardRow.add(arg);
 
