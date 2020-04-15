@@ -1,3 +1,5 @@
+package com.bope;
+
 import java.awt.*;
 
 public class Colors {

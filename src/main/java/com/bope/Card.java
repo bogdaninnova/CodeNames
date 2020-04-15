@@ -1,3 +1,5 @@
+package com.bope;
+
 public class Card {
 
     private String word;
