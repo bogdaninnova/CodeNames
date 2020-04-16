@@ -3,7 +3,7 @@ package com.bope;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Game {
+public class OriginalGame {
 
     private long chatId;
     private Set<String> caps = new HashSet<>();
@@ -11,13 +11,13 @@ public class Game {
     private String lang;
     private boolean useKeyboard;
 
-    public Game(long chatId, String lang, boolean useKeyboard) {
+    public OriginalGame(long chatId, String lang, boolean useKeyboard) {
         setChatId(chatId);
         setLang(lang);
         setUseKeyboard(useKeyboard);
     }
 
-    public Game(long chatId, String lang) {
+    public OriginalGame(long chatId, String lang) {
         setChatId(chatId);
         setLang(lang);
         setUseKeyboard(false);
@@ -44,7 +44,7 @@ public class Game {
         return caps;
     }
 
-    public Game setCaps(Set<String> set) {
+    public OriginalGame setCaps(Set<String> set) {
         caps = new HashSet<>();
         caps.addAll(set);
         return this;
@@ -54,7 +54,7 @@ public class Game {
         return schema;
     }
 
-    public Game createSchema() {
+    public OriginalGame createSchema() {
         schema.update(lang);
         return this;
     }

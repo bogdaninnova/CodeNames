@@ -25,7 +25,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Value("${token}")
     private String token;
-    private Map<Long, Game> games = new HashMap<>();
+    private Map<Long, OriginalGame> games = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -53,7 +53,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 if (games.containsKey(chatId))
                     games.get(chatId).setLang(text);
                 else
-                    games.put(chatId, new Game(chatId, text));
+                    games.put(chatId, new OriginalGame(chatId, text));
                 sendSimpleMessage("Set language: " + text, chatId, true);
                 return;
             }
@@ -71,7 +71,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                         sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
                 }
                 else
-                    games.put(chatId, new Game(chatId, "rus", isEnable));
+                    games.put(chatId, new OriginalGame(chatId, "rus", isEnable));
                 return;
             }
         }
@@ -130,9 +130,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 if (games.containsKey(chatId)) {
                     String lang = games.get(chatId).getLang();
                     boolean useKeyboard = games.get(chatId).isUseKeyboard();
-                    games.put(chatId, new Game(chatId, lang, useKeyboard).setCaps(set).createSchema());
+                    games.put(chatId, new OriginalGame(chatId, lang, useKeyboard).setCaps(set).createSchema());
                 } else {
-                    games.put(chatId, new Game(chatId, "rus").setCaps(set).createSchema());
+                    games.put(chatId, new OriginalGame(chatId, "rus").setCaps(set).createSchema());
                 }
 
                 sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
@@ -231,9 +231,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendPicture(Game game, long chatId, boolean sendKeyboard, boolean isAdmin) {
-        String filepath = getFilePath(game.getChatId(), isAdmin);
-        new Drawer(game.getSchema(), filepath, isAdmin);
+    private void sendPicture(OriginalGame originalGame, long chatId, boolean sendKeyboard, boolean isAdmin) {
+        String filepath = getFilePath(originalGame.getChatId(), isAdmin);
+        new Drawer(originalGame.getSchema(), filepath, isAdmin);
         try {
             File file = new File(filepath);
             SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
