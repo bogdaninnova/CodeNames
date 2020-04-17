@@ -34,9 +34,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
-//        System.out.println(text);
-//        System.out.println(user);
-//        System.out.println(chatId);
+        System.out.println(text);
+        System.out.println(user);
+        System.out.println(chatId);
 
 //        if (user.getId() != 119970632)
 //            return;
@@ -53,7 +53,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 if (games.containsKey(chatId))
                     games.get(chatId).setLang(text);
                 else
-                    games.put(chatId, new OriginalGame(chatId, text));
+                    games.put(chatId, new OriginalGame(chatId, text,false));
                 sendSimpleMessage("Set language: " + text, chatId, true);
                 return;
             }
@@ -127,13 +127,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     }
                 }
 
-                if (games.containsKey(chatId)) {
-                    String lang = games.get(chatId).getLang();
-                    boolean useKeyboard = games.get(chatId).isUseKeyboard();
-                    games.put(chatId, new OriginalGame(chatId, lang, useKeyboard).setCaps(set).createSchema());
-                } else {
-                    games.put(chatId, new OriginalGame(chatId, "rus").setCaps(set).createSchema());
-                }
+                if (games.containsKey(chatId))
+                    games.put(chatId, new OriginalGame(games.get(chatId)).setCaps(set).createSchema());
+                else
+                    games.put(chatId, new OriginalGame(chatId, "rus", false).setCaps(set).createSchema());
 
                 sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
 
@@ -141,8 +138,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     sendSimpleMessage("Red team starts", chatId, false);
                 else
                     sendSimpleMessage("Blue team starts", chatId, false);
+
                 for (String cap : set)
                     sendPicture(games.get(chatId), Long.parseLong(usersListMongo.findByUserName(cap).getUserId()), false, true);
+
                 return;
             }
 
@@ -159,7 +158,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             } else {
                 games.get(chatId).getSchema().openCards();
                 sendPicture(games.get(chatId), chatId, false, false);
-                games.remove(chatId);
                 if (redLeft == 0) {
                     sendSimpleMessage("Red team win!", chatId, true);
                 } else if (blueLeft == 0) {
@@ -255,7 +253,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "CheCodeNamesBot";
+        return "DevCodeNamesBot";
     }
 
     @Override

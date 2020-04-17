@@ -7,20 +7,22 @@ public class OriginalGame {
 
     private long chatId;
     private Set<String> caps = new HashSet<>();
-    private Schema schema = new Schema();
+    private Schema schema;
     private String lang;
     private boolean useKeyboard;
 
-    public OriginalGame(long chatId, String lang, boolean useKeyboard) {
-        setChatId(chatId);
-        setLang(lang);
-        setUseKeyboard(useKeyboard);
+    public OriginalGame(OriginalGame game) {
+        setChatId(game.getChatId());
+        setLang(game.getLang());
+        setUseKeyboard(game.isUseKeyboard());
+        setSchema(game.getSchema());
     }
 
-    public OriginalGame(long chatId, String lang) {
+    public OriginalGame(long chatId, String lang, boolean isUseKeyboard) {
         setChatId(chatId);
         setLang(lang);
-        setUseKeyboard(false);
+        setUseKeyboard(isUseKeyboard);
+        setSchema(new Schema());
     }
 
     public String getCaptainsToString() {
@@ -52,6 +54,9 @@ public class OriginalGame {
 
     public Schema getSchema() {
         return schema;
+    }
+    public void setSchema(Schema schema) {
+        this.schema = schema;
     }
 
     public OriginalGame createSchema() {
