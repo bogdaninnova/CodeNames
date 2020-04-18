@@ -1,7 +1,0 @@
-cd C:\master\CodeNames
-heroku login
-git push heroku master
-heroku ps:scale worker=0
-heroku ps:scale worker=1
-
-heroku logs --app checodenamesbot > checodenamesbot.log
