@@ -6,6 +6,6 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @ComponentScan("com.bope")
-@PropertySource(value = "token.properties")
+@PropertySource(value = "constants.properties")
 public class SpringConfig {
 }
