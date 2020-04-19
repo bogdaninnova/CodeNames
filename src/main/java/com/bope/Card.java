@@ -6,10 +6,17 @@ public class Card {
 
     private boolean isOpen;
     private GameColor gameColor;
+    private GameColor secondGameColor;
 
     public Card(String word, GameColor gameColor) {
         setWord(word);
         setGameColor(gameColor);
+    }
+
+    public Card(String word, GameColor gameColor, GameColor secondGameColor) {
+        setWord(word);
+        setGameColor(gameColor);
+        setSecondGameColor(secondGameColor);
     }
 
     public String getWord() {
@@ -34,6 +41,14 @@ public class Card {
 
     public void setGameColor(GameColor gameColor) {
         this.gameColor = gameColor;
+    }
+
+    public GameColor getSecondGameColor() {
+        return secondGameColor;
+    }
+
+    public void setSecondGameColor(GameColor secondGameColor) {
+        this.secondGameColor = secondGameColor;
     }
 
 }

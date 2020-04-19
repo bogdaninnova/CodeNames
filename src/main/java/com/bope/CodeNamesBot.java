@@ -55,7 +55,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${START_COMMAND}") private String START_COMMAND;
     @Value("${CAPS_COMMAND}") private String CAPS_COMMAND;
 
-    private Map<Long, OriginalGame> games = new HashMap<>();
+    private Map<Long, Game> games = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -64,9 +64,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
-//        System.out.println(text);
-//        System.out.println(user);
-//        System.out.println(chatId);
+        System.out.println(text);
+        System.out.println(user);
+        System.out.println(chatId);
 
 //        if (user.getId() != 119970632)
 //            return;
@@ -289,9 +289,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-    private void sendPicture(OriginalGame originalGame, long chatId, boolean sendKeyboard, boolean isAdmin) {
-        String filepath = getFilePath(originalGame.getChatId(), isAdmin);
-        new Drawer(originalGame.getSchema(), filepath, isAdmin);
+    private void sendPicture(Game game, long chatId, boolean sendKeyboard, boolean isAdmin) {
+        String filepath = getFilePath(game.getChatId(), isAdmin);
+        new Drawer(game.getSchema(), filepath, isAdmin);
         try {
             File file = new File(filepath);
             SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
