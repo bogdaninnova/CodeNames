@@ -72,6 +72,13 @@ public class Game {
         return this;
     }
 
+    public Game setCaps(String cap1, String cap2) {
+        caps = new ArrayList<>();
+        caps.add(cap1);
+        caps.add(cap2);
+        return this;
+    }
+
     public String getCaptainsToString() {
         StringBuilder sb = new StringBuilder("Captains:");
         for (String cap : getCaps()) {

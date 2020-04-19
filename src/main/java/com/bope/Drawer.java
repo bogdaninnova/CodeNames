@@ -27,6 +27,20 @@ public class Drawer {
         save(fileName);
     }
 
+    public Drawer(DuetSchema schema, String fileName, boolean isFirst) {
+
+        setBufferedImage(new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
+        this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
+        this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
+
+//        for (int i = 0; i < 5; i++)
+//            for (int j = 0; j < 5; j++)
+//                drawCard(schema.getArray()[i][j], i, j, isAdmin);
+        //drawScores(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
+        drawGrid();
+        save(fileName);
+    }
+
     private void drawCard(Card card, int i, int j, boolean isAdmin) {
         Color[] colors = new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
         if (card.isOpen() || isAdmin)
@@ -34,6 +48,24 @@ public class Drawer {
 
         if (card.isOpen() && isAdmin) {
             colors = getAdminCardColor(card);
+        }
+
+        g.setColor(colors[0]);
+        g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
+        g.setColor(colors[1]);
+        g.drawString(card.getWord(), i * sizeX + 100, j * sizeY + 120);
+    }
+
+    private void drawDuetCard(Card card, int i, int j, boolean isFirstPlayer) {
+        Color[] colors = new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
+
+        if (card.isOpen()) {
+
+        } else {
+            if (isFirstPlayer)
+                colors = getCardColor(card);
+            else
+                colors = getCardSecondColor(card);
         }
 
         g.setColor(colors[0]);
@@ -65,6 +97,18 @@ public class Drawer {
             return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
         if (card.getGameColor() == GameColor.YELLOW)
             return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
+        if (card.getGameColor() == GameColor.GREEN)
+            return new Color[]{Colors.GREEN_CARD, Colors.GREEN_TEXT};
+        return null;
+    }
+
+    private static Color[] getCardSecondColor(Card card) {
+        if (card.getSecondGameColor() == GameColor.BLACK)
+            return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
+        if (card.getSecondGameColor() == GameColor.YELLOW)
+            return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
+        if (card.getSecondGameColor() == GameColor.GREEN)
+            return new Color[]{Colors.GREEN_CARD, Colors.GREEN_TEXT};
         return null;
     }
 
@@ -77,6 +121,8 @@ public class Drawer {
             return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
         if (card.getGameColor() == GameColor.YELLOW)
             return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_OPEN_TEXT};
+        if (card.getGameColor() == GameColor.GREEN)
+            return new Color[]{Colors.GREEN_OPEN_CARD, Colors.GREEN_OPEN_TEXT};
         return null;
     }
 

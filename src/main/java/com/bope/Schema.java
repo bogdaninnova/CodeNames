@@ -61,8 +61,10 @@ public abstract class Schema {
 
     public void openCards() {
         for (int i = 0; i < 5; i++)
-            for (int j = 0; j < 5; j++)
+            for (int j = 0; j < 5; j++) {
                 array[i][j].setOpen(true);
+                array[i][j].setOpenBySecondPlayer(true);
+            }
     }
 
     public boolean checkWord(String word) {

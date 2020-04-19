@@ -6,7 +6,9 @@ public class Card {
 
     private boolean isOpen;
     private GameColor gameColor;
+
     private GameColor secondGameColor;
+    private boolean isOpenBySecondPlayer;
 
     public Card(String word, GameColor gameColor) {
         setWord(word);
@@ -51,4 +53,11 @@ public class Card {
         this.secondGameColor = secondGameColor;
     }
 
+    public boolean isOpenBySecondPlayer() {
+        return isOpenBySecondPlayer;
+    }
+
+    public void setOpenBySecondPlayer(boolean openBySecondPlayer) {
+        isOpenBySecondPlayer = openBySecondPlayer;
+    }
 }

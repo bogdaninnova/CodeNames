@@ -74,38 +74,20 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (text.equals(" ") || update.getMessage().getForwardFrom() != null)
             return;
 
-        if (update.getMessage().getReplyToMessage() != null) {
+        if (update.getMessage().getReplyToMessage() != null && chatId != user.getId()) {
             if ((text.equals(LANG_ENG) || text.equals(LANG_UKR) || text.equals(LANG_RUS))
-                    && chatId != user.getId()
                     && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
                     && update.getMessage().getReplyToMessage().getText().equals(CHOOSE_LANGUAGE)
             ) {
-                if (games.containsKey(chatId))
-                    games.get(chatId).setLang(text);
-                else
-                    games.put(chatId, new OriginalGame(chatId, text,false));
-                sendSimpleMessage(SET_LANGUAGE + " " + text, chatId, true);
+                botLangCommand(chatId, text);
                 return;
             }
 
             if ((text.equals(ENABLE_BUTTON) || text.equals(DISABLE_BUTTON)
-                    && chatId != user.getId()
                     && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
                     && update.getMessage().getReplyToMessage().getText().equals(KEYBOARD_USAGE)
             )) {
-                boolean isEnable = text.equals(ENABLE_BUTTON);
-                if (isEnable)
-                    sendSimpleMessage(ENABLED_KEYBOARD, chatId, true);
-                else
-                    sendSimpleMessage(DISABLED_KEYBOARD, chatId, true);
-
-                if (games.containsKey(chatId)) {
-                    games.get(chatId).setUseKeyboard(isEnable);
-                    if (isEnable)
-                        sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
-                }
-                else
-                    games.put(chatId, new OriginalGame(chatId, LANG_RUS, isEnable));
+                botKeyboardCommand(chatId, text);
                 return;
             }
         }
@@ -130,19 +112,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 text.toLowerCase().equals(BOARD_COMMAND) ||
                 text.toLowerCase().equals(BOARD_COMMAND + "@" + getBotUsername().toLowerCase())
         )) {
-            if (games.containsKey(chatId))
-                sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
-            else
-                sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
+            botBoardCommand(chatId);
             return;
         }
 
         if (text.toLowerCase().equals(START_COMMAND) ||
                 text.toLowerCase().equals(START_COMMAND + "@" + getBotUsername().toLowerCase())
         ) {
-            if (chatId == user.getId() && usersListMongo.findByUserName(user.getUserName()) == null)
-                usersListMongo.save(new UserMongo(user.getUserName(), String.valueOf(user.getId())));
-            sendSimpleMessage(START_INSTRUCTION, chatId, false);
+            botStartCommand(chatId, user);
             return;
         }
 
@@ -150,14 +127,36 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 text.toLowerCase().equals(CAPS_COMMAND) ||
                 text.toLowerCase().equals(CAPS_COMMAND + "@" + getBotUsername().toLowerCase()))
         ) {
-            if (games.containsKey(chatId))
-                sendSimpleMessage(games.get(chatId).getCaptainsToString(), chatId, false);
-            else
-                sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
+            botSendCommand(chatId);
             return;
         }
 
-        if (text.length() > 8)
+
+        if (chatId == user.getId() && text.length() > 7) {
+            if (text.toLowerCase().substring(0, 7).equals("/duet @")) {
+
+                String username = text.substring(text.indexOf('@') + 1);
+                UserMongo userMongo = usersListMongo.findByUserName(username);
+                if (userMongo == null) {
+                    sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, username), chatId, true);
+                    return;
+                }
+                botStartNewDuelGame(user.getId(), Long.parseLong(userMongo.getUserId()), user.getUserName(), userMongo.getUserName());
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        if (text.length() > (START_COMMAND + " @").length())
             if (text.toLowerCase().substring(0, 8).equals(START_COMMAND + " @")) {
 
                 Set<String> set = new HashSet<>(
@@ -175,56 +174,125 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     }
                 }
 
-                if (games.containsKey(chatId))
-                    games.put(chatId, new OriginalGame(games.get(chatId)).setCaps(set).createSchema());
-                else
-                    games.put(chatId, new OriginalGame(chatId, LANG_RUS, false).setCaps(set).createSchema());
-
-                sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
-
-                if (games.get(chatId).getSchema().howMuchLeft(GameColor.RED) == 9)
-                    sendSimpleMessage(RED_TEAM_STARTS, chatId, false);
-                else
-                    sendSimpleMessage(BLUE_TEAM_STARTS, chatId, false);
-
-                for (String cap : set)
-                    sendPicture(
-                            games.get(chatId),
-                            Long.parseLong(usersListMongo.findByUserName(cap).getUserId()),
-                            false,
-                            true
-                    );
-
+                botStartNewGame(chatId, set);
                 return;
             }
 
         if (text.substring(0, 1).equals("/"))
             text = text.substring(1);
-        if (games.get(chatId).getSchema().checkWord(text)) {
+        if (games.get(chatId).getSchema().checkWord(text))
+            botChooseWord(chatId);
+    }
 
-            int blackLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLACK);
-            int redLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.RED);
-            int blueLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLUE);
+    private void botLangCommand(long chatId, String text) {
+        if (games.containsKey(chatId))
+            games.get(chatId).setLang(text);
+        else
+            games.put(chatId, new OriginalGame(chatId, text,false));
+        sendSimpleMessage(SET_LANGUAGE + " " + text, chatId, true);
+    }
 
-            if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
-                for (String cap : games.get(chatId).getCaps())
-                    sendPicture(
-                            games.get(chatId),
-                            Long.parseLong(usersListMongo.findByUserName(cap).getUserId()),
-                            false,
-                            true
-                    );
+    private void botKeyboardCommand(long chatId, String text) {
+        boolean isEnable = text.equals(ENABLE_BUTTON);
+        if (isEnable)
+            sendSimpleMessage(ENABLED_KEYBOARD, chatId, true);
+        else
+            sendSimpleMessage(DISABLED_KEYBOARD, chatId, true);
+
+        if (games.containsKey(chatId)) {
+            games.get(chatId).setUseKeyboard(isEnable);
+            if (isEnable)
                 sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
-            } else {
-                games.get(chatId).getSchema().openCards();
-                sendPicture(games.get(chatId), chatId, false, false);
-                if (redLeft == 0) {
-                    sendSimpleMessage(RED_TEAM_WIN, chatId, true);
-                } else if (blueLeft == 0) {
-                    sendSimpleMessage(BLUE_TEAM_WIN, chatId, true);
-                } else
-                    sendSimpleMessage(BLACK_CARD_OPENED, chatId, true);
-            }
+        }
+        else
+            games.put(chatId, new OriginalGame(chatId, LANG_RUS, isEnable));
+    }
+
+    private void botBoardCommand(long chatId) {
+        if (games.containsKey(chatId))
+            sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
+        else
+            sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
+    }
+
+    private void botStartCommand(long chatId, User user) {
+        if (chatId == user.getId() && usersListMongo.findByUserName(user.getUserName()) == null)
+            usersListMongo.save(new UserMongo(user.getUserName(), String.valueOf(user.getId())));
+        sendSimpleMessage(START_INSTRUCTION, chatId, false);
+    }
+
+    private void botSendCommand(long chatId) {
+        if (games.containsKey(chatId))
+            sendSimpleMessage(games.get(chatId).getCaptainsToString(), chatId, false);
+        else
+            sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
+    }
+
+    private void botStartNewGame(long chatId, Set<String> captains) {
+        if (games.containsKey(chatId))
+            games.put(chatId, new OriginalGame(games.get(chatId)).setCaps(captains).createSchema());
+        else
+            games.put(chatId, new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema());
+
+        sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
+
+        if (games.get(chatId).getSchema().howMuchLeft(GameColor.RED) == 9)
+            sendSimpleMessage(RED_TEAM_STARTS, chatId, false);
+        else
+            sendSimpleMessage(BLUE_TEAM_STARTS, chatId, false);
+
+        for (String cap : captains)
+            sendPicture(
+                    games.get(chatId),
+                    Long.parseLong(usersListMongo.findByUserName(cap).getUserId()),
+                    false,
+                    true
+            );
+    }
+
+    private void botStartNewDuelGame(long firstPlayerId, long secondPlayerId, String firstUserName, String secondUserName) {
+
+        Game game;
+        if (games.containsKey(firstPlayerId))
+            game = new DuetGame(games.get(firstPlayerId)).setSecondPlayerId(secondPlayerId).setCaps(firstUserName, secondUserName).createSchema();
+        else
+            game = new DuetGame(firstPlayerId, LANG_RUS, false).setSecondPlayerId(secondPlayerId).setCaps(firstUserName, secondUserName).createSchema();
+
+        games.put(firstPlayerId, game);
+        games.put(secondPlayerId, game);
+
+        if (game.getSchema().isRedFirst()) {
+            sendSimpleMessage("You start first!", firstPlayerId, false);
+            sendSimpleMessage("Player @" + firstUserName + " starts!", secondPlayerId, false);
+        } else {
+            sendSimpleMessage("You start first!", secondPlayerId, false);
+            sendSimpleMessage("Player @" + secondUserName + " starts!", firstPlayerId, false);
+        }
+    }
+
+    private void botChooseWord(long chatId) {
+        int blackLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLACK);
+        int redLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.RED);
+        int blueLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLUE);
+
+        if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
+            for (String cap : games.get(chatId).getCaps())
+                sendPicture(
+                        games.get(chatId),
+                        Long.parseLong(usersListMongo.findByUserName(cap).getUserId()),
+                        false,
+                        true
+                );
+            sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
+        } else {
+            games.get(chatId).getSchema().openCards();
+            sendPicture(games.get(chatId), chatId, false, false);
+            if (redLeft == 0) {
+                sendSimpleMessage(RED_TEAM_WIN, chatId, true);
+            } else if (blueLeft == 0) {
+                sendSimpleMessage(BLUE_TEAM_WIN, chatId, true);
+            } else
+                sendSimpleMessage(BLACK_CARD_OPENED, chatId, true);
         }
     }
 

@@ -2,6 +2,8 @@ package com.bope;
 
 public class DuetGame extends Game {
 
+    private long secondPlayerId;
+
     public DuetGame(Game game) {
         super(game);
     }
@@ -11,4 +13,12 @@ public class DuetGame extends Game {
         setSchema(new DuetSchema());
     }
 
+    public long getSecondPlayerId() {
+        return secondPlayerId;
+    }
+
+    public Game setSecondPlayerId(long secondPlayerId) {
+        this.secondPlayerId = secondPlayerId;
+        return this;
+    }
 }
