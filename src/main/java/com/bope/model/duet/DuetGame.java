@@ -1,4 +1,6 @@
-package com.bope;
+package com.bope.model.duet;
+
+import com.bope.model.abstr.Game;
 
 public class DuetGame extends Game {
 
@@ -20,5 +22,9 @@ public class DuetGame extends Game {
     public Game setSecondPlayerId(long secondPlayerId) {
         this.secondPlayerId = secondPlayerId;
         return this;
+    }
+
+    public void swapCaptains() {
+        setCaps(getCaps().get(1), getCaps().get(0));
     }
 }

@@ -1,4 +1,10 @@
-package com.bope;
+package com.bope.model.abstr;
+
+import com.bope.Main;
+import com.bope.WordMongo;
+import com.bope.WordsListMongo;
+import com.bope.model.Card;
+import com.bope.model.GameColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +27,6 @@ public abstract class Schema {
     }
 
     protected abstract void setArray(boolean isRedFirst);
-
     public abstract int howMuchLeft(GameColor gameColor);
 
     public List<WordMongo> getWordList(String lang) {
@@ -67,16 +72,6 @@ public abstract class Schema {
             }
     }
 
-    public boolean checkWord(String word) {
-        for (int i = 0; i < 5; i++)
-            for (int j = 0; j < 5; j++)
-                if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase()) && !array[i][j].isOpen()) {
-                    array[i][j].setOpen(true);
-                    return true;
-                }
-        return false;
-    }
-
     protected void setColorsOnCard(GameColor gameColor, boolean isFirst, int count) {
         while (count > 0) {
             int i = rand.nextInt(5);
@@ -94,6 +89,24 @@ public abstract class Schema {
                 }
             }
         }
+    }
+
+    public boolean checkWord(String word, boolean isFirst) {
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase())) {
+                    if (!array[i][j].isOpen() && isFirst) {
+                        array[i][j].setOpen(true);
+                        System.out.println("o1");
+                        return true;
+                    }
+                    if (!array[i][j].isOpenBySecondPlayer() && !isFirst) {
+                        array[i][j].setOpenBySecondPlayer(true);
+                        System.out.println("o2");
+                        return true;
+                    }
+                }
+        return false;
     }
 
 }

@@ -1,5 +1,11 @@
 package com.bope;
 
+import com.bope.model.duet.DuetDrawer;
+import com.bope.model.original.OriginalDrawer;
+import com.bope.model.abstr.Game;
+import com.bope.model.GameColor;
+import com.bope.model.duet.DuetGame;
+import com.bope.model.original.OriginalGame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -55,7 +61,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${START_COMMAND}") private String START_COMMAND;
     @Value("${CAPS_COMMAND}") private String CAPS_COMMAND;
 
-    private Map<Long, Game> games = new HashMap<>();
+    private final Map<Long, Game> games = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -133,7 +139,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
 
         if (chatId == user.getId() && text.length() > 7) {
-            if (text.toLowerCase().substring(0, 7).equals("/duet @")) {
+            if (text.toLowerCase().startsWith("/duet @")) {
 
                 String username = text.substring(text.indexOf('@') + 1);
                 UserMongo userMongo = usersListMongo.findByUserName(username);
@@ -142,10 +148,21 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     return;
                 }
                 botStartNewDuelGame(user.getId(), Long.parseLong(userMongo.getUserId()), user.getUserName(), userMongo.getUserName());
+                return;
             }
         }
 
-
+        if (chatId == user.getId() && games.containsKey(chatId)) {
+            if (games.get(chatId).getCaps().get(0).equals(user.getUserName())) {
+                DuetGame game = (DuetGame) games.get(chatId);
+                if (game.getSchema().checkWord(text, game.getChatId() == user.getId())) {
+                    sendDuetPicture(game, game.getChatId(), true);
+                    sendDuetPicture(game, game.getSecondPlayerId(), false);
+                    game.swapCaptains();
+                }
+            }
+            return;
+        }
 
 
 
@@ -178,9 +195,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 return;
             }
 
-        if (text.substring(0, 1).equals("/"))
+        if (text.startsWith("/"))
             text = text.substring(1);
-        if (games.get(chatId).getSchema().checkWord(text))
+        if (games.get(chatId).getSchema().checkWord(text, true))
             botChooseWord(chatId);
     }
 
@@ -254,20 +271,24 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         Game game;
         if (games.containsKey(firstPlayerId))
-            game = new DuetGame(games.get(firstPlayerId)).setSecondPlayerId(secondPlayerId).setCaps(firstUserName, secondUserName).createSchema();
+            game = new DuetGame(games.get(firstPlayerId)).setSecondPlayerId(secondPlayerId).createSchema();
         else
-            game = new DuetGame(firstPlayerId, LANG_RUS, false).setSecondPlayerId(secondPlayerId).setCaps(firstUserName, secondUserName).createSchema();
+            game = new DuetGame(firstPlayerId, LANG_RUS, false).setSecondPlayerId(secondPlayerId).createSchema();
 
         games.put(firstPlayerId, game);
         games.put(secondPlayerId, game);
 
         if (game.getSchema().isRedFirst()) {
+            game.setCaps(firstUserName, secondUserName);
             sendSimpleMessage("You start first!", firstPlayerId, false);
             sendSimpleMessage("Player @" + firstUserName + " starts!", secondPlayerId, false);
         } else {
+            game.setCaps(secondUserName, firstUserName);
             sendSimpleMessage("You start first!", secondPlayerId, false);
             sendSimpleMessage("Player @" + secondUserName + " starts!", firstPlayerId, false);
         }
+        sendDuetPicture(game, firstPlayerId, true);
+        sendDuetPicture(game, secondPlayerId, false);
     }
 
     private void botChooseWord(long chatId) {
@@ -359,7 +380,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     private void sendPicture(Game game, long chatId, boolean sendKeyboard, boolean isAdmin) {
         String filepath = getFilePath(game.getChatId(), isAdmin);
-        new Drawer(game.getSchema(), filepath, isAdmin);
+        new OriginalDrawer(game.getSchema(), filepath, isAdmin);
         try {
             File file = new File(filepath);
             SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
@@ -367,6 +388,20 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 photo.setReplyMarkup(getGameKeyboard(chatId));
             else
                 photo.setReplyMarkup(new ReplyKeyboardRemove());
+            execute(photo);
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendDuetPicture(Game game, long chatId, boolean isFirst) {
+        String filepath = getFilePath(game.getChatId(), isFirst);
+        new DuetDrawer(game.getSchema(), filepath, isFirst);
+        try {
+            File file = new File(filepath);
+            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
             execute(photo);
             //noinspection ResultOfMethodCallIgnored
             file.delete();

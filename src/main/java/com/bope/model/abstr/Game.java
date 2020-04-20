@@ -1,9 +1,9 @@
-package com.bope;
+package com.bope.model.abstr;
 
 import java.util.ArrayList;
 import java.util.Set;
 
-public class Game {
+public abstract class Game {
 
     private long chatId;
     private String lang;

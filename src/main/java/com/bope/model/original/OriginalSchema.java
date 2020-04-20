@@ -1,4 +1,8 @@
-package com.bope;
+package com.bope.model.original;
+
+import com.bope.model.Card;
+import com.bope.model.GameColor;
+import com.bope.model.abstr.Schema;
 
 public class OriginalSchema extends Schema {
 
@@ -26,5 +30,4 @@ public class OriginalSchema extends Schema {
 
         return count;
     }
-
 }

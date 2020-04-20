@@ -1,4 +1,4 @@
-package com.bope;
+package com.bope.model;
 
 public class Card {
 

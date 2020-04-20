@@ -1,4 +1,8 @@
-package com.bope;
+package com.bope.model.duet;
+
+import com.bope.model.Card;
+import com.bope.model.GameColor;
+import com.bope.model.abstr.Schema;
 
 public class DuetSchema extends Schema {
 
@@ -24,5 +28,4 @@ public class DuetSchema extends Schema {
             }
         return count;
     }
-
 }
