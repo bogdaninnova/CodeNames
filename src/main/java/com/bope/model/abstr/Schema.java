@@ -64,11 +64,11 @@ public abstract class Schema {
         isRedFirst = redFirst;
     }
 
-    public void openCards() {
+    public void openCards(boolean isOpen) {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++) {
-                array[i][j].setOpen(true);
-                array[i][j].setOpenBySecondPlayer(true);
+                array[i][j].setOpen(isOpen);
+                array[i][j].setOpenBySecondPlayer(isOpen);
             }
     }
 

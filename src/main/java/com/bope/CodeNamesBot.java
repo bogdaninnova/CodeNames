@@ -1,5 +1,6 @@
 package com.bope;
 
+import com.bope.model.Colors;
 import com.bope.model.duet.DuetDrawer;
 import com.bope.model.original.OriginalDrawer;
 import com.bope.model.abstr.Game;
@@ -152,13 +153,44 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
         }
 
+
+        if (chatId == user.getId() && games.containsKey(chatId)) {
+            if (games.get(chatId).getCaps().get(1).equals(user.getUserName())) {
+                DuetGame game = (DuetGame) games.get(chatId);
+                if (!game.isPromptSend()) {
+                    sendSimpleMessage("@" + game.getCaps().get(0) + "'s prompt: " + text, game.getPartnerId(chatId), true);
+                    game.setPromptSend(true);
+                    return;
+                }
+            }
+        }
+
+
         if (chatId == user.getId() && games.containsKey(chatId)) {
             if (games.get(chatId).getCaps().get(0).equals(user.getUserName())) {
                 DuetGame game = (DuetGame) games.get(chatId);
                 if (game.getSchema().checkWord(text, game.getChatId() == user.getId())) {
-                    sendDuetPicture(game, game.getChatId(), true);
-                    sendDuetPicture(game, game.getSecondPlayerId(), false);
-                    game.swapCaptains();
+
+
+                    if (game.getSchema().howMuchLeft(GameColor.BLACK) < 6) {
+                        game.getSchema().openCards(false);
+                        sendDuetPicture(game, game.getChatId(), true);
+                        sendDuetPicture(game, game.getChatId(), false);
+                        sendDuetPicture(game, game.getSecondPlayerId(), true);
+                        sendDuetPicture(game, game.getSecondPlayerId(), false);
+                        sendSimpleMessage("Black card opened!", game.getChatId(), true);
+                        sendSimpleMessage("Black card opened!", game.getSecondPlayerId(), true);
+                        game.getSchema().openCards(true);
+                    } else {
+                        sendDuetPicture(game, game.getChatId(), true);
+                        sendDuetPicture(game, game.getSecondPlayerId(), false);
+                        game.swapCaptains();
+                        game.setPromptSend(false);
+                    }
+
+
+
+
                 }
             }
             return;
@@ -306,7 +338,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 );
             sendPicture(games.get(chatId), chatId, games.get(chatId).isUseKeyboard(), false);
         } else {
-            games.get(chatId).getSchema().openCards();
+            games.get(chatId).getSchema().openCards(true);
             sendPicture(games.get(chatId), chatId, false, false);
             if (redLeft == 0) {
                 sendSimpleMessage(RED_TEAM_WIN, chatId, true);

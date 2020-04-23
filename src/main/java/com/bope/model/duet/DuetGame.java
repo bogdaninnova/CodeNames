@@ -6,6 +6,8 @@ public class DuetGame extends Game {
 
     private long secondPlayerId;
 
+    private boolean isPromptSend;
+
     public DuetGame(Game game) {
         super(game);
     }
@@ -27,4 +29,18 @@ public class DuetGame extends Game {
     public void swapCaptains() {
         setCaps(getCaps().get(1), getCaps().get(0));
     }
+
+    public boolean isPromptSend() {
+        return isPromptSend;
+    }
+
+    public void setPromptSend(boolean promptSend) {
+        isPromptSend = promptSend;
+    }
+
+    public long getPartnerId(long chatId) {
+        return getChatId() != chatId ? getChatId() : getSecondPlayerId();
+
+    }
+
 }
