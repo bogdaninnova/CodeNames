@@ -21,7 +21,7 @@ public class DuetSchema extends Schema {
         int count = 0;
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++) {
-                if (array[i][j].getGameColor() == gameColor && !array[i][j].isOpen())
+                if (array[i][j].getGameColor() == gameColor && !array[i][j].isOpenBySecondPlayer())
                     count++;
                 if (array[i][j].getSecondGameColor() == gameColor && !array[i][j].isOpen())
                     count++;
