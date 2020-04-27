@@ -18,6 +18,9 @@ public class Colors {
     public static final Color YELLOW_TEXT = new Color(216, 207, 173);
     public static final Color GREEN_TEXT = new Color(114, 183, 82);
 
+    public static final Color BROWN_OPEN_CARD = new Color(102,51,0);
+    public static final Color BROWN_OPEN_TEXT = new Color(170,170,170);
+
     public static final Color YELLOW_OPEN_TEXT = new Color(240,240,240);
     public static final Color BLUE_OPEN_CARD = new Color(220,241,255);
     public static final Color BLUE_OPEN_TEXT = new Color(208,236,253);

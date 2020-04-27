@@ -1,5 +1,7 @@
 package com.bope.model.abstr;
 
+import com.bope.UserMongo;
+
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -9,7 +11,7 @@ public abstract class Game {
     private String lang;
     private boolean useKeyboard;
     private Schema schema;
-    private ArrayList<String> caps = new ArrayList<>();
+    private ArrayList<UserMongo> caps = new ArrayList<>();
 
     protected Game(Game game) {
         setChatId(game.getChatId());
@@ -62,17 +64,17 @@ public abstract class Game {
         return this;
     }
 
-    public ArrayList<String> getCaps() {
+    public ArrayList<UserMongo> getCaps() {
         return caps;
     }
 
-    public Game setCaps(Set<String> set) {
+    public Game setCaps(Set<UserMongo> set) {
         caps = new ArrayList<>();
         caps.addAll(set);
         return this;
     }
 
-    public Game setCaps(String cap1, String cap2) {
+    public Game setCaps(UserMongo cap1, UserMongo cap2) {
         caps = new ArrayList<>();
         caps.add(cap1);
         caps.add(cap2);
@@ -81,9 +83,9 @@ public abstract class Game {
 
     public String getCaptainsToString() {
         StringBuilder sb = new StringBuilder("Captains:");
-        for (String cap : getCaps()) {
+        for (UserMongo cap : getCaps()) {
             sb.append(" @");
-            sb.append(cap);
+            sb.append(cap.getUserName());
         }
         return sb.toString();
     }

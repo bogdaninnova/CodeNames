@@ -29,6 +29,10 @@ public class UserMongo {
         return userId;
     }
 
+    public long getLongId() {
+        return Long.parseLong(userId);
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
     }

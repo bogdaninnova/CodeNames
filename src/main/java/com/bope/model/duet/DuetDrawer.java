@@ -29,17 +29,19 @@ public class DuetDrawer extends Drawer {
             drawRectangle(card.getWord(), i, j, colors[0], colors[1]);
         } else if ((card.isOpen() && card.getSecondGameColor() == GameColor.GREEN) || (card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.GREEN)) {
             drawRectangle(card.getWord(), i, j, Colors.GREEN_OPEN_CARD, Colors.GREEN_OPEN_TEXT);
+        } else if (card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
+            drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
         }
 
 
         else if (!isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, Colors.RED_CARD, getCardColor(card, isFirstPlayer)[0], Colors.WHITE_TEXT);
+            drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_TEXT);
         } else if (!isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.RED_CARD, Colors.WHITE_TEXT);
+            drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
         } else if (isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, Colors.RED_CARD, getCardColor(card, isFirstPlayer)[0], Colors.WHITE_TEXT);
+            drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_TEXT);
         } else if (isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.RED_CARD, Colors.WHITE_TEXT);
+            drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
         }
 
 
