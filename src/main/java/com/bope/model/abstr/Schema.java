@@ -28,6 +28,7 @@ public abstract class Schema {
 
     protected abstract void setArray(boolean isRedFirst);
     public abstract int howMuchLeft(GameColor gameColor);
+    public abstract int howMuchLeft(GameColor gameColor, boolean isFirst);
 
     public List<WordMongo> getWordList(String lang) {
         if (allWordList.size() < 25 || !getLang().equals(lang))
@@ -72,21 +73,13 @@ public abstract class Schema {
             }
     }
 
-    protected void setColorsOnCard(GameColor gameColor, boolean isFirst, int count) {
+    protected void setColorsOnCard(GameColor gameColor, int count) {
         while (count > 0) {
             int i = rand.nextInt(5);
             int j = rand.nextInt(5);
-
-            if (isFirst) {
-                if (array[i][j].getGameColor().equals(GameColor.YELLOW)) {
-                    array[i][j].setGameColor(gameColor);
-                    count--;
-                }
-            } else {
-                if (array[i][j].getSecondGameColor().equals(GameColor.YELLOW)) {
-                    array[i][j].setSecondGameColor(gameColor);
-                    count--;
-                }
+            if (array[i][j].getGameColor().equals(GameColor.YELLOW)) {
+                array[i][j].setGameColor(gameColor);
+                count--;
             }
         }
     }
@@ -97,12 +90,16 @@ public abstract class Schema {
                 if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase())) {
                     if (!array[i][j].isOpen() && isFirst) {
                         array[i][j].setOpen(true);
-                        System.out.println("o1");
+                        if (array[i][j].getGameColor().equals(GameColor.GREEN) && array[i][j].getSecondGameColor().equals(GameColor.GREEN))
+                            array[i][j].setOpenBySecondPlayer(true);
+                        System.out.println("o1 " + word);
                         return true;
                     }
                     if (!array[i][j].isOpenBySecondPlayer() && !isFirst) {
                         array[i][j].setOpenBySecondPlayer(true);
-                        System.out.println("o2");
+                        if (array[i][j].getGameColor().equals(GameColor.GREEN) && array[i][j].getSecondGameColor().equals(GameColor.GREEN))
+                            array[i][j].setOpen(true);
+                        System.out.println("o2 " + word);
                         return true;
                     }
                 }

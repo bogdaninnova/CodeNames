@@ -13,10 +13,6 @@ public abstract class Drawer {
     protected BufferedImage bi = new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR);
     protected Graphics2D g = getBackgroundedGraphics2D(bi, Color.WHITE);
 
-    protected void setBufferedImage(BufferedImage bi) {
-        this.bi = bi;
-    }
-
     protected static Graphics2D getBackgroundedGraphics2D(BufferedImage bi, Color color) {
         Graphics2D g = bi.createGraphics();
         g.setColor(color);

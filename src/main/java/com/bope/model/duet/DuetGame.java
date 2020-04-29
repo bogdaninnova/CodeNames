@@ -12,12 +12,14 @@ public class DuetGame extends Game {
     }
     private Prompt prompt;
     private int openGreensLeft;
+    private int turnsLeft;
 
     public DuetGame(long chatId, String lang, boolean isUseKeyboard) {
         super(chatId, lang, isUseKeyboard);
         setSchema(new DuetSchema());
         //refereshGreenLeft();
         openGreensLeft = 18;
+        turnsLeft = 9;
     }
 
     public long getSecondPlayerId() {
@@ -52,5 +54,14 @@ public class DuetGame extends Game {
 
     public void refereshGreenLeft() {
         this.openGreensLeft = getSchema().howMuchLeft(GameColor.GREEN);
+    }
+
+    public int getTurnsLeft() {
+        return turnsLeft;
+    }
+
+    public void minusTurnsLeft() {
+        if (turnsLeft != 0)
+            turnsLeft--;
     }
 }

@@ -4,16 +4,16 @@ import com.bope.model.Card;
 import com.bope.model.Colors;
 import com.bope.model.abstr.Drawer;
 import com.bope.model.GameColor;
-import com.bope.model.abstr.Schema;
+import com.bope.model.abstr.Game;
 import java.awt.*;
 
 public class OriginalDrawer extends Drawer {
 
-    public OriginalDrawer(Schema schema, String fileName, boolean isAdmin) {
+    public OriginalDrawer(Game game, String fileName, boolean isAdmin) {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
-                drawCard(schema.getArray()[i][j], i, j, isAdmin);
-        drawScores(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
+                drawCard(game.getSchema().getArray()[i][j], i, j, isAdmin);
+        drawScores(game.getSchema().howMuchLeft(GameColor.RED), game.getSchema().howMuchLeft(GameColor.BLUE));
         drawGrid();
         save(fileName);
     }

@@ -4,18 +4,18 @@ import com.bope.model.Card;
 import com.bope.model.Colors;
 import com.bope.model.GameColor;
 import com.bope.model.abstr.Drawer;
-import com.bope.model.abstr.Schema;
+import com.bope.model.abstr.Game;
 
 import java.awt.*;
 
 public class DuetDrawer extends Drawer {
 
-    public DuetDrawer(Schema schema, String fileName, boolean isFirstPlayer) {
+    public DuetDrawer(DuetGame game, String fileName, boolean isFirstPlayer) {
 
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
-                drawCard(schema.getArray()[i][j], i, j, isFirstPlayer);
-        //drawScores(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
+                drawCard(game.getSchema().getArray()[i][j], i, j, isFirstPlayer);
+        drawText(game.getCaps().get(0).getUserName(), game.getTurnsLeft());
         drawGrid();
         save(fileName);
     }
@@ -33,7 +33,6 @@ public class DuetDrawer extends Drawer {
             drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
         }
 
-
         else if (!isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
             drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_TEXT);
         } else if (!isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
@@ -44,14 +43,18 @@ public class DuetDrawer extends Drawer {
             drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
         }
 
-
-
         else {
             drawRectangle(card.getWord(), i, j, Colors.WHITE_CARD, Colors.WHITE_TEXT);
         }
 
     }
 
+    private void drawText(String playersTurn, int turnsLeft) {
+        g.setColor(Color.BLACK);
+        g.setFont(new Font( "Arial", Font.BOLD, 75 ));
+        g.drawString("Turn of @" + playersTurn, 100, 5 * sizeY + 120);
+        g.drawString("Turns left: " + turnsLeft, 3 * sizeX, 5 * sizeY + 120);
+    }
 
     private void drawRectangle(String word, int i, int j, Color fillColor, Color textColor) {
         g.setColor(fillColor);

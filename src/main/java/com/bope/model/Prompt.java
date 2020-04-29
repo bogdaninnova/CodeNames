@@ -29,7 +29,7 @@ public class Prompt {
     }
 
     public int getNumbersLeft() {
-        return numbersLeft+1;
+        return numbersLeft;
     }
 
     public void setNumbersLeft(int numbersLeft) {
@@ -37,6 +37,8 @@ public class Prompt {
     }
 
     public boolean isFinished() {
-        return numbersLeft-- == 0;
+        numbersLeft--;
+        return false;
+        //return numbersLeft-- == 0;
     }
 }
