@@ -193,10 +193,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (chatId == user.getId() && games.containsKey(chatId)) {
             DuetGame game = (DuetGame) games.get(chatId);
             UserMongo currentUserMongo = game.getCaps().get(0);
-            if (currentUserMongo.getUserName().equals(user.getUserName())) {
-                botCheckWordDuet(currentUserMongo, text);
-            } else if (game.getTurnsLeft() == 0) {
-                botCheckWordDuet(game.getCaps().get(1), text);
+            if (game.getSchema().howMuchLeft(GameColor.GREEN, game.getChatId() != user.getId()) > 0) {
+                if (currentUserMongo.getUserName().equals(user.getUserName())) {
+                    botCheckWordDuet(currentUserMongo, text);
+                } else if (game.getTurnsLeft() == 0) {
+                    botCheckWordDuet(game.getCaps().get(1), text);
+                }
             }
             return;
         }

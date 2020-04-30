@@ -52,8 +52,14 @@ public class DuetDrawer extends Drawer {
     private void drawText(String playersTurn, int turnsLeft) {
         g.setColor(Color.BLACK);
         g.setFont(new Font( "Arial", Font.BOLD, 75 ));
-        g.drawString("Turn of @" + playersTurn, 100, 5 * sizeY + 120);
-        g.drawString("Turns left: " + turnsLeft, 3 * sizeX, 5 * sizeY + 120);
+
+        if (turnsLeft != 0) {
+            g.drawString("Turn of @" + playersTurn, 100, 5 * sizeY + 120);
+            g.drawString("Turns left: " + turnsLeft, 3 * sizeX, 5 * sizeY + 120);
+        } else {
+            g.drawString("Last turn for all!", 100, 5 * sizeY + 120);
+            g.drawString("Last turn!", 3 * sizeX, 5 * sizeY + 120);
+        }
     }
 
     private void drawRectangle(String word, int i, int j, Color fillColor, Color textColor) {
