@@ -1,28 +1,19 @@
-package com.bope;
+package com.bope.model.original;
 
-import javax.imageio.ImageIO;
+import com.bope.model.Card;
+import com.bope.model.Colors;
+import com.bope.model.abstr.Drawer;
+import com.bope.model.GameColor;
+import com.bope.model.abstr.Game;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-public class Drawer {
+public class OriginalDrawer extends Drawer {
 
-    private int sizeX = 500;
-    private int sizeY = 200;
-    private BufferedImage bi;
-    private Graphics2D g;
-
-    public Drawer(Schema schema, String fileName, boolean isAdmin) {
-
-        setBufferedImage(new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR));
-        this.g = getBackgroundedGraphics2D(bi, Color.WHITE);
-        this.g.setFont(new Font( "Arial", Font.BOLD, 60 ));
-
+    public OriginalDrawer(Game game, String fileName, boolean isAdmin) {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
-                drawCard(schema.getArray()[i][j], i, j, isAdmin);
-        drawScores(schema.howMuchLeft(GameColor.RED), schema.howMuchLeft(GameColor.BLUE));
+                drawCard(game.getSchema().getArray()[i][j], i, j, isAdmin);
+        drawScores(game.getSchema().howMuchLeft(GameColor.RED), game.getSchema().howMuchLeft(GameColor.BLUE));
         drawGrid();
         save(fileName);
     }
@@ -80,36 +71,4 @@ public class Drawer {
         return null;
     }
 
-    private void drawGrid() {
-        g.setColor(Color.BLACK);
-        g.setStroke(new BasicStroke(5.0f));
-
-        for (int i = 0; i < 5; i++)
-            for (int j = 0; j < 5; j++)
-                g.drawRect(i * sizeX, j * sizeY, sizeX, sizeY);
-            g.drawLine(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeY * 6);
-            g.drawLine(0, 0, 0, sizeY * 6);
-            g.drawLine(sizeX * 5, 0, sizeX * 5, sizeY * 6);
-            g.drawLine(sizeX * 5, sizeY * 6, 0, sizeY * 6);
-    }
-
-
-    public void setBufferedImage(BufferedImage bi) {
-        this.bi = bi;
-    }
-
-    public static Graphics2D getBackgroundedGraphics2D(BufferedImage bi, Color color) {
-        Graphics2D g = bi.createGraphics();
-        g.setColor(color);
-        g.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-        return g;
-    }
-
-    public void save(String path) {
-        try {
-            ImageIO.write(bi, "PNG", new File(path));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
