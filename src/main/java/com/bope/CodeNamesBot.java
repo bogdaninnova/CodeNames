@@ -62,6 +62,25 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${START_COMMAND}") private String START_COMMAND;
     @Value("${CAPS_COMMAND}") private String CAPS_COMMAND;
 
+    @Value("${DUET_YOUR_TURN}") private String DUET_YOUR_TURN;
+    @Value("${DUET_PLAYERS_TURN}") private String DUET_PLAYERS_TURN;
+    @Value("${DUET_LAST_TURN}") private String DUET_LAST_TURN;
+    @Value("${DUET_CORRECT}") private String DUET_CORRECT;
+    @Value("${DUET_WAIT_FOR_PROMPT}") private String DUET_WAIT_FOR_PROMPT;
+
+    @Value("${DUET_GAME_OVER}") private String DUET_GAME_OVER;
+    @Value("${DUET_YOU_WON}") private String DUET_YOU_WON;
+    @Value("${DUET_YOU_FINISHED}") private String DUET_YOU_FINISHED;
+    @Value("${DUET_PLAYER_FINISHED}") private String DUET_PLAYER_FINISHED;
+
+    @Value("${DUET_YOU_NEED_CHOOSE_ONE}") private String DUET_YOU_NEED_CHOOSE_ONE;
+    @Value("${DUET_PASS_WORD}") private String DUET_PASS_WORD;
+    @Value("${DUET_PASS_WORD_RUS}") private String DUET_PASS_WORD_RUS;
+    @Value("${DUET_COMMAND}") private String DUET_COMMAND;
+    @Value("${DUET_PROMPT_SENT}") private String DUET_PROMPT_SENT;
+    @Value("${DUET_INCORRECT_PROMPT}") private String DUET_INCORRECT_PROMPT;
+    @Value("${DUET_PLAYERS_PROMPT}") private String DUET_PLAYERS_PROMPT;
+
     private final Map<Long, Game> games = new HashMap<>();
 
     @Override
@@ -134,57 +153,35 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 text.toLowerCase().equals(CAPS_COMMAND) ||
                 text.toLowerCase().equals(CAPS_COMMAND + "@" + getBotUsername().toLowerCase()))
         ) {
-            botSendCommand(chatId);
+            botSendCaptainsCommand(chatId);
             return;
         }
 
-
         if (chatId == user.getId() && text.length() > 7) {
-            if (text.toLowerCase().startsWith("/duet @")) {
-
+            if (text.toLowerCase().startsWith(DUET_COMMAND + " @")) {
                 String username = text.substring(text.indexOf('@') + 1);
                 UserMongo userMongo = usersListMongo.findByUserName(username);
                 if (userMongo == null) {
                     sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, username), chatId);
                     return;
                 }
-                botStartNewDuelGame(usersListMongo.findByUserName(user.getUserName()), userMongo);
+                botStartNewGameDuet(usersListMongo.findByUserName(user.getUserName()), userMongo);
                 return;
             }
         }
 
-
         if (chatId == user.getId() && games.containsKey(chatId)) {
-            DuetGame game = (DuetGame) games.get(chatId);
-            if (game.getCaps().get(1).getUserName().equals(user.getUserName()) && game.getPrompt() == null) {
-
-                Prompt prompt = getPrompt(text);
-                if (prompt == null) {
-                    sendSimpleMessage("Your prompt is incorrect!", chatId);
-                    return;
-                }
-
-                if (game.getPrompt() == null) {
-                    game.setPrompt(prompt);
-                    sendSimpleMessage(
-                            "@" + user.getUserName() + "'s prompt:" +
-                                    "\nWord: " + prompt.getWord() +
-                                    "\nCount: " + prompt.getNumber(),
-                            game.getPartnerId(chatId));
-                    sendSimpleMessage("Your prompt sent!", user.getId());
-                    return;
-                }
-            }
+            sendPromptDuet((DuetGame) games.get(chatId), user, text);
+            return;
         }
 
-        if (chatId == user.getId() && games.containsKey(chatId) && (text.toLowerCase().equals("pass") || text.toLowerCase().equals("пас"))) {
+        if (chatId == user.getId() && games.containsKey(chatId) && (text.toLowerCase().equals(DUET_PASS_WORD) || text.toLowerCase().equals(DUET_PASS_WORD_RUS))) {
             DuetGame game = (DuetGame) games.get(chatId);
             if (game.getCaps().get(0).getUserName().equals(user.getUserName())) {
-
                 if (game.getPrompt().getNumbersLeft() != game.getPrompt().getNumber())
-                    switchTurn(game);
+                    switchTurnDuet(game);
                 else
-                    sendSimpleMessage("You should choose at least one card!", chatId);
+                    sendSimpleMessage(DUET_YOU_NEED_CHOOSE_ONE, chatId);
             }
             return;
         }
@@ -202,10 +199,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
             return;
         }
-
-
-
-
 
         if (text.length() > (START_COMMAND + " @").length())
             if (text.toLowerCase().substring(0, 8).equals(START_COMMAND + " @")) {
@@ -240,13 +233,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             botChooseWord(chatId);
     }
 
-    private static Prompt getPrompt(String text) {
+    private static Prompt getPromptDuet(String text) {
         Prompt prompt = null;
         try {
-            prompt = new Prompt(
-                    text.substring(0, text.indexOf(' ')),
-                    Integer.parseInt(text.substring(text.indexOf(' ') + 1))
-            );
+            prompt = new Prompt(text.substring(0, text.indexOf(' ')), Integer.parseInt(text.substring(text.indexOf(' ') + 1)));
         } catch (Exception e) {
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
@@ -257,32 +247,32 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         DuetGame game = (DuetGame) games.get(userMongo.getLongId());
 
         if (game.getPrompt() == null) {
-            sendSimpleMessage("Wait for prompt!", userMongo.getLongId());
+            sendSimpleMessage(DUET_WAIT_FOR_PROMPT, userMongo.getLongId());
             return;
         }
 
         if (game.getSchema().checkWord(text, game.getChatId() == userMongo.getLongId())) {
             if (game.getSchema().howMuchLeft(GameColor.BLACK) < 6) {
-                finishDuetGame(game, "Black card opened!\nGame over!");
+                finishGameDuet(game, BLACK_CARD_OPENED);
             } else if (game.getTurnsLeft() == 0 && game.getOpenGreensLeft() == game.getSchema().howMuchLeft(GameColor.GREEN)) {
-                finishDuetGame(game, "Game over!");
+                finishGameDuet(game, DUET_GAME_OVER);
             } else if (game.getSchema().howMuchLeft(GameColor.GREEN) == 0) {
-                finishDuetGame(game, "You won!");
+                finishGameDuet(game, DUET_YOU_WON);
             } else {
                 sendDuetPicture(game, game.getChatId(), true);
                 sendDuetPicture(game, game.getSecondPlayerId(), false);
 
                 if (game.getOpenGreensLeft() == game.getSchema().howMuchLeft(GameColor.GREEN) || game.getPrompt().isFinished()) {
-                    switchTurn(game);
+                    switchTurnDuet(game);
                 } else {
-                    sendSimpleMessage("Correct!", game.getCaps().get(0).getLongId());
-                    sendSimpleMessage("Correct!", game.getCaps().get(1).getLongId());
+                    sendSimpleMessage(DUET_CORRECT, game.getCaps().get(0).getLongId());
+                    sendSimpleMessage(DUET_CORRECT, game.getCaps().get(1).getLongId());
 
                     if (game.getSchema().howMuchLeft(GameColor.GREEN, game.getSecondPlayerId() == userMongo.getLongId()) == 0) {
-                        sendSimpleMessage("You have finished!", game.getCaps().get(0).getLongId());
-                        sendSimpleMessage("Player @" + userMongo.getUserName() + " have finished!", game.getCaps().get(1).getLongId());
+                        sendSimpleMessage(DUET_YOU_FINISHED, game.getCaps().get(0).getLongId());
+                        sendSimpleMessage(String.format(DUET_PLAYER_FINISHED, userMongo.getUserName()), game.getCaps().get(1).getLongId());
                         game.swapCaptains();
-                        switchTurn(game);
+                        switchTurnDuet(game);
                     }
                 }
                 game.refereshGreenLeft();
@@ -290,7 +280,24 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
     }
 
-    private void finishDuetGame(DuetGame game, String text) {
+    private void sendPromptDuet(DuetGame game, User user, String text) {
+        if (game.getCaps().get(1).getUserName().equals(user.getUserName()) && game.getPrompt() == null) {
+
+            Prompt prompt = getPromptDuet(text);
+            if (prompt == null) {
+                sendSimpleMessage(DUET_INCORRECT_PROMPT, user.getId());
+                return;
+            }
+
+            if (game.getPrompt() == null) {
+                game.setPrompt(prompt);
+                sendSimpleMessage(String.format(DUET_PLAYERS_PROMPT, user.getUserName(), prompt.getWord(), prompt.getNumber()), game.getPartnerId(user.getId()));
+                sendSimpleMessage(DUET_PROMPT_SENT, user.getId());
+            }
+        }
+    }
+
+    private void finishGameDuet(DuetGame game, String text) {
         game.getSchema().openCards(false);
         sendDuetPicture(game, game.getChatId(), true);
         sendDuetPicture(game, game.getChatId(), false);
@@ -301,22 +308,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         game.getSchema().openCards(true);
     }
 
-    private void switchTurn(DuetGame game) {
+    private void switchTurnDuet(DuetGame game) {
         game.minusTurnsLeft();
-
         if (game.getTurnsLeft() == 0) {
-            sendSimpleMessage("Last turn for all!", game.getCaps().get(0).getLongId());
-            sendSimpleMessage("Last turn for all!", game.getCaps().get(1).getLongId());
+            sendSimpleMessage(DUET_LAST_TURN, game.getCaps().get(0).getLongId());
+            sendSimpleMessage(DUET_LAST_TURN, game.getCaps().get(1).getLongId());
         } else {
-
             if (game.getSchema().howMuchLeft(GameColor.GREEN, true) != 0 && game.getSchema().howMuchLeft(GameColor.GREEN, false) != 0)
                 game.swapCaptains();
-
             game.setPrompt(null);
-            sendSimpleMessage("Now is your turn!\n Waiting for prompt!",
-                    game.getCaps().get(0).getLongId());
-            sendSimpleMessage("Now is @" + game.getCaps().get(0).getUserName() + "'s turn!\nPlease send a prompt!",
-                    game.getCaps().get(1).getLongId());
+            sendSimpleMessage(DUET_YOUR_TURN, game.getCaps().get(0).getLongId());
+            sendSimpleMessage(String.format(DUET_PLAYERS_TURN, game.getCaps().get(0).getUserName()), game.getCaps().get(1).getLongId());
         }
     }
 
@@ -357,7 +359,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         sendSimpleMessage(START_INSTRUCTION, chatId, false);
     }
 
-    private void botSendCommand(long chatId) {
+    private void botSendCaptainsCommand(long chatId) {
         if (games.containsKey(chatId))
             sendSimpleMessage(games.get(chatId).getCaptainsToString(), chatId, false);
         else
@@ -381,14 +383,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             sendPicture(games.get(chatId), cap.getLongId(),false,true);
     }
 
-    private void botStartNewDuelGame(UserMongo firstUser, UserMongo secondUser) {
+    private void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
 
         Game game;
         if (games.containsKey(firstUser.getLongId()))
             game = new DuetGame(games.get(firstUser.getLongId())).setSecondPlayerId(secondUser.getLongId()).createSchema();
         else
             game = new DuetGame(firstUser.getLongId(), LANG_RUS, false).setSecondPlayerId(secondUser.getLongId()).createSchema();
-
 
         games.put(firstUser.getLongId(), game);
         games.put(secondUser.getLongId(), game);
@@ -400,7 +401,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         sendDuetPicture((DuetGame) game, firstUser.getLongId(), true);
         sendDuetPicture((DuetGame) game, secondUser.getLongId(), false);
-        switchTurn((DuetGame) game);
+        switchTurnDuet((DuetGame) game);
     }
 
     private void botChooseWord(long chatId) {
