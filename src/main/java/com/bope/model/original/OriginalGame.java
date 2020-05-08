@@ -13,4 +13,9 @@ public class OriginalGame extends Game {
         setSchema(new OriginalSchema());
     }
 
+    @Override
+    public void reset() {
+        //update
+    }
+
 }

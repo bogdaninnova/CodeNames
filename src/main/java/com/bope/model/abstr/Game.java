@@ -18,14 +18,18 @@ public abstract class Game {
         setLang(game.getLang());
         setUseKeyboard(game.isUseKeyboard());
         setSchema(game.getSchema());
+        reset();
     }
 
     protected Game(long chatId, String lang, boolean isUseKeyboard) {
         setChatId(chatId);
         setLang(lang);
         setUseKeyboard(isUseKeyboard);
+        reset();
         //create default schema
     }
+
+    public abstract void reset();
 
     public boolean isUseKeyboard() {
         return useKeyboard;
