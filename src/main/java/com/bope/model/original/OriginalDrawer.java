@@ -10,7 +10,7 @@ import java.awt.*;
 public class OriginalDrawer extends Drawer {
 
     public OriginalDrawer(Game game, String fileName, boolean isAdmin) {
-        super(500, 200);
+        super(500, 200, 200);
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 drawCard(game.getSchema().getArray()[i][j], i, j, isAdmin);

@@ -6,10 +6,11 @@ public class PicturesGame extends Game {
 
     public PicturesGame(Game game) {
         super(game);
+        setLang("pictures");
     }
 
     public PicturesGame(long chatId) {
-        super(chatId, "none", false);
+        super(chatId, "pictures", false);
         setSchema(new PicturesSchema());
     }
 

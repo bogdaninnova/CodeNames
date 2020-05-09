@@ -12,15 +12,17 @@ public abstract class Drawer {
 
     protected final int sizeX;
     protected final int sizeY;
+    protected final int sizeYscores;
     protected BufferedImage bi;
     protected Graphics2D g;
 
 
-    protected Drawer(int sizeX, int sizeY) {
+    protected Drawer(int sizeX, int sizeY, int sizeYscores) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.sizeYscores = sizeYscores;
 
-        bi = new BufferedImage(5*sizeX, 6*sizeY, BufferedImage.TYPE_4BYTE_ABGR);
+        bi = new BufferedImage(5*sizeX, 5*sizeY + sizeYscores, BufferedImage.TYPE_4BYTE_ABGR);
         g = getBackgroundedGraphics2D(bi, Color.WHITE);
     }
 
@@ -56,15 +58,15 @@ public abstract class Drawer {
 
     protected void drawScores(int redLeft, int blueLeft) {
         g.setColor(Colors.RED_CARD);
-        g.fillRect(0, sizeY * 5, sizeX * 5 / 2, sizeY);
+        g.fillRect(0, sizeY * 5, sizeX * 5 / 2, sizeYscores);
         g.setColor(Colors.BLUE_CARD);
-        g.fillRect(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeY);
+        g.fillRect(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeYscores);
 
-        g.setFont(new Font( "Arial", Font.BOLD, sizeY * 3/4));
+        g.setFont(new Font( "Arial", Font.BOLD, sizeYscores * 3/4));
         g.setColor(Colors.RED_TEXT);
-        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4 - 50, sizeY * 11 / 2 + 50);
+        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4 - 50, sizeY * 5 + sizeYscores * 3/4);
         g.setColor(Colors.BLUE_TEXT);
-        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4 - 50, sizeY * 11 / 2 + 50);
+        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4 - 50, sizeY * 5 + sizeYscores * 3/4);
 
     }
 
