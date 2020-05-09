@@ -1,5 +1,6 @@
 package com.bope;
 
+import com.bope.model.Card;
 import com.bope.model.Prompt;
 import com.bope.model.duet.DuetDrawer;
 import com.bope.model.original.OriginalDrawer;
@@ -7,6 +8,9 @@ import com.bope.model.abstr.Game;
 import com.bope.model.GameColor;
 import com.bope.model.duet.DuetGame;
 import com.bope.model.original.OriginalGame;
+import com.bope.model.pictures.PicturesDrawer;
+import com.bope.model.pictures.PicturesGame;
+import com.vdurmont.emoji.EmojiParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +21,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -89,6 +95,46 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+
+
+        if (update.hasCallbackQuery()) {
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
+            String data = update.getCallbackQuery().getData();
+            if (!data.equals(" ") && games.containsKey(chatId)) {
+
+                PicturesGame game = (PicturesGame) games.get(chatId);
+
+                int i = Integer.parseInt(data.substring(0, 1));
+                int j = Integer.parseInt(data.substring(2));
+
+                if (!game.getSchema().getArray()[i][j].isOpen()) {
+                    sendSimpleMessage("User @" + update.getCallbackQuery().getFrom().getUserName() + " opened card!", chatId);
+                    game.getSchema().getArray()[i][j].setOpen(true);
+                    int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
+                    int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
+                    int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
+
+                    if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
+                        //sendPicturePicGame(game, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId()); //TODO
+                        sendPicturePicGame(game, false, chatId);
+                    } else {
+                        game.getSchema().openCards(true);
+                        sendPicturePicGame(game, true, chatId);
+                        if (redLeft == 0) {
+                            sendSimpleMessage(RED_TEAM_WIN, chatId);
+                        } else if (blueLeft == 0) {
+                            sendSimpleMessage(BLUE_TEAM_WIN, chatId);
+                        } else
+                            sendSimpleMessage(BLACK_CARD_OPENED, chatId);
+                    }
+                }
+            }
+            return;
+        }
+
+
+
+
 
         String text = update.getMessage().getText();
         User user = update.getMessage().getFrom();
@@ -171,6 +217,50 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
+
+
+
+
+
+
+
+        if (text.length() > ("/pic @").length()) {
+            if (text.toLowerCase().substring(0, 6).equals("/pic @")) {
+                Set<String> set = new HashSet<>(
+                        Arrays.asList(text.replace(" ", "")
+                                .substring(text.indexOf("@")).split("@"))
+                );
+
+                if (set.size() != 2) {
+                    sendSimpleMessage(CHOOSE_CAPTAINS, chatId, true);
+                    return;
+                }
+
+                ArrayList<UserMongo> userList = new ArrayList<>();
+                for (String cap : set) {
+                    UserMongo userMongo = usersListMongo.findByUserName(cap);
+                    if (userMongo == null) {
+                        sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, cap), chatId, true);
+                        return;
+                    } else
+                        userList.add(userMongo);
+                }
+
+                botStartNewGamePictures(chatId, userList);
+                return;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
         if (chatId == user.getId() && text.length() > 7) {
             if (text.toLowerCase().startsWith(DUET_COMMAND + " @")) {
                 LOG.info("Duet game starting");
@@ -222,7 +312,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (text.length() > (START_COMMAND + " @").length())
+        if (text.length() > (START_COMMAND + " @").length()) {
             if (text.toLowerCase().substring(0, 8).equals(START_COMMAND + " @")) {
                 LOG.info("Original game starting");
                 Set<String> set = new HashSet<>(
@@ -250,6 +340,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 botStartNewGame(chatId, userSet);
                 return;
             }
+        }
 
         if (text.startsWith("/")) {
             LOG.info("Added / to text: " + text);
@@ -419,6 +510,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
     }
 
+    private void botStartNewGamePictures(long chatId, ArrayList<UserMongo> captains) {
+
+        if (games.containsKey(chatId))
+            games.put(chatId, new PicturesGame(games.get(chatId)).setCaps(captains).createSchema());
+        else
+            games.put(chatId, new PicturesGame(chatId).setCaps(captains).createSchema());
+
+        sendPicturePicGame((PicturesGame) games.get(chatId), false, chatId);
+        sendPicturePicGame((PicturesGame) games.get(chatId), true, captains.get(0).getLongId(), captains.get(1).getLongId());
+    }
+
     private void botStartNewGame(long chatId, Set<UserMongo> captains) {
         LOG.info("Original game starting");
         if (games.containsKey(chatId))
@@ -574,6 +676,57 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             e.printStackTrace();
             LOG.error("Error occurred while picture sending");
         }
+    }
+
+
+    private void sendPicturePicGame(PicturesGame game, boolean isAdmin, long... chatIds) {
+        LOG.info("Picture sending");
+        String filepath = getFilePath(game.getChatId(), isAdmin);
+        new PicturesDrawer(game, filepath, isAdmin);
+        try {
+            File file = new File(filepath);
+
+            for (long chatId : chatIds) {
+                SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file));
+                if (!isAdmin)
+                    photo.setReplyMarkup(sendInlinePicturesKeyboard(game));
+                photo.setChatId(chatId);
+                execute(photo);
+            }
+
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
+            LOG.info("Picture sent");
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error("Error occurred while picture sending");
+        }
+    }
+
+    private InlineKeyboardMarkup sendInlinePicturesKeyboard(PicturesGame game) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+
+        for (int j = 0; j < 5; j++) {
+            List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                Card card = game.getSchema().getArray()[i][j];
+                String emoji = ":white_circle:";
+                String action = i + "-" + j;
+                if (card.isOpen()) {
+                    action = " ";
+                    switch (card.getGameColor()) {
+                        case RED: emoji = ":heart:"; break;
+                        case BLUE: emoji = ":blue_heart:"; break;
+                        case YELLOW: emoji = ":yellow_heart:"; break;
+                    }
+                }
+                keyboardButtonsRow.add(new InlineKeyboardButton().setText(EmojiParser.parseToUnicode(emoji)).setCallbackData(action));
+            }
+            rowList.add(keyboardButtonsRow);
+        }
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        return inlineKeyboardMarkup;
     }
 
     private void sendDuetPicture(DuetGame game, long chatId, boolean isFirst) {

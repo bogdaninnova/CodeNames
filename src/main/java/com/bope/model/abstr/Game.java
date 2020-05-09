@@ -78,6 +78,11 @@ public abstract class Game {
         return this;
     }
 
+    public Game setCaps(ArrayList<UserMongo> list) {
+        caps = list;
+        return this;
+    }
+
     public Game setCaps(UserMongo cap1, UserMongo cap2) {
         caps = new ArrayList<>();
         caps.add(cap1);
