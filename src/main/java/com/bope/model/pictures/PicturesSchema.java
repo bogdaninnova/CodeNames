@@ -5,27 +5,31 @@ import com.bope.model.GameColor;
 import com.bope.model.abstr.Schema;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.HashMap;
 
 public class PicturesSchema extends Schema {
 
     private ArrayList<Integer> picturesList = new ArrayList<>();
 
+    private HashMap<Integer, String> picturesMapping;
 
     public void update(String lang) {
         for (int i = 0; i<=100; i++)
             picturesList.add(i);
-
+        picturesMapping = new HashMap<>();
         setRedFirst(rand.nextBoolean());
         setArray(isRedFirst());
 
     }
 
     protected void setArray(boolean isRedFirst) {
-        for (int i = 0; i < 5; i++)
-            for (int j = 0; j < 5; j++)
-                array[i][j] = new Card(getRandomCard(), GameColor.YELLOW);
-
+        int num = 0;
+        for (int j = 0; j < 5; j++)
+            for (int i = 0; i < 5; i++) {
+                String pic_num = getRandomCard();
+                picturesMapping.put(++num, pic_num);
+                array[i][j] = new Card(String.valueOf(num), GameColor.YELLOW);
+            }
         setColorsOnCard(GameColor.RED,  8);
         setColorsOnCard(GameColor.BLUE, 8);
         setColorsOnCard(GameColor.BLACK, 1);
@@ -64,7 +68,7 @@ public class PicturesSchema extends Schema {
 
     protected String getRandomCard() {
         int picNumber = picturesList.remove(rand.nextInt(picturesList.size()));
-        return picNumber + ".jpg";
+        return String.valueOf(picNumber);
     }
 
     public boolean isRedFirst() {
@@ -75,4 +79,7 @@ public class PicturesSchema extends Schema {
         isRedFirst = redFirst;
     }
 
+    public HashMap<Integer, String> getPicturesMapping() {
+        return picturesMapping;
+    }
 }

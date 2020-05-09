@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -96,45 +97,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
 
-
         if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
-            String data = update.getCallbackQuery().getData();
-            if (!data.equals(" ") && games.containsKey(chatId)) {
-
-                PicturesGame game = (PicturesGame) games.get(chatId);
-
-                int i = Integer.parseInt(data.substring(0, 1));
-                int j = Integer.parseInt(data.substring(2));
-
-                if (!game.getSchema().getArray()[i][j].isOpen()) {
-                    sendSimpleMessage("User @" + update.getCallbackQuery().getFrom().getUserName() + " opened card!", chatId);
-                    game.getSchema().getArray()[i][j].setOpen(true);
-                    int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
-                    int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
-                    int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
-
-                    if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
-                        //sendPicturePicGame(game, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId()); //TODO
-                        sendPicturePicGame(game, false, chatId);
-                    } else {
-                        game.getSchema().openCards(true);
-                        sendPicturePicGame(game, true, chatId);
-                        if (redLeft == 0) {
-                            sendSimpleMessage(RED_TEAM_WIN, chatId);
-                        } else if (blueLeft == 0) {
-                            sendSimpleMessage(BLUE_TEAM_WIN, chatId);
-                        } else
-                            sendSimpleMessage(BLACK_CARD_OPENED, chatId);
-                    }
-                }
-            }
+            String text = update.getCallbackQuery().getData();
+            if (!text.equals(" ") && games.containsKey(chatId))
+                checkWordPicture((PicturesGame) games.get(chatId), text, update.getCallbackQuery().getFrom().getUserName());
             return;
         }
-
-
-
-
 
         String text = update.getMessage().getText();
         User user = update.getMessage().getFrom();
@@ -342,13 +311,22 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
         }
 
-        if (text.startsWith("/")) {
-            LOG.info("Added / to text: " + text);
-            text = text.substring(1);
+
+        if (chatId != user.getId() && games.containsKey(chatId)) {
+            Game game = games.get(chatId);
+            if (game instanceof OriginalGame) {
+                if (text.startsWith("/")) {
+                    LOG.info("Added / to text: " + text);
+                    text = text.substring(1);
+                }
+                if (game.getSchema().checkWord(text, true))
+                    botChooseWord(chatId);
+            } else if (game instanceof PicturesGame) {
+                checkWordPicture((PicturesGame) game, text);
+            }
         }
 
-        if (games.get(chatId).getSchema().checkWord(text, true))
-            botChooseWord(chatId);
+
     }
 
     private static Prompt getPromptDuet(String text) {
@@ -429,6 +407,38 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             return true;
         }
         return false;
+    }
+
+    private void checkWordPicture(PicturesGame game, String text, String userName) {
+
+        if (text.startsWith("/"))
+            text = text.substring(1);
+
+        if (game.getSchema().checkWord(text, true)) {
+            if (userName != null)
+                sendSimpleMessage("User @" + userName + " opened card!", game.getChatId());
+            int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
+            int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
+            int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
+
+            if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
+                //sendPicturePicGame(game, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId()); //TODO
+                sendPicturePicGame(game, false, game.getChatId());
+            } else {
+                game.getSchema().openCards(true);
+                sendPicturePicGame(game, true, game.getChatId());
+                if (redLeft == 0) {
+                    sendSimpleMessage(RED_TEAM_WIN, game.getChatId());
+                } else if (blueLeft == 0) {
+                    sendSimpleMessage(BLUE_TEAM_WIN, game.getChatId());
+                } else
+                    sendSimpleMessage(BLACK_CARD_OPENED, game.getChatId());
+            }
+        }
+    }
+
+    private void checkWordPicture(PicturesGame game, String text) {
+        checkWordPicture(game, text, null);
     }
 
     private void finishGameDuet(DuetGame game, String text) {
@@ -688,7 +698,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
             for (long chatId : chatIds) {
                 SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file));
-                if (!isAdmin)
+                if (!isAdmin && game.isUseKeyboard())
                     photo.setReplyMarkup(sendInlinePicturesKeyboard(game));
                 photo.setChatId(chatId);
                 execute(photo);
@@ -711,8 +721,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             List<InlineKeyboardButton> keyboardButtonsRow = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 Card card = game.getSchema().getArray()[i][j];
-                String emoji = ":white_circle:";
-                String action = i + "-" + j;
+                String emoji = card.getWord();
+                String action = card.getWord();
                 if (card.isOpen()) {
                     action = " ";
                     switch (card.getGameColor()) {

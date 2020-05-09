@@ -22,9 +22,11 @@ public class PicturesDrawer extends Drawer {
             BufferedImage image;
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 5; j++) {
-                    Card card = game.getSchema().getArray()[i][j];
-                    image = ImageIO.read(new File(path + card.getWord()));
+                    PicturesSchema schema = (PicturesSchema) game.getSchema();
+                    Card card = schema.getArray()[i][j];
+                    image = ImageIO.read(new File(path + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg"));
                     addImage(image, i, j, card, isAdmin);
+                    addNumber(i, j, card.getWord());
                 }
 
             drawScores(game.getSchema().howMuchLeft(GameColor.RED), game.getSchema().howMuchLeft(GameColor.BLUE));
@@ -35,8 +37,13 @@ public class PicturesDrawer extends Drawer {
         }
     }
 
+    private void addNumber(int x, int y, String num) {
+        g.setFont(new Font( "Arial", Font.BOLD, sizeY / 6));
+        g.setColor(Color.BLACK);
+        g.drawString(num, x * sizeX  + sizeX/18, y * sizeY + sizeY/6);
+    }
 
-    public void addImage(BufferedImage image, int x, int y, Card card, boolean isAdmin) {
+    private void addImage(BufferedImage image, int x, int y, Card card, boolean isAdmin) {
         if (card.isOpen() || isAdmin) {
             int mask = 0;
             switch (card.getGameColor()) {
