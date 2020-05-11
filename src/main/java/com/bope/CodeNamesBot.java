@@ -186,6 +186,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, username), chatId);
                     return;
                 }
+                if (userMongo.getUserName().equals(username)) {
+                    sendSimpleMessage(String.format("You can't play alone.\nYou need to choose registered player!", username), chatId);
+                    return;
+                }
                 botStartNewGameDuet(usersListMongo.findByUserName(user.getUserName()), userMongo);
                 return;
             }
