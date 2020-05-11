@@ -40,6 +40,12 @@ public abstract class Schema {
         return resultWordsList;
     }
 
+    public void setDefaultCards() {
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                array[i][j] = new Card("default", GameColor.YELLOW);
+    }
+
     public String getLang() {
         return lang;
     }
@@ -92,14 +98,12 @@ public abstract class Schema {
                         array[i][j].setOpen(true);
                         if (array[i][j].getGameColor().equals(GameColor.GREEN) && array[i][j].getSecondGameColor().equals(GameColor.GREEN))
                             array[i][j].setOpenBySecondPlayer(true);
-                        System.out.println("o1 " + word);
                         return true;
                     }
                     if (!array[i][j].isOpenBySecondPlayer() && !isFirst) {
                         array[i][j].setOpenBySecondPlayer(true);
                         if (array[i][j].getGameColor().equals(GameColor.GREEN) && array[i][j].getSecondGameColor().equals(GameColor.GREEN))
                             array[i][j].setOpen(true);
-                        System.out.println("o2 " + word);
                         return true;
                     }
                 }

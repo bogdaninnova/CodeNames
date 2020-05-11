@@ -10,6 +10,7 @@ import java.awt.*;
 public class OriginalDrawer extends Drawer {
 
     public OriginalDrawer(Game game, String fileName, boolean isAdmin) {
+        super(500, 200, 200);
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 drawCard(game.getSchema().getArray()[i][j], i, j, isAdmin);
@@ -33,19 +34,7 @@ public class OriginalDrawer extends Drawer {
         g.drawString(card.getWord(), i * sizeX + 100, j * sizeY + 120);
     }
 
-    private void drawScores(int redLeft, int blueLeft) {
-        g.setColor(Colors.RED_CARD);
-        g.fillRect(0, sizeY * 5, sizeX * 5 / 2, sizeY);
-        g.setColor(Colors.BLUE_CARD);
-        g.fillRect(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeY);
 
-        g.setFont(new Font( "Arial", Font.BOLD, 150 ));
-        g.setColor(Colors.RED_TEXT);
-        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4 - 50, sizeY * 11 / 2 + 50);
-        g.setColor(Colors.BLUE_TEXT);
-        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4 - 50, sizeY * 11 / 2 + 50);
-
-    }
 
     private static Color[] getCardColor(Card card) {
         if (card.getGameColor() == GameColor.RED)

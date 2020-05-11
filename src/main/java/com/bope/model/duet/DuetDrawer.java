@@ -11,7 +11,7 @@ import java.awt.*;
 public class DuetDrawer extends Drawer {
 
     public DuetDrawer(DuetGame game, String fileName, boolean isFirstPlayer) {
-
+        super(500, 200, 200);
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
                 drawCard(game.getSchema().getArray()[i][j], i, j, isFirstPlayer);

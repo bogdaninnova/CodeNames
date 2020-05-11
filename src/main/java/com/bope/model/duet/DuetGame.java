@@ -18,8 +18,8 @@ public class DuetGame extends Game {
         super(chatId, lang, isUseKeyboard);
         setSchema(new DuetSchema());
         //refereshGreenLeft();
-        openGreensLeft = 18;
-        turnsLeft = 9;
+        this.turnsLeft = 9;
+        this.openGreensLeft = 18;
     }
 
     public long getSecondPlayerId() {
@@ -58,6 +58,11 @@ public class DuetGame extends Game {
 
     public int getTurnsLeft() {
         return turnsLeft;
+    }
+
+    public void reset() {
+        this.turnsLeft = 9;
+        this.openGreensLeft = 18;
     }
 
     public void minusTurnsLeft() {

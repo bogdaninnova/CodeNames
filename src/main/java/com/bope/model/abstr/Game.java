@@ -1,6 +1,7 @@
 package com.bope.model.abstr;
 
 import com.bope.UserMongo;
+import com.bope.model.pictures.PicturesSchema;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -18,14 +19,18 @@ public abstract class Game {
         setLang(game.getLang());
         setUseKeyboard(game.isUseKeyboard());
         setSchema(game.getSchema());
+        reset();
     }
 
     protected Game(long chatId, String lang, boolean isUseKeyboard) {
         setChatId(chatId);
         setLang(lang);
         setUseKeyboard(isUseKeyboard);
+        reset();
         //create default schema
     }
+
+    public abstract void reset();
 
     public boolean isUseKeyboard() {
         return useKeyboard;
@@ -71,6 +76,11 @@ public abstract class Game {
     public Game setCaps(Set<UserMongo> set) {
         caps = new ArrayList<>();
         caps.addAll(set);
+        return this;
+    }
+
+    public Game setCaps(ArrayList<UserMongo> list) {
+        caps = list;
         return this;
     }
 

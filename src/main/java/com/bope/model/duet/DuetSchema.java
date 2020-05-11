@@ -23,8 +23,6 @@ public class DuetSchema extends Schema {
 
     }
 
-
-
     private void setSecondColorsOnCard(GameColor gameColor, GameColor onGameColor, int count) {
         while (count > 0) {
             int i = rand.nextInt(5);
