@@ -29,6 +29,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class CodeNamesBot extends TelegramLongPollingBot {
@@ -670,6 +671,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     photo.setReplyMarkup(new ReplyKeyboardRemove());
                 execute(photo);
             }
+
+            if (game instanceof PicturesGame)
+                TimeUnit.SECONDS.sleep(3);
             //noinspection ResultOfMethodCallIgnored
             file.delete();
             LOG.info("Picture sent");
