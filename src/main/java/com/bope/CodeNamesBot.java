@@ -1,6 +1,5 @@
 package com.bope;
 
-import com.bope.model.Card;
 import com.bope.model.Prompt;
 import com.bope.model.duet.DuetDrawer;
 import com.bope.model.original.OriginalDrawer;
@@ -12,7 +11,6 @@ import com.bope.model.original.OriginalSchema;
 import com.bope.model.pictures.PicturesDrawer;
 import com.bope.model.pictures.PicturesGame;
 import com.bope.model.pictures.PicturesSchema;
-import com.vdurmont.emoji.EmojiParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +19,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -142,7 +137,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 text.toLowerCase().equals(KEYBOARD_COMMAND + "@" + getBotUsername().toLowerCase())
         )) {
             LOG.info("Keyboard usage check");
-            sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(ENABLE_BUTTON, DISABLE_BUTTON), chatId);
+            sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(new String[]{ENABLE_BUTTON, DISABLE_BUTTON}), chatId);
             return;
         }
 
@@ -151,7 +146,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 text.toLowerCase().equals(LANG_COMMAND + "@" + getBotUsername().toLowerCase())
         )) {
             LOG.info("Keyboard language check");
-            sendSimpleMessage(CHOOSE_LANGUAGE, getKeyboard(LANG_RUS, LANG_ENG, LANG_UKR, LANG_PICTURES), chatId);
+            sendSimpleMessage(CHOOSE_LANGUAGE, getKeyboard(new String[]{LANG_RUS, LANG_ENG, LANG_UKR}, new String[]{LANG_PICTURES}), chatId);
             return;
         }
 
@@ -426,8 +421,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         LOG.info("Choose language command");
         if (games.containsKey(chatId))
             games.get(chatId).setLang(text);
-        else
-            games.put(chatId, new OriginalGame(chatId, text,false));
+        else {
+            Game game = new OriginalGame(chatId, text, false);
+            game.getSchema().setDefaultCards();
+            games.put(chatId, game);
+        }
         sendSimpleMessage(SET_LANGUAGE + " " + text, chatId);
     }
 
@@ -443,12 +441,16 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (games.containsKey(chatId)) {
             game = games.get(chatId);
             game.setUseKeyboard(isEnable);
-            if (isEnable && game.getSchema().howMuchLeft(GameColor.BLACK) != 0)
-                sendPicture(game, game.isUseKeyboard(), false, chatId);
+            if (isEnable && game.getSchema() != null)
+                if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0)
+                    sendPicture(game, game.isUseKeyboard(), false, chatId);
         }
 
-        if (game == null)
-            games.put(chatId, new OriginalGame(chatId, LANG_RUS, isEnable));
+        if (game == null) {
+            game = new OriginalGame(chatId, LANG_RUS, isEnable);
+            game.getSchema().setDefaultCards();
+            games.put(chatId, game);
+        }
     }
 
     private void botBoardCommand(long chatId) {
@@ -501,22 +503,25 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     private void botStartNewGame(long chatId, ArrayList<UserMongo> captains) {
         LOG.info("Original game starting");
+        Game game;
         if (games.containsKey(chatId)) {
-            games.put(chatId, new OriginalGame(games.get(chatId)).setCaps(captains).createSchema());
-            if (games.get(chatId).getSchema() instanceof PicturesSchema) {
-                games.get(chatId).setSchema(new OriginalSchema());
-                games.get(chatId).createSchema();
+            game = new OriginalGame(games.get(chatId)).setCaps(captains).createSchema();
+            games.put(chatId, game);
+            if (game.getSchema() instanceof PicturesSchema) {
+                game.setSchema(new OriginalSchema());
+                game.createSchema();
             }
-        } else
-            games.put(chatId, new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema());
+        } else {
+            game = new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema();
+            games.put(chatId, game);
+        }
+        sendPicture(game, game.isUseKeyboard(), false, chatId);
 
-        sendPicture(games.get(chatId), games.get(chatId).isUseKeyboard(), false, chatId);
-
-        if (games.get(chatId).getSchema().howMuchLeft(GameColor.RED) == 9)
+        if (game.getSchema().howMuchLeft(GameColor.RED) == 9)
             sendSimpleMessage(RED_TEAM_STARTS, chatId, false);
         else
             sendSimpleMessage(BLUE_TEAM_STARTS, chatId, false);
-        sendPicture(games.get(chatId),false,true, captains.get(0).getLongId(), captains.get(1).getLongId());
+        sendPicture(game,false,true, captains.get(0).getLongId(), captains.get(1).getLongId());
     }
 
     private void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
@@ -591,7 +596,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    private ReplyKeyboardMarkup getKeyboard(String... args) {
+    private ReplyKeyboardMarkup getKeyboard(String[]... args) {
         LOG.info("Option Keyboard build");
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -600,12 +605,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         replyKeyboardMarkup.setOneTimeKeyboard(true);
 
         List<KeyboardRow> keyboard= new ArrayList<>();
-        KeyboardRow keyboardRow = new KeyboardRow();
 
-        for (String arg : args)
-            keyboardRow.add(arg);
+        for (String[] arg : args) {
+            KeyboardRow keyboardRow = new KeyboardRow();
+            for (String button : arg)
+                keyboardRow.add(button);
+            keyboard.add(keyboardRow);
+        }
 
-        keyboard.add(keyboardRow);
         replyKeyboardMarkup.setKeyboard(keyboard);
 
         return replyKeyboardMarkup;
