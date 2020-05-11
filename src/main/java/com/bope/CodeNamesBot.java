@@ -100,14 +100,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.hasCallbackQuery()) {
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-            String text = update.getCallbackQuery().getData();
-            if (!text.equals(" ") && games.containsKey(chatId))
-                checkWordPicture((PicturesGame) games.get(chatId), text, update.getCallbackQuery().getFrom().getUserName());
-            return;
-        }
-
         String text = update.getMessage().getText();
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
@@ -377,14 +369,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return false;
     }
 
-    private void checkWordPicture(PicturesGame game, String text, String userName) {
-
+    private void checkWordPicture(PicturesGame game, String text) {
         if (text.startsWith("/"))
             text = text.substring(1);
 
         if (game.getSchema().checkWord(text, true)) {
-            if (userName != null)
-                sendSimpleMessage("User @" + userName + " opened card!", game.getChatId());
             int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
             int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
             int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
@@ -394,7 +383,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 sendPicture(game, game.isUseKeyboard(), false, game.getChatId());
             } else {
                 game.getSchema().openCards(true);
-                sendPicture(game, false, true, game.getChatId());
+                sendPicture(game, false, false, game.getChatId());
                 if (redLeft == 0) {
                     sendSimpleMessage(RED_TEAM_WIN, game.getChatId());
                 } else if (blueLeft == 0) {
@@ -403,10 +392,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     sendSimpleMessage(BLACK_CARD_OPENED, game.getChatId());
             }
         }
-    }
-
-    private void checkWordPicture(PicturesGame game, String text) {
-        checkWordPicture(game, text, null);
     }
 
     private void finishGameDuet(DuetGame game, String text) {
@@ -454,20 +439,29 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         else
             sendSimpleMessage(DISABLED_KEYBOARD, chatId);
 
+        Game game = null;
         if (games.containsKey(chatId)) {
-            games.get(chatId).setUseKeyboard(isEnable);
-            if (isEnable)
-                sendPicture(games.get(chatId), games.get(chatId).isUseKeyboard(), false, chatId);
+            game = games.get(chatId);
+            game.setUseKeyboard(isEnable);
+            if (isEnable && game.getSchema().howMuchLeft(GameColor.BLACK) != 0)
+                sendPicture(game, game.isUseKeyboard(), false, chatId);
         }
-        else
+
+        if (game == null)
             games.put(chatId, new OriginalGame(chatId, LANG_RUS, isEnable));
     }
 
     private void botBoardCommand(long chatId) {
         LOG.info("Bot board command");
-        if (games.containsKey(chatId))
-            sendPicture(games.get(chatId), games.get(chatId).isUseKeyboard(), false, chatId);
-        else
+        Game game = null;
+        if (games.containsKey(chatId)) {
+            game = games.get(chatId);
+            if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0)
+                sendPicture(game, game.isUseKeyboard(), false, chatId);
+            else
+                sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
+        }
+        if (game == null)
             sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
     }
 
@@ -548,21 +542,22 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     private void botChooseWord(long chatId) {
         LOG.info("Original game -- word chosen");
-        int blackLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLACK);
-        int redLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.RED);
-        int blueLeft = games.get(chatId).getSchema().howMuchLeft(GameColor.BLUE);
+        Game game = games.get(chatId);
+        int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
+        int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
+        int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
 
         if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
             LOG.info("Original game update boards");
-            sendPicture(games.get(chatId), false,true,
-                    games.get(chatId).getCaps().get(0).getLongId(),
-                    games.get(chatId).getCaps().get(1).getLongId()
+            sendPicture(game, false,true,
+                    game.getCaps().get(0).getLongId(),
+                    game.getCaps().get(1).getLongId()
             );
-            sendPicture(games.get(chatId), games.get(chatId).isUseKeyboard(), false, chatId);
+            sendPicture(game, game.isUseKeyboard(), false, chatId);
         } else {
             LOG.info("Original game finished -- update boards");
-            games.get(chatId).getSchema().openCards(true);
-            sendPicture(games.get(chatId), false, false, chatId);
+            game.getSchema().openCards(true);
+            sendPicture(game, false, false, chatId);
             if (redLeft == 0) {
                 sendSimpleMessage(RED_TEAM_WIN, chatId);
             } else if (blueLeft == 0) {
