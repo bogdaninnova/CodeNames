@@ -1,10 +1,10 @@
 package com.bope.model.pictures;
 
 import com.bope.model.Card;
-import com.bope.model.Colors;
 import com.bope.model.GameColor;
 import com.bope.model.abstr.Drawer;
-import com.bope.model.abstr.Game;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,25 +14,34 @@ import java.io.IOException;
 
 public class PicturesDrawer extends Drawer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PicturesDrawer.class);
     private static final String path = "src\\main\\resources\\pictures\\";
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
         super(614, 614, 400);
+        LOG.info("PicturesDrawer starts");
         try {
             BufferedImage image;
+            PicturesSchema schema = (PicturesSchema) game.getSchema();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 5; j++) {
-                    PicturesSchema schema = (PicturesSchema) game.getSchema();
+                    LOG.info("Starting to draw card: i=" + i + ", j=" + j);
                     Card card = schema.getArray()[i][j];
+                    LOG.info("Starting to draw card (path = " + path + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg)");
                     image = ImageIO.read(new File(path + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg"));
+                    LOG.info("Adding image on board");
                     addImage(image, i, j, card, isAdmin);
+                    LOG.info("Adding number to image");
                     addNumber(i, j, card, isAdmin);
                 }
-            drawScores(game.getSchema().howMuchLeft(GameColor.RED), game.getSchema().howMuchLeft(GameColor.BLUE));
+            LOG.info("Adding scores on board");
+            drawScores(schema.howMuchLeft(GameColor.RED), game.getSchema().howMuchLeft(GameColor.BLUE));
+            LOG.info("Drawing grid");
             drawGrid();
+            LOG.info("File saving");
             save(fileName);
         } catch (IOException e) {
-            System.out.println("ERROR IN PicturesDrawer");
+            e.printStackTrace();
         }
     }
 
