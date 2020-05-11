@@ -16,6 +16,7 @@ public class PicturesDrawer extends Drawer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PicturesDrawer.class);
     private static final String path = "src\\main\\resources\\pictures\\";
+    //private static final String path = "/home/CodeNames/CodeNames/src/main/resources/pictures/";
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
         super(614, 614, 400);

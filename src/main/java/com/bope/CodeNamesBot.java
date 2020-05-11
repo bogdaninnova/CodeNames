@@ -671,9 +671,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     photo.setReplyMarkup(new ReplyKeyboardRemove());
                 execute(photo);
             }
-
-            if (game instanceof PicturesGame)
-                TimeUnit.SECONDS.sleep(3);
             //noinspection ResultOfMethodCallIgnored
             file.delete();
             LOG.info("Picture sent");
