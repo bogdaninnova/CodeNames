@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class PicturesDrawer extends Drawer {
 
-    private static final String path = "C:\\Users\\bope0915\\Desktop\\Codenames_duet\\split\\";
+    private static final String path = "src\\main\\resources\\pictures\\";
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
         super(614, 614, 400);
