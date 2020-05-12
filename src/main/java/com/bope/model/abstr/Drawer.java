@@ -64,9 +64,9 @@ public abstract class Drawer {
 
         g.setFont(new Font( "Arial", Font.BOLD, sizeYscores * 3/4));
         g.setColor(Colors.RED_TEXT);
-        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4 - 50, sizeY * 5 + sizeYscores * 3/4);
+        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4, sizeY * 5 + sizeYscores * 3/4);
         g.setColor(Colors.BLUE_TEXT);
-        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4 - 50, sizeY * 5 + sizeYscores * 3/4);
+        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4, sizeY * 5 + sizeYscores * 3/4);
 
     }
 
