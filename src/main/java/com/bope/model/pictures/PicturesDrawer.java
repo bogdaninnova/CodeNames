@@ -19,7 +19,7 @@ public class PicturesDrawer extends Drawer {
     //private static final String path = "/home/CodeNames/CodeNames/src/main/resources/pictures/";
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
-        super(614, 614, 400);
+        super(123, 123, 80);
         LOG.info("PicturesDrawer starts");
         try {
             BufferedImage image;
