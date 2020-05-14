@@ -16,7 +16,7 @@ public class PicturesDrawer extends Drawer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PicturesDrawer.class);
     private static final String path = "src\\main\\resources\\pictures\\";
-    //private static final String path = "/home/CodeNames/CodeNames/src/main/resources/pictures/";
+    //private static final String path = "/home/CodeNames/src/main/resources/pictures/";
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
         super(614, 614, 400);
@@ -95,7 +95,7 @@ public class PicturesDrawer extends Drawer {
     private static void makeBlank(BufferedImage image) {
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                if (x%2==0 || y%2==0) {
+                if (x%3==0 || y%3==0) {
                     image.setRGB(x, y, Color.WHITE.getRGB());
                 }
             }

@@ -285,8 +285,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 checkWordPicture((PicturesGame) game, text);
             }
         }
-
-
     }
 
     private static Prompt getPromptDuet(String text) {
@@ -379,8 +377,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
 
             if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
-                sendPicture(game, false, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId());
                 sendPicture(game, game.isUseKeyboard(), false, game.getChatId());
+                sendPicture(game, false, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId());
             } else {
                 game.getSchema().openCards(true);
                 sendPicture(game, false, false, game.getChatId());
@@ -559,11 +557,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
             LOG.info("Original game update boards");
+            sendPicture(game, game.isUseKeyboard(), false, chatId);
             sendPicture(game, false,true,
                     game.getCaps().get(0).getLongId(),
                     game.getCaps().get(1).getLongId()
             );
-            sendPicture(game, game.isUseKeyboard(), false, chatId);
         } else {
             LOG.info("Original game finished -- update boards");
             game.getSchema().openCards(true);
