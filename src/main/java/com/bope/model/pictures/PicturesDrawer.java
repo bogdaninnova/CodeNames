@@ -40,7 +40,7 @@ public class PicturesDrawer extends Drawer {
             LOG.info("Drawing grid");
             drawGrid();
             LOG.info("File saving");
-            saveCompressed(fileName);
+            save(fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
