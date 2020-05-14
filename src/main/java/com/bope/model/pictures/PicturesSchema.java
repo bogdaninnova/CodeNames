@@ -9,13 +9,13 @@ import java.util.HashMap;
 
 public class PicturesSchema extends Schema {
 
-    private ArrayList<Integer> picturesList = new ArrayList<>();
+    private final ArrayList<Integer> picturesList = new ArrayList<>();
 
     private HashMap<Integer, String> picturesMapping;
 
     public void update(String lang) {
         if (picturesList.isEmpty())
-            for (int i = 0; i<=100; i++)
+            for (int i = 0; i < 100; i++)
                 picturesList.add(i);
         picturesMapping = new HashMap<>();
         setRedFirst(rand.nextBoolean());
