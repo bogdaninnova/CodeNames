@@ -2,11 +2,18 @@ package com.bope.model.abstr;
 
 import com.bope.model.Colors;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.FileImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 
 public abstract class Drawer {
 
@@ -38,6 +45,24 @@ public abstract class Drawer {
     public void save(String path) {
         try {
             ImageIO.write(bi, "PNG", new File(path));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveCompressed(String path) {
+        JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
+        jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        jpegParams.setCompressionQuality(0.1f);
+
+
+        BufferedImage newbi = new BufferedImage(bi.getWidth(), bi.getHeight(), TYPE_INT_RGB);
+        newbi.createGraphics().drawImage(bi, 0, 0, Color.WHITE, null);
+
+        final ImageWriter writer = ImageIO.getImageWritersByFormatName("JPG").next();
+        try {
+            writer.setOutput(new FileImageOutputStream(new File(path)));
+            writer.write(null, new IIOImage(newbi, null, null), jpegParams);
         } catch (IOException e) {
             e.printStackTrace();
         }
