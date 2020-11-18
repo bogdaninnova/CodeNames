@@ -59,6 +59,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${SET_LANGUAGE}") private String SET_LANGUAGE;
     @Value("${LANG_ENG}") private String LANG_ENG;
     @Value("${LANG_RUS}") private String LANG_RUS;
+    @Value("${LANG_RUS2}") private String LANG_RUS2;
     @Value("${LANG_UKR}") private String LANG_UKR;
     @Value("${LANG_PICTURES}") private String LANG_PICTURES;
 
@@ -114,7 +115,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         if (update.getMessage().getReplyToMessage() != null && chatId != user.getId()) {
             LOG.info("Keyboard reply received");
-            if ((text.equals(LANG_ENG) || text.equals(LANG_UKR) || text.equals(LANG_RUS) || text.equals(LANG_PICTURES))
+            if ((text.equals(LANG_ENG) || text.equals(LANG_UKR) || text.equals(LANG_RUS) || text.equals(LANG_RUS2) || text.equals(LANG_PICTURES))
                     && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
                     && update.getMessage().getReplyToMessage().getText().equals(CHOOSE_LANGUAGE)
             ) {
@@ -147,7 +148,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 text.toLowerCase().equals(LANG_COMMAND + "@" + getBotUsername().toLowerCase())
         )) {
             LOG.info("Keyboard language check");
-            sendSimpleMessage(CHOOSE_LANGUAGE, getKeyboard(new String[]{LANG_RUS, LANG_ENG, LANG_UKR}, new String[]{LANG_PICTURES}), chatId);
+            sendSimpleMessage(CHOOSE_LANGUAGE, getKeyboard(new String[]{LANG_RUS, LANG_ENG, LANG_UKR}, new String[]{LANG_PICTURES, LANG_RUS2}), chatId);
             return;
         }
 
@@ -248,6 +249,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
                 ArrayList<UserMongo> userList = new ArrayList<>();
                 for (String cap : set) {
+                    if (cap.equals("me"))
+                        cap = user.getUserName();
                     UserMongo userMongo = usersListMongo.findByUserName(cap);
                     if (userMongo == null) {
                         LOG.info("Original game starting - user is not registered: " + cap);
@@ -564,14 +567,18 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             );
         } else {
             LOG.info("Original game finished -- update boards");
-            game.getSchema().openCards(true);
-            sendPicture(game, false, false, chatId);
+            //game.getSchema().openCards(true);
+            //sendPicture(game, false, false, chatId);
+
+            String capture;
             if (redLeft == 0) {
-                sendSimpleMessage(RED_TEAM_WIN, chatId);
+                capture = RED_TEAM_WIN;
             } else if (blueLeft == 0) {
-                sendSimpleMessage(BLUE_TEAM_WIN, chatId);
+                capture = BLUE_TEAM_WIN;
             } else
-                sendSimpleMessage(BLACK_CARD_OPENED, chatId);
+                capture = BLACK_CARD_OPENED;
+
+            sendPicture(game, capture, false, true, chatId);
         }
     }
 
@@ -651,6 +658,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void sendPicture(Game game, boolean sendKeyboard, boolean isAdmin, long... chatIds) {
+        sendPicture(game, "", sendKeyboard, isAdmin, chatIds);
+    }
+
+    private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long... chatIds) {
         LOG.info("Picture sending");
         String filepath = getFilePath(game.getChatId(), isAdmin);
         if (game instanceof OriginalGame)
@@ -662,11 +673,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             File file = new File(filepath);
 
             for (long chatId : chatIds) {
-                SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
+                SendPhoto photo = new SendPhoto()
+                        .setPhoto("board", new FileInputStream(file))
+                        .setChatId(chatId);
                 if (sendKeyboard)
                     photo.setReplyMarkup(getGameKeyboard(chatId));
                 else
                     photo.setReplyMarkup(new ReplyKeyboardRemove());
+
+                if (!caption.equals(""))
+                    photo.setCaption(caption);
+
                 execute(photo);
             }
             //noinspection ResultOfMethodCallIgnored
