@@ -66,7 +66,12 @@ public class DuetDrawer extends Drawer {
         g.setColor(fillColor);
         g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
         g.setColor(textColor);
-        g.drawString(word, i * sizeX + 100, j * sizeY + 120);
+        if (word.length() <= 11) {
+            g.drawString(word, i * sizeX + 100, j * sizeY + 120);
+        } else {
+            g.drawString(word.substring(0, 10) + "-", i * sizeX + 100, j * sizeY + 120);
+            g.drawString(word.substring(10), i * sizeX + 100, j * sizeY + 170);
+        }
     }
 
     private void drawRectangle(String word, int i, int j, Color upperFillColor, Color lowerFillColor, Color textColor) {
