@@ -6,3 +6,4 @@
 *.iws
 /.idea/
 /.idea/libraries/
+/target/

@@ -383,14 +383,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 sendPicture(game, game.isUseKeyboard(), false, game.getChatId());
                 sendPicture(game, false, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId());
             } else {
-                game.getSchema().openCards(true);
-                sendPicture(game, false, false, game.getChatId());
+                String capture;
                 if (redLeft == 0) {
-                    sendSimpleMessage(RED_TEAM_WIN, game.getChatId());
+                    capture = RED_TEAM_WIN;
                 } else if (blueLeft == 0) {
-                    sendSimpleMessage(BLUE_TEAM_WIN, game.getChatId());
+                    capture = BLUE_TEAM_WIN;
                 } else
-                    sendSimpleMessage(BLACK_CARD_OPENED, game.getChatId());
+                    capture = BLACK_CARD_OPENED;
+                sendPicture(game, capture, false, true, game.getChatId());
             }
         }
     }
@@ -491,20 +491,23 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void botStartNewGamePictures(long chatId, ArrayList<UserMongo> captains) {
-
         boolean isCreated = false;
+        Game game = null;
         if (games.containsKey(chatId)) {
-            Game game = games.get(chatId);
+            game = games.get(chatId);
             if (game instanceof PicturesGame) {
                 isCreated = true;
-                games.put(chatId, new PicturesGame(game).setCaps(captains).createSchema());
+                game = new PicturesGame(game).setCaps(captains).createSchema();
+                games.put(chatId, game);
             }
         }
-        if (!isCreated)
-            games.put(chatId, new PicturesGame(chatId).setCaps(captains).createSchema());
-
-        sendPicture(games.get(chatId), games.get(chatId).isUseKeyboard(), false, chatId);
-        sendPicture(games.get(chatId), false, true, captains.get(0).getLongId(), captains.get(1).getLongId());
+        if (!isCreated) {
+            game = new PicturesGame(chatId).setCaps(captains).createSchema();
+            games.put(chatId, game);
+        }
+        String capture = (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS;
+        sendPicture(game, capture, game.isUseKeyboard(), false, chatId);
+        sendPicture(game, false, true, captains.get(0).getLongId(), captains.get(1).getLongId());
     }
 
     private void botStartNewGame(long chatId, ArrayList<UserMongo> captains) {
@@ -521,13 +524,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             game = new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema();
             games.put(chatId, game);
         }
-        sendPicture(game, game.isUseKeyboard(), false, chatId);
-
-        if (game.getSchema().howMuchLeft(GameColor.RED) == 9)
-            sendSimpleMessage(RED_TEAM_STARTS, chatId, false);
-        else
-            sendSimpleMessage(BLUE_TEAM_STARTS, chatId, false);
-        sendPicture(game,false,true, captains.get(0).getLongId(), captains.get(1).getLongId());
+        String capture = (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS;
+        sendPicture(game, capture, game.isUseKeyboard(), false, chatId);
+        sendPicture(game, false,true, captains.get(0).getLongId(), captains.get(1).getLongId());
     }
 
     private void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
@@ -567,9 +566,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             );
         } else {
             LOG.info("Original game finished -- update boards");
-            //game.getSchema().openCards(true);
-            //sendPicture(game, false, false, chatId);
-
             String capture;
             if (redLeft == 0) {
                 capture = RED_TEAM_WIN;
