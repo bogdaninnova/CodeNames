@@ -28,6 +28,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +49,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${START_INSTRUCTION}") private String START_INSTRUCTION;
     @Value("${CHOOSE_CAPTAINS}") private String CHOOSE_CAPTAINS;
     @Value("${USER_IS_NOT_REGISTERED}") private String USER_IS_NOT_REGISTERED;
+    @Value("${USER_IS_BLOCKED}") private String USER_IS_BLOCKED;
 
     @Value("${KEYBOARD_USAGE}") private String KEYBOARD_USAGE;
     @Value("${ENABLED_KEYBOARD}") private String ENABLED_KEYBOARD;
@@ -259,34 +261,18 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     } else
                         userList.add(userMongo);
                 }
-
-                boolean isPicturesStarted = false;
-                if (games.containsKey(chatId)) {
-                    if (games.get(chatId).getLang().equals(LANG_PICTURES)) {
-                        isPicturesStarted = true;
-                        botStartNewGamePictures(chatId, userList);
-                    }
-                }
-
-                if (!isPicturesStarted)
-                    botStartNewGame(chatId, userList);
+                botStartNewGame(chatId, userList, games.containsKey(chatId) && games.get(chatId).getLang().equals(LANG_PICTURES));
                 return;
             }
         }
 
-
         if (chatId != user.getId() && games.containsKey(chatId)) {
-            Game game = games.get(chatId);
-            if (game instanceof OriginalGame) {
-                if (text.startsWith("/")) {
-                    LOG.info("Added / to text: " + text);
-                    text = text.substring(1);
-                }
-                if (game.getSchema().checkWord(text, true))
-                    botChooseWord(chatId);
-            } else if (game instanceof PicturesGame) {
-                checkWordPicture((PicturesGame) game, text);
+            if (text.startsWith("/")) {
+                LOG.info("Added / to text: " + text);
+                text = text.substring(1);
             }
+            if (games.get(chatId).getSchema().checkWord(text, true))
+                botChooseWord(chatId);
         }
     }
 
@@ -370,31 +356,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return false;
     }
 
-    private void checkWordPicture(PicturesGame game, String text) {
-        if (text.startsWith("/"))
-            text = text.substring(1);
-
-        if (game.getSchema().checkWord(text, true)) {
-            int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
-            int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
-            int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
-
-            if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
-                sendPicture(game, game.isUseKeyboard(), false, game.getChatId());
-                sendPicture(game, false, true, game.getCaps().get(0).getLongId(), game.getCaps().get(1).getLongId());
-            } else {
-                String capture;
-                if (redLeft == 0) {
-                    capture = RED_TEAM_WIN;
-                } else if (blueLeft == 0) {
-                    capture = BLUE_TEAM_WIN;
-                } else
-                    capture = BLACK_CARD_OPENED;
-                sendPicture(game, capture, false, true, game.getChatId());
-            }
-        }
-    }
-
     private void finishGameDuet(DuetGame game, String text) {
         LOG.info("Duet game - finishing");
         game.getSchema().openCards(false);
@@ -443,16 +404,20 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         else
             sendSimpleMessage(DISABLED_KEYBOARD, chatId);
 
-        Game game = null;
-        if (games.containsKey(chatId)) {
+        Game game;
+        if (games.containsKey(chatId) && games.get(chatId) != null) {
             game = games.get(chatId);
             game.setUseKeyboard(isEnable);
-            if (isEnable && game.getSchema() != null)
-                if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0)
-                    sendPicture(game, game.isUseKeyboard(), false, chatId);
-        }
-
-        if (game == null) {
+            if (isEnable && game.getSchema() != null) {
+                if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
+                    try {
+                        sendPicture(game, game.isUseKeyboard(), false, chatId);
+                    } catch (FileNotFoundException | TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } else {
             game = new OriginalGame(chatId, LANG_RUS, isEnable);
             game.getSchema().setDefaultCards();
             games.put(chatId, game);
@@ -461,15 +426,18 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     private void botBoardCommand(long chatId) {
         LOG.info("Bot board command");
-        Game game = null;
-        if (games.containsKey(chatId)) {
-            game = games.get(chatId);
-            if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0)
-                sendPicture(game, game.isUseKeyboard(), false, chatId);
-            else
+        if (games.containsKey(chatId) && games.get(chatId) != null) {
+            Game game = games.get(chatId);
+            if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
+                try {
+                    sendPicture(game, game.isUseKeyboard(), false, chatId);
+                } catch (FileNotFoundException | TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            } else {
                 sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
-        }
-        if (game == null)
+            }
+        } else
             sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
     }
 
@@ -490,43 +458,51 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
     }
 
-    private void botStartNewGamePictures(long chatId, ArrayList<UserMongo> captains) {
-        boolean isCreated = false;
-        Game game = null;
-        if (games.containsKey(chatId)) {
-            game = games.get(chatId);
-            if (game instanceof PicturesGame) {
-                isCreated = true;
-                game = new PicturesGame(game).setCaps(captains).createSchema();
-                games.put(chatId, game);
-            }
+    private void botStartNewGame(long chatId, ArrayList<UserMongo> captains, boolean isPicturesGame) {
+        Game game;
+        if (isPicturesGame) {
+            if (games.containsKey(chatId) && games.get(chatId) != null && games.get(chatId) instanceof PicturesGame)
+                game = new PicturesGame(games.get(chatId)).setCaps(captains).createSchema();
+            else
+                game = new PicturesGame(chatId).setCaps(captains).createSchema();
+        } else {
+            if (games.containsKey(chatId) && games.get(chatId) != null && games.get(chatId) instanceof OriginalGame)
+                game = new OriginalGame(games.get(chatId)).setCaps(captains).createSchema();
+            else
+                game = new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema();
         }
-        if (!isCreated) {
-            game = new PicturesGame(chatId).setCaps(captains).createSchema();
-            games.put(chatId, game);
-        }
-        String capture = (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS;
-        sendPicture(game, capture, game.isUseKeyboard(), false, chatId);
-        sendPicture(game, false, true, captains.get(0).getLongId(), captains.get(1).getLongId());
+        games.put(game.getChatId(), game);
+        sendPicturesToAll(game, (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS);
     }
 
-    private void botStartNewGame(long chatId, ArrayList<UserMongo> captains) {
-        LOG.info("Original game starting");
-        Game game;
-        if (games.containsKey(chatId)) {
-            game = new OriginalGame(games.get(chatId)).setCaps(captains).createSchema();
-            games.put(chatId, game);
-            if (game.getSchema() instanceof PicturesSchema) {
-                game.setSchema(new OriginalSchema());
-                game.createSchema();
+    private void sendPicturesToAll(Game game, String capture) {
+            LOG.info("Original game update boards");
+            UserMongo blockedUser = null;
+            try {
+                sendPicture(game, false,true, game.getCaps().get(0).getLongId());
+            } catch (FileNotFoundException | TelegramApiException e) {
+                blockedUser = game.getCaps().get(0);
+                e.printStackTrace();
             }
-        } else {
-            game = new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema();
-            games.put(chatId, game);
-        }
-        String capture = (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS;
-        sendPicture(game, capture, game.isUseKeyboard(), false, chatId);
-        sendPicture(game, false,true, captains.get(0).getLongId(), captains.get(1).getLongId());
+            if (blockedUser == null) {
+                try {
+                    sendPicture(game, false,true, game.getCaps().get(1).getLongId());
+                } catch (FileNotFoundException | TelegramApiException e) {
+                    blockedUser = game.getCaps().get(1);
+                    e.printStackTrace();
+                }
+            }
+            try {
+                if (blockedUser == null) {
+                    sendPicture(game, capture, game.isUseKeyboard(), false, game.getChatId());
+                } else {
+                    sendPicture(game, String.format(USER_IS_BLOCKED, blockedUser.getUserName()), game.isUseKeyboard(), true, game.getChatId());
+                    games.remove(game.getChatId());
+                    usersListMongo.removeByUserName(blockedUser.getUserName());
+                }
+            } catch (FileNotFoundException | TelegramApiException e) {
+                e.printStackTrace();
+            }
     }
 
     private void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
@@ -558,12 +534,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         int blueLeft = game.getSchema().howMuchLeft(GameColor.BLUE);
 
         if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
-            LOG.info("Original game update boards");
-            sendPicture(game, game.isUseKeyboard(), false, chatId);
-            sendPicture(game, false,true,
-                    game.getCaps().get(0).getLongId(),
-                    game.getCaps().get(1).getLongId()
-            );
+            sendPicturesToAll(game, "");
         } else {
             LOG.info("Original game finished -- update boards");
             String capture;
@@ -574,7 +545,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             } else
                 capture = BLACK_CARD_OPENED;
 
-            sendPicture(game, capture, false, true, chatId);
+            try {
+                sendPicture(game, capture, false, true, chatId);
+            } catch (TelegramApiException | FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -653,11 +628,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         sendSimpleMessage(text, chatId, true);
     }
 
-    private void sendPicture(Game game, boolean sendKeyboard, boolean isAdmin, long... chatIds) {
-        sendPicture(game, "", sendKeyboard, isAdmin, chatIds);
+    private void sendPicture(Game game, boolean sendKeyboard, boolean isAdmin, long chatId) throws FileNotFoundException, TelegramApiException {
+        sendPicture(game, "", sendKeyboard, isAdmin, chatId);
     }
 
-    private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long... chatIds) {
+    private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException, FileNotFoundException {
         LOG.info("Picture sending");
         String filepath = getFilePath(game.getChatId(), isAdmin);
         if (game instanceof OriginalGame)
@@ -665,30 +640,22 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         else if (game instanceof PicturesGame)
             new PicturesDrawer((PicturesGame) game, filepath, isAdmin);
 
-        try {
-            File file = new File(filepath);
+        File file = new File(filepath);
+        SendPhoto photo = new SendPhoto()
+                .setPhoto("board", new FileInputStream(file))
+                .setChatId(chatId);
+        if (sendKeyboard)
+            photo.setReplyMarkup(getGameKeyboard(chatId));
+        else
+            photo.setReplyMarkup(new ReplyKeyboardRemove());
 
-            for (long chatId : chatIds) {
-                SendPhoto photo = new SendPhoto()
-                        .setPhoto("board", new FileInputStream(file))
-                        .setChatId(chatId);
-                if (sendKeyboard)
-                    photo.setReplyMarkup(getGameKeyboard(chatId));
-                else
-                    photo.setReplyMarkup(new ReplyKeyboardRemove());
+        if (!caption.equals(""))
+            photo.setCaption(caption);
 
-                if (!caption.equals(""))
-                    photo.setCaption(caption);
-
-                execute(photo);
-            }
-            //noinspection ResultOfMethodCallIgnored
-            file.delete();
-            LOG.info("Picture sent");
-        } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error("Error occurred while picture sending");
-        }
+        execute(photo);
+        //noinspection ResultOfMethodCallIgnored
+        file.delete();
+        LOG.info("Picture sent");
     }
 
     private void sendDuetPicture(DuetGame game, long chatId, boolean isFirst) {
