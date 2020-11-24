@@ -1,7 +1,6 @@
 package com.bope.model.abstr;
 
-import com.bope.UserMongo;
-import com.bope.model.pictures.PicturesSchema;
+import com.bope.db.UserMongo;
 
 import java.util.ArrayList;
 import java.util.Set;

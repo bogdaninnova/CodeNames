@@ -1,8 +1,8 @@
 package com.bope.model.abstr;
 
 import com.bope.Main;
-import com.bope.WordMongo;
-import com.bope.WordsListMongo;
+import com.bope.db.WordMongo;
+import com.bope.db.WordsListMongo;
 import com.bope.model.Card;
 import com.bope.model.GameColor;
 

@@ -1,5 +1,7 @@
 package com.bope;
 
+import com.bope.db.UserMongo;
+import com.bope.db.UsersListMongo;
 import com.bope.model.original.OriginalDrawer;
 import com.bope.model.abstr.Game;
 import com.bope.model.GameColor;
@@ -11,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -32,8 +35,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Autowired
     private UsersListMongo usersListMongo;
+    @Autowired
+    private CodeNamesDuet codeNamesDuet;
     protected final Map<Long, Game> games = new HashMap<>();
-    private final CodeNamesDuet codeNamesDuet = new CodeNamesDuet(this);
     private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
     @Value("${TOKEN}") private String token;
@@ -55,10 +59,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     @Value("${CHOOSE_LANGUAGE}") private String CHOOSE_LANGUAGE;
     @Value("${SET_LANGUAGE}") private String SET_LANGUAGE;
-    @Value("${LANG_ENG}") protected String LANG_ENG;
+    @Value("${LANG_ENG}") private String LANG_ENG;
     @Value("${LANG_RUS}") protected String LANG_RUS;
-    @Value("${LANG_RUS2}") protected String LANG_RUS2;
-    @Value("${LANG_UKR}") protected String LANG_UKR;
+    @Value("${LANG_RUS2}") private String LANG_RUS2;
+    @Value("${LANG_UKR}") private String LANG_UKR;
     @Value("${LANG_PICTURES}") private String LANG_PICTURES;
 
     @Value("${BLACK_CARD_OPENED}") protected String BLACK_CARD_OPENED;
@@ -70,19 +74,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${LANG_COMMAND}") private String LANG_COMMAND;
     @Value("${START_COMMAND}") private String START_COMMAND;
     @Value("${CAPS_COMMAND}") private String CAPS_COMMAND;
-
-    @Value("${DUET_GAME_OVER}") protected String DUET_GAME_OVER;
-    @Value("${DUET_YOU_WON}") protected String DUET_YOU_WON;
-    @Value("${DUET_YOU_FINISHED}") protected String DUET_YOU_FINISHED;
-    @Value("${DUET_PLAYER_FINISHED}") protected String DUET_PLAYER_FINISHED;
-    @Value("${DUET_YOUR_TURN}") protected String DUET_YOUR_TURN;
-    @Value("${DUET_PLAYERS_TURN}") protected String DUET_PLAYERS_TURN;
-    @Value("${DUET_LAST_TURN}") protected String DUET_LAST_TURN;
-    @Value("${DUET_CORRECT}") protected String DUET_CORRECT;
-    @Value("${DUET_WAIT_FOR_PROMPT}") protected String DUET_WAIT_FOR_PROMPT;
-    @Value("${DUET_PROMPT_SENT}") protected String DUET_PROMPT_SENT;
-    @Value("${DUET_INCORRECT_PROMPT}") protected String DUET_INCORRECT_PROMPT;
-    @Value("${DUET_PLAYERS_PROMPT}") protected String DUET_PLAYERS_PROMPT;
 
     @Value("${DUET_YOU_NEED_CHOOSE_ONE}") private String DUET_YOU_NEED_CHOOSE_ONE;
     @Value("${DUET_PASS_WORD}") private String DUET_PASS_WORD;

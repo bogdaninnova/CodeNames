@@ -1,4 +1,4 @@
-package com.bope;
+package com.bope.db;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
