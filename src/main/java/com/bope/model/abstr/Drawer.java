@@ -3,9 +3,13 @@ package com.bope.model.abstr;
 import com.bope.model.Colors;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class Drawer {
 
@@ -15,6 +19,9 @@ public abstract class Drawer {
     protected BufferedImage bi;
     protected Graphics2D g;
 
+    protected static final String RES_PATH = "src/main/resources/";
+    protected static final Font WORD_FONT = createFont();
+    protected static final Font font = new Font("Arial", Font.BOLD, 60);
 
     protected Drawer(int sizeX, int sizeY, int sizeYscores) {
         this.sizeX = sizeX;
@@ -30,7 +37,7 @@ public abstract class Drawer {
         Graphics2D g = bi.createGraphics();
         g.setColor(color);
         g.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-        g.setFont(new Font( "Arial", Font.BOLD, 60 ));
+        g.setFont(font);
         return g;
     }
 
@@ -67,6 +74,22 @@ public abstract class Drawer {
         g.setColor(Colors.BLUE_TEXT);
         g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4, sizeY * 5 + sizeYscores * 3/4);
 
+    }
+
+    private static Font createFont() {
+        Font font = new Font("Arial", Font.BOLD, 60);
+        try {
+            Map<TextAttribute, Object> attributes = new HashMap<>();
+            attributes.put(TextAttribute.TRACKING, 0.1);
+            font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Bold.ttf")).deriveFont(60.0f).deriveFont(attributes);
+            //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Regular.ttf")).deriveFont(60.0f).deriveFont(attributes);
+            //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Medium.ttf")).deriveFont(60.0f).deriveFont(attributes);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(font);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+        return font;
     }
 
 }

@@ -32,12 +32,15 @@ public class OriginalDrawer extends Drawer {
         g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
         g.setColor(colors[1]);
 
-        if (card.getWord().length() <= 11) {
-            g.drawString(card.getWord(), i * sizeX + 100, j * sizeY + 120);
+        String word = card.getWord().toUpperCase();
+        g.setFont(WORD_FONT);
+        if (word.length() <= 10) {
+            g.drawString(word, i * sizeX + 100, j * sizeY + 120);
         } else {
-            g.drawString(card.getWord().substring(0, 10) + "-", i * sizeX + 100, j * sizeY + 120);
-            g.drawString(card.getWord().substring(10), i * sizeX + 100, j * sizeY + 170);
+            g.drawString(word.substring(0, 9) + "-", i * sizeX + 100, j * sizeY + 120);
+            g.drawString(word.substring(9), i * sizeX + 100, j * sizeY + 170);
         }
+        g.setFont(font);
     }
 
 

@@ -15,8 +15,6 @@ import java.io.IOException;
 public class PicturesDrawer extends Drawer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PicturesDrawer.class);
-    private static final String path = "src\\main\\resources\\pictures\\";
-    //private static final String path = "/home/CodeNames/src/main/resources/pictures/";
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
         super(614, 614, 400);
@@ -28,8 +26,8 @@ public class PicturesDrawer extends Drawer {
                 for (int j = 0; j < 5; j++) {
                     LOG.info("Starting to draw card: i=" + i + ", j=" + j);
                     Card card = schema.getArray()[i][j];
-                    LOG.info("Starting to draw card (path = " + path + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg)");
-                    image = ImageIO.read(new File(path + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg"));
+                    LOG.info("Starting to draw card (path = " + RES_PATH + "pictures/" + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg)");
+                    image = ImageIO.read(new File(RES_PATH + "pictures/" + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg"));
                     LOG.info("Adding image on board");
                     addImage(image, i, j, card, isAdmin);
                     LOG.info("Adding number to image");
