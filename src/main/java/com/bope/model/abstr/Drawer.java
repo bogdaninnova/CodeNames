@@ -80,10 +80,10 @@ public abstract class Drawer {
         Font font = new Font("Arial", Font.BOLD, 60);
         try {
             Map<TextAttribute, Object> attributes = new HashMap<>();
-            attributes.put(TextAttribute.TRACKING, 0.1);
-            font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Bold.ttf")).deriveFont(60.0f).deriveFont(attributes);
+            //attributes.put(TextAttribute.TRACKING, 0.1);
+            font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Medium.ttf")).deriveFont(80.0f).deriveFont(attributes);
+            //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Bold.ttf")).deriveFont(60.0f).deriveFont(attributes);
             //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Regular.ttf")).deriveFont(60.0f).deriveFont(attributes);
-            //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Medium.ttf")).deriveFont(60.0f).deriveFont(attributes);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(font);
         } catch (IOException | FontFormatException e) {
