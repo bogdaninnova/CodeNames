@@ -37,8 +37,6 @@ public class OriginalDrawer extends Drawer {
 
 
     private void drawWord(String word, int i, int j) {
-        g.setFont(WORD_FONT);
-
         if (word.length() <= 10) {
             int wordWidth = g.getFontMetrics(WORD_FONT).stringWidth(word);
             g.drawString(word, i * sizeX + (sizeX-wordWidth)/2, j * sizeY + 120);
@@ -48,7 +46,6 @@ public class OriginalDrawer extends Drawer {
             g.drawString(word.substring(0, 9), i * sizeX + (sizeX-wordWidth_part1)/2, j * sizeY + 95);
             g.drawString(word.substring(9), i * sizeX + (sizeX-wordWidth_part2)/2, j * sizeY + 155);
         }
-        g.setFont(font);
     }
 
 

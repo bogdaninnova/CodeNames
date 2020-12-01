@@ -7,7 +7,6 @@ import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,13 +19,14 @@ public abstract class Drawer {
     protected Graphics2D g;
 
     protected static final String RES_PATH = "src/main/resources/";
-    protected static final Font WORD_FONT = createFont();
-    protected static final Font font = new Font("Arial", Font.BOLD, 60);
+    protected static final Font WORD_FONT = createFont(80);
+    protected final Font SCORE_FONT;
 
     protected Drawer(int sizeX, int sizeY, int sizeYscores) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.sizeYscores = sizeYscores;
+        this.SCORE_FONT = createFont((float) (sizeYscores * 0.9));
 
         bi = new BufferedImage(5*sizeX, 5*sizeY + sizeYscores, BufferedImage.TYPE_INT_RGB);
         g = getBackgroundedGraphics2D(bi, Color.WHITE);
@@ -37,7 +37,7 @@ public abstract class Drawer {
         Graphics2D g = bi.createGraphics();
         g.setColor(color);
         g.fillRect(0, 0, bi.getWidth(), bi.getHeight());
-        g.setFont(font);
+        g.setFont(WORD_FONT);
         return g;
     }
 
@@ -68,20 +68,23 @@ public abstract class Drawer {
         g.setColor(Colors.BLUE_CARD);
         g.fillRect(sizeX * 5 / 2, sizeY * 5, sizeX * 5 / 2, sizeYscores);
 
-        g.setFont(new Font( "Arial", Font.BOLD, sizeYscores * 3/4));
+        g.setFont(SCORE_FONT);
+
+        int wordHeight = g.getFontMetrics(SCORE_FONT).getHeight();
+
         g.setColor(Colors.RED_TEXT);
-        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4, sizeY * 5 + sizeYscores * 3/4);
+        g.drawString(String.valueOf(redLeft), sizeX * 5 / 4, sizeY * 5 + (int) (sizeYscores * 0.85));
         g.setColor(Colors.BLUE_TEXT);
-        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4, sizeY * 5 + sizeYscores * 3/4);
+        g.drawString(String.valueOf(blueLeft), sizeX * 15 / 4, sizeY * 5 + (int) (sizeYscores * 0.85));
 
     }
 
-    private static Font createFont() {
-        Font font = new Font("Arial", Font.BOLD, 60);
+    private static Font createFont(float size) {
+        Font font = null;
         try {
             Map<TextAttribute, Object> attributes = new HashMap<>();
             //attributes.put(TextAttribute.TRACKING, 0.1);
-            font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Medium.ttf")).deriveFont(80.0f).deriveFont(attributes);
+            font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Medium.ttf")).deriveFont(size).deriveFont(attributes);
             //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Bold.ttf")).deriveFont(60.0f).deriveFont(attributes);
             //font = Font.createFont(Font.TRUETYPE_FONT, new File(RES_PATH + "fonts/FiraMono-Regular.ttf")).deriveFont(60.0f).deriveFont(attributes);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -91,5 +94,4 @@ public abstract class Drawer {
         }
         return font;
     }
-
 }
