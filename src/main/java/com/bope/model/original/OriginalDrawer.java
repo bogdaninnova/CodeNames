@@ -27,8 +27,9 @@ public class OriginalDrawer extends Drawer {
         if (card.isOpen() && isAdmin)
             colors = getAdminCardColor(card);
 
+        assert colors != null;
         g.setColor(colors[0]);
-        g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
+        g.fillRect(i * SIZE_X + 2, j * SIZE_Y + 2, SIZE_X - 2, SIZE_Y - 2);
         g.setColor(colors[1]);
 
         //drawWord(card.getWord().toUpperCase(), i, j);
@@ -39,12 +40,12 @@ public class OriginalDrawer extends Drawer {
     private void drawWord(String word, int i, int j) {
         if (word.length() <= 10) {
             int wordWidth = g.getFontMetrics(WORD_FONT).stringWidth(word);
-            g.drawString(word, i * sizeX + (sizeX-wordWidth)/2, j * sizeY + 120);
+            g.drawString(word, i * SIZE_X + (SIZE_X -wordWidth)/2, j * SIZE_Y + 120);
         } else {
             int wordWidth_part1 = g.getFontMetrics(WORD_FONT).stringWidth(word.substring(0, 9));
             int wordWidth_part2 = g.getFontMetrics(WORD_FONT).stringWidth(word.substring(9));
-            g.drawString(word.substring(0, 9), i * sizeX + (sizeX-wordWidth_part1)/2, j * sizeY + 95);
-            g.drawString(word.substring(9), i * sizeX + (sizeX-wordWidth_part2)/2, j * sizeY + 155);
+            g.drawString(word.substring(0, 9), i * SIZE_X + (SIZE_X -wordWidth_part1)/2, j * SIZE_Y + 95);
+            g.drawString(word.substring(9), i * SIZE_X + (SIZE_X -wordWidth_part2)/2, j * SIZE_Y + 155);
         }
     }
 

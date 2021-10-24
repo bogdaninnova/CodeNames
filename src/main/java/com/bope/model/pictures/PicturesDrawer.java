@@ -45,11 +45,11 @@ public class PicturesDrawer extends Drawer {
     }
 
     private void addNumber(int x, int y, Card card, boolean isAdmin) {
-        g.setFont(new Font( "Arial", Font.BOLD, sizeY / 6));
+        g.setFont(new Font( "Arial", Font.BOLD, SIZE_Y / 6));
         g.setColor(Color.BLACK);
         if (isAdmin && card.getGameColor().equals(GameColor.BLACK))
             g.setColor(Color.WHITE);
-        g.drawString(card.getWord(), x * sizeX  + sizeX/18, y * sizeY + sizeY/6);
+        g.drawString(card.getWord(), x * SIZE_X + SIZE_X /18, y * SIZE_Y + SIZE_Y /6);
     }
 
     private void addImage(BufferedImage image, int x, int y, Card card, boolean isAdmin) {
@@ -67,7 +67,7 @@ public class PicturesDrawer extends Drawer {
         if (card.isOpen() && isAdmin)
             makeBlank(image);
 
-        g.drawImage(image, x * sizeY, y * sizeX, null);
+        g.drawImage(image, x * SIZE_Y, y * SIZE_X, null);
     }
 
     private static void applyFilter(BufferedImage image, int mask) {

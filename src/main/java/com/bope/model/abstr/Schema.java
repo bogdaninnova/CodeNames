@@ -12,9 +12,9 @@ import java.util.Random;
 
 public abstract class Schema {
 
-    protected Card[][] array = new Card[5][5];
+    protected final Card[][] array = new Card[5][5];
     protected boolean isRedFirst;
-    protected Random rand = new Random();
+    protected final Random rand = new Random();
     protected List<WordMongo> wordList;
     protected List<WordMongo> allWordList = new ArrayList<>();
     protected String lang = "rus";
@@ -93,7 +93,7 @@ public abstract class Schema {
     public boolean checkWord(String word, boolean isFirst) {
         for (int i = 0; i < 5; i++)
             for (int j = 0; j < 5; j++)
-                if (array[i][j].getWord().toLowerCase().equals(word.toLowerCase())) {
+                if (array[i][j].getWord().equalsIgnoreCase(word)) {
                     if (!array[i][j].isOpen() && isFirst) {
                         array[i][j].setOpen(true);
                         if (array[i][j].getGameColor().equals(GameColor.GREEN) && array[i][j].getSecondGameColor().equals(GameColor.GREEN))

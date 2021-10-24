@@ -8536,7 +8536,7 @@ db.vocabulary.insertMany([
 	{lang: "rus2", word: "ропот"},
 	{lang: "rus2", word: "роса"},
 	{lang: "rus2", word: "роскошь"},
-	{lang: "rus2", word: "роcсомаха"},
+	{lang: "rus2", word: "расомаха"},
 	{lang: "rus2", word: "роспись"},
 	{lang: "rus2", word: "рост"},
 	{lang: "rus2", word: "ростбиф"},

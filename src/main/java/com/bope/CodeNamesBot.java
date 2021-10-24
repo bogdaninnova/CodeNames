@@ -13,11 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -25,18 +25,14 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.*;
 
 @Component
 public class CodeNamesBot extends TelegramLongPollingBot {
 
-    @Autowired
-    private UsersListMongo usersListMongo;
-    @Autowired
-    private CodeNamesDuet codeNamesDuet;
+    @Autowired private UsersListMongo usersListMongo;
+    @Autowired private CodeNamesDuet codeNamesDuet;
+
     protected final Map<Long, Game> games = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
@@ -80,7 +76,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     @Value("${DUET_PASS_WORD_RUS}") private String DUET_PASS_WORD_RUS;
     @Value("${DUET_COMMAND}") private String DUET_COMMAND;
 
-
     @Override
     public void onUpdateReceived(Update update) {
 
@@ -91,9 +86,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         LOG.info("Sent text = " + text);
         LOG.info("User = " + user);
         LOG.info("ChatId = " + chatId);
-
-//        if (user.getId() != 119970632)
-//            return;
 
         if (text.equals(" ") || update.getMessage().getForwardFrom() != null) {
             LOG.info("Empty message");
@@ -287,7 +279,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
                     try {
                         sendPicture(game, game.isUseKeyboard(), false, chatId);
-                    } catch (FileNotFoundException | TelegramApiException e) {
+                    } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                 }
@@ -306,7 +298,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
                 try {
                     sendPicture(game, game.isUseKeyboard(), false, chatId);
-                } catch (FileNotFoundException | TelegramApiException e) {
+                } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
             } else {
@@ -355,14 +347,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             UserMongo blockedUser = null;
             try {
                 sendPicture(game, false,true, game.getCaps().get(0).getLongId());
-            } catch (FileNotFoundException | TelegramApiException e) {
+            } catch (TelegramApiException e) {
                 blockedUser = game.getCaps().get(0);
                 e.printStackTrace();
             }
             if (blockedUser == null) {
                 try {
                     sendPicture(game, false,true, game.getCaps().get(1).getLongId());
-                } catch (FileNotFoundException | TelegramApiException e) {
+                } catch (TelegramApiException e) {
                     blockedUser = game.getCaps().get(1);
                     e.printStackTrace();
                 }
@@ -378,7 +370,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     games.remove(game.getChatId());
                     usersListMongo.removeByUserName(blockedUser.getUserName());
                 }
-            } catch (FileNotFoundException | TelegramApiException e) {
+            } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
     }
@@ -404,7 +396,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
             try {
                 sendPicture(game, capture, false, true, chatId);
-            } catch (TelegramApiException | FileNotFoundException e) {
+            } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
@@ -459,7 +451,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     private void sendSimpleMessage(String text, ReplyKeyboardMarkup keyboard, long chatId) {
         LOG.info("Message sending");
         try {
-            execute(new SendMessage().setChatId(chatId).setText(text).setReplyMarkup(keyboard));
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(String.valueOf(chatId));
+            sendMessage.setText(text);
+            sendMessage.setReplyMarkup(keyboard);
+            execute(sendMessage);
             LOG.info("Message sent");
         } catch (TelegramApiException e) {
             e.printStackTrace();
@@ -469,11 +465,13 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     private void sendSimpleMessage(String text, long chatId, boolean eraseKeyboard) {
         LOG.info("Message sending. keyboard erase = " + eraseKeyboard);
-        SendMessage message = new SendMessage().setChatId(chatId).setText(text);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText(text);
         if (eraseKeyboard)
-            message.setReplyMarkup(new ReplyKeyboardRemove());
+            sendMessage.setReplyMarkup(new ReplyKeyboardRemove());
         try {
-            execute(message);
+            execute(sendMessage);
             LOG.info("Message sent");
         } catch (TelegramApiException e) {
             e.printStackTrace();
@@ -485,22 +483,20 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         sendSimpleMessage(text, chatId, true);
     }
 
-    private void sendPicture(Game game, boolean sendKeyboard, boolean isAdmin, long chatId) throws FileNotFoundException, TelegramApiException {
+    private void sendPicture(Game game, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException {
         sendPicture(game, "", sendKeyboard, isAdmin, chatId);
     }
 
-    private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException, FileNotFoundException {
+    private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException {
         LOG.info("Picture sending");
         String filepath = getFilePath(game.getChatId(), isAdmin);
         if (game instanceof OriginalGame)
             new OriginalDrawer(game, filepath, isAdmin);
         else if (game instanceof PicturesGame)
             new PicturesDrawer((PicturesGame) game, filepath, isAdmin);
-
-        File file = new File(filepath);
-        SendPhoto photo = new SendPhoto()
-                .setPhoto("board", new FileInputStream(file))
-                .setChatId(chatId);
+        SendPhoto photo = new SendPhoto();
+        photo.setPhoto(new InputFile(filepath));
+        photo.setChatId(String.valueOf(chatId));
         if (sendKeyboard)
             photo.setReplyMarkup(getGameKeyboard(chatId));
         else
@@ -510,8 +506,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             photo.setCaption(caption);
 
         execute(photo);
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
         LOG.info("Picture sent");
     }
 

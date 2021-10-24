@@ -8,13 +8,12 @@ import com.bope.model.duet.DuetDrawer;
 import com.bope.model.duet.DuetGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.User;
-
-import java.io.File;
-import java.io.FileInputStream;
 
 @Component
 public class CodeNamesDuet {
@@ -32,12 +31,11 @@ public class CodeNamesDuet {
     @Value("${DUET_INCORRECT_PROMPT}") protected String DUET_INCORRECT_PROMPT;
     @Value("${DUET_PLAYERS_PROMPT}") protected String DUET_PLAYERS_PROMPT;
 
-    private final CodeNamesBot codeNamesBot;
+
+
+    @Autowired private CodeNamesBot codeNamesBot;
     private static final Logger LOG = LoggerFactory.getLogger(CodeNamesDuet.class);
 
-    public CodeNamesDuet(CodeNamesBot codeNamesBot) {
-        this.codeNamesBot = codeNamesBot;
-    }
 
     private static Prompt getPromptDuet(String text) {
         Prompt prompt = null;
@@ -89,11 +87,10 @@ public class CodeNamesDuet {
         String filepath = CodeNamesBot.getFilePath(game.getChatId(), isFirst);
         new DuetDrawer(game, filepath, isFirst);
         try {
-            File file = new File(filepath);
-            SendPhoto photo = new SendPhoto().setPhoto("board", new FileInputStream(file)).setChatId(chatId);
+            SendPhoto photo = new SendPhoto();
+            photo.setPhoto(new InputFile(filepath));
+            photo.setChatId(String.valueOf(chatId));
             codeNamesBot.execute(photo);
-            //noinspection ResultOfMethodCallIgnored
-            file.delete();
             LOG.info("Duet picture sent");
         } catch (Exception e) {
             e.printStackTrace();
@@ -164,7 +161,8 @@ public class CodeNamesDuet {
                 sendDuetPicture(game, game.getChatId(), true);
                 sendDuetPicture(game, game.getSecondPlayerId(), false);
 
-                if (game.getOpenGreensLeft() == game.getSchema().howMuchLeft(GameColor.GREEN) || game.getPrompt().isFinished()) {
+                game.getPrompt().decrementNumbersLeft();
+                if (game.getOpenGreensLeft() == game.getSchema().howMuchLeft(GameColor.GREEN)) {
                     LOG.info("Duet game - incorrect word, switch turn");
                     switchTurnDuet(game);
                 } else {
@@ -180,7 +178,7 @@ public class CodeNamesDuet {
                         switchTurnDuet(game);
                     }
                 }
-                game.refereshGreenLeft();
+                game.refreshGreenLeft();
             }
         }
     }

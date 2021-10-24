@@ -36,9 +36,7 @@ public class Prompt {
         this.numbersLeft = numbersLeft;
     }
 
-    public boolean isFinished() {
+    public void decrementNumbersLeft() {
         numbersLeft--;
-        return false;
-        //return numbersLeft-- == 0;
     }
 }

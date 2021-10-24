@@ -83,11 +83,10 @@ public abstract class Game {
         return this;
     }
 
-    public Game setCaps(UserMongo cap1, UserMongo cap2) {
+    public void setCaps(UserMongo cap1, UserMongo cap2) {
         caps = new ArrayList<>();
         caps.add(cap1);
         caps.add(cap2);
-        return this;
     }
 
     public String getCaptainsToString() {

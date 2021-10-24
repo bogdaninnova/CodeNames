@@ -4,7 +4,6 @@ import com.bope.model.Card;
 import com.bope.model.Colors;
 import com.bope.model.GameColor;
 import com.bope.model.abstr.Drawer;
-import com.bope.model.abstr.Game;
 
 import java.awt.*;
 
@@ -22,8 +21,6 @@ public class DuetDrawer extends Drawer {
 
 
     private void drawCard(Card card, int i, int j, boolean isFirstPlayer) {
-        //System.out.println( card.getWord() + " " + card.isOpen()  + " " + card.getGameColor()  + " " + card.isOpenBySecondPlayer()  + " " + card.getSecondGameColor());
-
         if (!card.isOpen() && !card.isOpenBySecondPlayer()) {
             Color[] colors = getCardColor(card, isFirstPlayer);
             drawRectangle(card.getWord(), i, j, colors[0], colors[1]);
@@ -54,34 +51,34 @@ public class DuetDrawer extends Drawer {
         g.setFont(new Font( "Arial", Font.BOLD, 75 ));
 
         if (turnsLeft != 0) {
-            g.drawString("Turn of @" + playersTurn, 100, 5 * sizeY + 120);
-            g.drawString("Turns left: " + turnsLeft, 3 * sizeX, 5 * sizeY + 120);
+            g.drawString("Turn of @" + playersTurn, 100, 5 * SIZE_Y + 120);
+            g.drawString("Turns left: " + turnsLeft, 3 * SIZE_X, 5 * SIZE_Y + 120);
         } else {
-            g.drawString("Last turn for all!", 100, 5 * sizeY + 120);
-            g.drawString("Last turn!", 3 * sizeX, 5 * sizeY + 120);
+            g.drawString("Last turn for all!", 100, 5 * SIZE_Y + 120);
+            g.drawString("Last turn!", 3 * SIZE_X, 5 * SIZE_Y + 120);
         }
     }
 
     private void drawRectangle(String word, int i, int j, Color fillColor, Color textColor) {
         g.setColor(fillColor);
-        g.fillRect(i * sizeX + 2, j * sizeY + 2, sizeX - 2, sizeY - 2);
+        g.fillRect(i * SIZE_X + 2, j * SIZE_Y + 2, SIZE_X - 2, SIZE_Y - 2);
         g.setColor(textColor);
         if (word.length() <= 11) {
-            g.drawString(word, i * sizeX + 100, j * sizeY + 120);
+            g.drawString(word, i * SIZE_X + 100, j * SIZE_Y + 120);
         } else {
-            g.drawString(word.substring(0, 10) + "-", i * sizeX + 100, j * sizeY + 120);
-            g.drawString(word.substring(10), i * sizeX + 100, j * sizeY + 170);
+            g.drawString(word.substring(0, 10) + "-", i * SIZE_X + 100, j * SIZE_Y + 120);
+            g.drawString(word.substring(10), i * SIZE_X + 100, j * SIZE_Y + 170);
         }
     }
 
     private void drawRectangle(String word, int i, int j, Color upperFillColor, Color lowerFillColor, Color textColor) {
 
-        int[] x1 = {i * sizeX + 2, (i+1) * sizeX, i * sizeX + 2};
-        int[] y1 = {(j+1) * sizeY + 2, j * sizeY + 2, j * sizeY};
+        int[] x1 = {i * SIZE_X + 2, (i+1) * SIZE_X, i * SIZE_X + 2};
+        int[] y1 = {(j+1) * SIZE_Y + 2, j * SIZE_Y + 2, j * SIZE_Y};
         Polygon p1 = new Polygon(x1, y1, 3);
 
-        int[] x2 = {(i+1) * sizeX, (i+1) * sizeX, i * sizeX + 2};
-        int[] y2 = {j * sizeY, (j+1) * sizeY + 2, (j+1) * sizeY};
+        int[] x2 = {(i+1) * SIZE_X, (i+1) * SIZE_X, i * SIZE_X + 2};
+        int[] y2 = {j * SIZE_Y, (j+1) * SIZE_Y + 2, (j+1) * SIZE_Y};
         Polygon p2 = new Polygon(x2, y2, 3);
 
         g.setColor(upperFillColor);
@@ -89,7 +86,7 @@ public class DuetDrawer extends Drawer {
         g.setColor(lowerFillColor);
         g.fillPolygon(p2);
         g.setColor(textColor);
-        g.drawString(word, i * sizeX + 100, j * sizeY + 120);
+        g.drawString(word, i * SIZE_X + 100, j * SIZE_Y + 120);
     }
 
 
