@@ -92,13 +92,12 @@ public class DuetDrawer extends Drawer {
 
     private static Color[] getCardColor(Card card, boolean isFirst) {
         GameColor color = isFirst ? card.getGameColor() : card.getSecondGameColor();
-        if (color == GameColor.BLACK)
-            return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
-        if (color == GameColor.GREEN)
-            return new Color[]{Colors.GREEN_CARD, Colors.GREEN_TEXT};
-        if (color == GameColor.YELLOW)
-            return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
-        return new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
+        switch (color) {
+            case BLACK: return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
+            case GREEN: return new Color[]{Colors.GREEN_CARD, Colors.GREEN_TEXT};
+            case YELLOW: return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
+            default: return new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
+        }
     }
 
 }
