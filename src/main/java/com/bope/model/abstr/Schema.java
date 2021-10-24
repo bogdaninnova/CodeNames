@@ -5,6 +5,8 @@ import com.bope.db.WordMongo;
 import com.bope.db.WordsListMongo;
 import com.bope.model.Card;
 import com.bope.model.GameColor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +15,11 @@ import java.util.Random;
 public abstract class Schema {
 
     protected final Card[][] array = new Card[5][5];
-    protected boolean isRedFirst;
     protected final Random rand = new Random();
     protected List<WordMongo> wordList;
     protected List<WordMongo> allWordList = new ArrayList<>();
-    protected String lang = "rus";
+    @Getter @Setter protected boolean isRedFirst;
+    @Getter @Setter protected String lang = "rus";
 
     public void update(String lang) {
         wordList = getWordList(lang);
@@ -46,14 +48,6 @@ public abstract class Schema {
                 array[i][j] = new Card("default", GameColor.YELLOW);
     }
 
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
     protected String getRandomWord() {
         String word = wordList.remove(rand.nextInt(wordList.size())).getWord();
         return word.substring(0, 1).toUpperCase() + word.substring(1);
@@ -61,14 +55,6 @@ public abstract class Schema {
 
     public Card[][] getArray() {
         return array;
-    }
-
-    public boolean isRedFirst() {
-        return isRedFirst;
-    }
-
-    public void setRedFirst(boolean redFirst) {
-        isRedFirst = redFirst;
     }
 
     public void openCards(boolean isOpen) {

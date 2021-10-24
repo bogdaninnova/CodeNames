@@ -3,16 +3,18 @@ package com.bope.model.duet;
 import com.bope.model.GameColor;
 import com.bope.model.Prompt;
 import com.bope.model.abstr.Game;
+import lombok.Getter;
+import lombok.Setter;
 
 public class DuetGame extends Game {
 
-    private long secondPlayerId;
+    @Getter private long secondPlayerId;
     public DuetGame(Game game) {
         super(game);
     }
-    private Prompt prompt;
-    private int openGreensLeft;
-    private int turnsLeft;
+    @Getter @Setter private Prompt prompt;
+    @Getter private int openGreensLeft;
+    @Getter private int turnsLeft;
 
     public DuetGame(long chatId, String lang, boolean isUseKeyboard) {
         super(chatId, lang, isUseKeyboard);
@@ -20,10 +22,6 @@ public class DuetGame extends Game {
         //refreshGreenLeft();
         this.turnsLeft = 9;
         this.openGreensLeft = 18;
-    }
-
-    public long getSecondPlayerId() {
-        return secondPlayerId;
     }
 
     public Game setSecondPlayerId(long secondPlayerId) {
@@ -40,24 +38,8 @@ public class DuetGame extends Game {
 
     }
 
-    public Prompt getPrompt() {
-        return prompt;
-    }
-
-    public void setPrompt(Prompt prompt) {
-        this.prompt = prompt;
-    }
-
-    public int getOpenGreensLeft() {
-        return openGreensLeft;
-    }
-
     public void refreshGreenLeft() {
         this.openGreensLeft = getSchema().howMuchLeft(GameColor.GREEN);
-    }
-
-    public int getTurnsLeft() {
-        return turnsLeft;
     }
 
     public void reset() {

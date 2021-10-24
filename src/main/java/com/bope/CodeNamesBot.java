@@ -222,7 +222,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     sendSimpleMessage(CHOOSE_CAPTAINS, chatId, true);
                     return;
                 }
-
                 ArrayList<UserMongo> userList = new ArrayList<>();
                 for (String cap : set) {
                     if (cap.equals("me"))
@@ -438,8 +437,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         for (String[] arg : args) {
             KeyboardRow keyboardRow = new KeyboardRow();
-            for (String button : arg)
-                keyboardRow.add(button);
+            Arrays.stream(arg).forEach(keyboardRow::add);
             keyboard.add(keyboardRow);
         }
 

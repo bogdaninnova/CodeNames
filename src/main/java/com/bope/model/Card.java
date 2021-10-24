@@ -1,14 +1,15 @@
 package com.bope.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Card {
 
-    private String word;
-
-    private boolean isOpen;
-    private GameColor gameColor;
-
-    private GameColor secondGameColor;
-    private boolean isOpenBySecondPlayer;
+    @Getter @Setter private String word;
+    @Getter @Setter private boolean isOpen;
+    @Getter @Setter private GameColor gameColor;
+    @Getter @Setter private GameColor secondGameColor;
+    @Getter @Setter private boolean isOpenBySecondPlayer;
 
     public Card(String word, GameColor gameColor) {
         setWord(word);
@@ -19,45 +20,5 @@ public class Card {
         setWord(word);
         setGameColor(gameColor);
         setSecondGameColor(secondGameColor);
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String word) {
-        this.word = word;
-    }
-
-    public boolean isOpen() {
-        return isOpen;
-    }
-
-    public void setOpen(boolean open) {
-        isOpen = open;
-    }
-
-    public GameColor getGameColor() {
-        return gameColor;
-    }
-
-    public void setGameColor(GameColor gameColor) {
-        this.gameColor = gameColor;
-    }
-
-    public GameColor getSecondGameColor() {
-        return secondGameColor;
-    }
-
-    public void setSecondGameColor(GameColor secondGameColor) {
-        this.secondGameColor = secondGameColor;
-    }
-
-    public boolean isOpenBySecondPlayer() {
-        return isOpenBySecondPlayer;
-    }
-
-    public void setOpenBySecondPlayer(boolean openBySecondPlayer) {
-        isOpenBySecondPlayer = openBySecondPlayer;
     }
 }

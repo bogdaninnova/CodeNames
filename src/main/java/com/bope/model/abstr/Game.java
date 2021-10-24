@@ -1,16 +1,19 @@
 package com.bope.model.abstr;
 
 import com.bope.db.UserMongo;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Set;
 
 public abstract class Game {
 
-    private long chatId;
-    private String lang;
-    private boolean useKeyboard;
-    private Schema schema;
+    @Getter @Setter private long chatId;
+    @Getter @Setter private String lang;
+    @Getter @Setter private boolean useKeyboard;
+    @Getter @Setter private Schema schema;
+
     private ArrayList<UserMongo> caps = new ArrayList<>();
 
     protected Game(Game game) {
@@ -26,42 +29,9 @@ public abstract class Game {
         setLang(lang);
         setUseKeyboard(isUseKeyboard);
         reset();
-        //create default schema
     }
 
     public abstract void reset();
-
-    public boolean isUseKeyboard() {
-        return useKeyboard;
-    }
-
-    public void setUseKeyboard(boolean useKeyboard) {
-        this.useKeyboard = useKeyboard;
-    }
-
-    public String getLang() {
-        return lang;
-    }
-
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
-    public long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(long chatId) {
-        this.chatId = chatId;
-    }
-
-    public Schema getSchema() {
-        return schema;
-    }
-
-    public void setSchema(Schema schema) {
-        this.schema = schema;
-    }
 
     public Game createSchema() {
         schema.update(getLang());
@@ -70,12 +40,6 @@ public abstract class Game {
 
     public ArrayList<UserMongo> getCaps() {
         return caps;
-    }
-
-    public Game setCaps(Set<UserMongo> set) {
-        caps = new ArrayList<>();
-        caps.addAll(set);
-        return this;
     }
 
     public Game setCaps(ArrayList<UserMongo> list) {
