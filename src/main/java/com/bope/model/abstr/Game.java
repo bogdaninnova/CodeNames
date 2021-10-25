@@ -13,13 +13,14 @@ public abstract class Game {
     @Getter @Setter private boolean useKeyboard;
     @Getter @Setter private Schema schema;
 
-    private ArrayList<UserMongo> caps = new ArrayList<>();
+    @Getter private ArrayList<UserMongo> caps;
 
     protected Game(Game game) {
         setChatId(game.getChatId());
         setLang(game.getLang());
         setUseKeyboard(game.isUseKeyboard());
         setSchema(game.getSchema());
+        setCaps(new ArrayList<>());
         reset();
     }
 
@@ -27,6 +28,7 @@ public abstract class Game {
         setChatId(chatId);
         setLang(lang);
         setUseKeyboard(isUseKeyboard);
+        setCaps(new ArrayList<>());
         reset();
     }
 
@@ -35,10 +37,6 @@ public abstract class Game {
     public Game createSchema() {
         schema.update(getLang());
         return this;
-    }
-
-    public ArrayList<UserMongo> getCaps() {
-        return caps;
     }
 
     public Game setCaps(ArrayList<UserMongo> list) {

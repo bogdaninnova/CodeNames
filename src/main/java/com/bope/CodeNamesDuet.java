@@ -18,6 +18,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 @Component
 public class CodeNamesDuet {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CodeNamesDuet.class);
+    private CodeNamesBot codeNamesBot;
+
     @Value("${DUET_GAME_OVER}") protected String DUET_GAME_OVER;
     @Value("${DUET_YOU_WON}") protected String DUET_YOU_WON;
     @Value("${DUET_YOU_FINISHED}") protected String DUET_YOU_FINISHED;
@@ -30,11 +33,6 @@ public class CodeNamesDuet {
     @Value("${DUET_PROMPT_SENT}") protected String DUET_PROMPT_SENT;
     @Value("${DUET_INCORRECT_PROMPT}") protected String DUET_INCORRECT_PROMPT;
     @Value("${DUET_PLAYERS_PROMPT}") protected String DUET_PLAYERS_PROMPT;
-
-
-
-    @Autowired private CodeNamesBot codeNamesBot;
-    private static final Logger LOG = LoggerFactory.getLogger(CodeNamesDuet.class);
 
 
     private static Prompt getPromptDuet(String text) {
@@ -181,6 +179,11 @@ public class CodeNamesDuet {
                 game.refreshGreenLeft();
             }
         }
+    }
+
+    @Autowired
+    public void setCodeNamesBot(CodeNamesBot codeNamesBot) {
+        this.codeNamesBot = codeNamesBot;
     }
 
 }

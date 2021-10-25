@@ -9,17 +9,17 @@ import lombok.Setter;
 public class DuetGame extends Game {
 
     @Getter private long secondPlayerId;
-    public DuetGame(Game game) {
-        super(game);
-    }
     @Getter @Setter private Prompt prompt;
     @Getter private int openGreensLeft;
     @Getter private int turnsLeft;
 
+    public DuetGame(Game game) {
+        super(game);
+    }
+
     public DuetGame(long chatId, String lang, boolean isUseKeyboard) {
         super(chatId, lang, isUseKeyboard);
         setSchema(new DuetSchema());
-        //refreshGreenLeft();
         this.turnsLeft = 9;
         this.openGreensLeft = 18;
     }

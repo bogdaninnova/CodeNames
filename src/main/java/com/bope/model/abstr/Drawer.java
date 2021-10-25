@@ -69,8 +69,7 @@ public abstract class Drawer {
         g.fillRect(SIZE_X * 5 / 2, SIZE_Y * 5, SIZE_X * 5 / 2, SIZE_Y_SCORES);
 
         g.setFont(SCORE_FONT);
-
-        int wordHeight = g.getFontMetrics(SCORE_FONT).getHeight();
+        //int wordHeight = g.getFontMetrics(SCORE_FONT).getHeight();
 
         g.setColor(Colors.RED_TEXT);
         g.drawString(String.valueOf(redLeft), SIZE_X * 5 / 4, SIZE_Y * 5 + (int) (SIZE_Y_SCORES * 0.85));

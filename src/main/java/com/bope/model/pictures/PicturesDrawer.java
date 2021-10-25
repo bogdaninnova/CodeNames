@@ -49,7 +49,7 @@ public class PicturesDrawer extends Drawer {
         g.setColor(Color.BLACK);
         if (isAdmin && card.getGameColor().equals(GameColor.BLACK))
             g.setColor(Color.WHITE);
-        g.drawString(card.getWord(), x * SIZE_X + SIZE_X /18, y * SIZE_Y + SIZE_Y /6);
+        g.drawString(card.getWord(), x * SIZE_X + SIZE_X / 18, y * SIZE_Y + SIZE_Y / 6);
     }
 
     private void addImage(BufferedImage image, int x, int y, Card card, boolean isAdmin) {

@@ -22,6 +22,7 @@ public class PicturesSchema extends Schema {
         setArray(isRedFirst());
     }
 
+    @Override
     protected void setArray(boolean isRedFirst) {
         int num = 0;
         for (int j = 0; j < 5; j++)
@@ -38,15 +39,6 @@ public class PicturesSchema extends Schema {
             setColorsOnCard(GameColor.RED, 1);
         else
             setColorsOnCard(GameColor.BLUE, 1);
-    }
-
-    public int howMuchLeft(GameColor gameColor) {
-        int count = 0;
-        for (int i = 0; i < 5; i++)
-            for (int j = 0; j < 5; j++)
-                if (array[i][j].getGameColor() == gameColor && !array[i][j].isOpen())
-                    count++;
-        return count;
     }
 
     @Override

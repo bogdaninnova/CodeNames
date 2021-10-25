@@ -31,13 +31,13 @@ public class DuetDrawer extends Drawer {
         }
 
         else if (!isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_TEXT);
+            drawRectangleDiagonal(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, false)[0]);
         } else if (!isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
+            drawRectangleDiagonal(card.getWord(), i, j, getCardColor(card, false)[0], Colors.BROWN_OPEN_CARD);
         } else if (isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_TEXT);
+            drawRectangleDiagonal(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, true)[0]);
         } else if (isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, getCardColor(card, isFirstPlayer)[0], Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
+            drawRectangleDiagonal(card.getWord(), i, j, getCardColor(card, true)[0], Colors.BROWN_OPEN_CARD);
         }
 
         else {
@@ -71,7 +71,7 @@ public class DuetDrawer extends Drawer {
         }
     }
 
-    private void drawRectangle(String word, int i, int j, Color upperFillColor, Color lowerFillColor, Color textColor) {
+    private void drawRectangleDiagonal(String word, int i, int j, Color upperFillColor, Color lowerFillColor) {
 
         int[] x1 = {i * SIZE_X + 2, (i+1) * SIZE_X, i * SIZE_X + 2};
         int[] y1 = {(j+1) * SIZE_Y + 2, j * SIZE_Y + 2, j * SIZE_Y};
@@ -85,7 +85,7 @@ public class DuetDrawer extends Drawer {
         g.fillPolygon(p1);
         g.setColor(lowerFillColor);
         g.fillPolygon(p2);
-        g.setColor(textColor);
+        g.setColor(Colors.BROWN_OPEN_TEXT);
         g.drawString(word, i * SIZE_X + 100, j * SIZE_Y + 120);
     }
 

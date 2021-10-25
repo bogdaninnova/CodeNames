@@ -32,14 +32,15 @@ public class DuetSchema extends Schema {
                 array[i][j].setSecondGameColor(gameColor);
                 count--;
             }
-
         }
     }
 
+    @Override
     public int howMuchLeft(GameColor gameColor) {
         return howMuchLeft(gameColor, true) + howMuchLeft(gameColor, false);
     }
 
+    @Override
     public int howMuchLeft(GameColor gameColor, boolean isFirst) {
         int count = 0;
         for (int i = 0; i < 5; i++)

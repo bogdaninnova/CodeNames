@@ -14,7 +14,7 @@ import java.util.Random;
 
 public abstract class Schema {
 
-    protected final Card[][] array = new Card[5][5];
+    @Getter protected final Card[][] array = new Card[5][5];
     protected final Random rand = new Random();
     protected List<WordMongo> wordList;
     protected List<WordMongo> allWordList = new ArrayList<>();
@@ -29,8 +29,17 @@ public abstract class Schema {
     }
 
     protected abstract void setArray(boolean isRedFirst);
-    public abstract int howMuchLeft(GameColor gameColor);
     public abstract int howMuchLeft(GameColor gameColor, boolean isFirst);
+
+    public int howMuchLeft(GameColor gameColor) {
+        int count = 0;
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                if (array[i][j].getGameColor() == gameColor && !array[i][j].isOpen())
+                    count++;
+
+        return count;
+    }
 
     public List<WordMongo> getWordList(String lang) {
         if (allWordList.size() < 25 || !getLang().equals(lang))
@@ -51,10 +60,6 @@ public abstract class Schema {
     protected String getRandomWord() {
         String word = wordList.remove(rand.nextInt(wordList.size())).getWord();
         return word.substring(0, 1).toUpperCase() + word.substring(1);
-    }
-
-    public Card[][] getArray() {
-        return array;
     }
 
     public void openCards(boolean isOpen) {

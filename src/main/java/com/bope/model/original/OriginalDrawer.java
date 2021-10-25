@@ -51,27 +51,23 @@ public class OriginalDrawer extends Drawer {
 
 
     private static Color[] getCardColor(Card card) {
-        if (card.getGameColor() == GameColor.RED)
-            return new Color[]{Colors.RED_CARD, Colors.RED_TEXT};
-        if (card.getGameColor() == GameColor.BLUE)
-            return new Color[]{Colors.BLUE_CARD, Colors.BLUE_TEXT};
-        if (card.getGameColor() == GameColor.BLACK)
-            return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
-        if (card.getGameColor() == GameColor.YELLOW)
-            return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
-        return null;
+        switch (card.getGameColor()) {
+            case RED : return new Color[]{Colors.RED_CARD, Colors.RED_TEXT};
+            case BLUE : return new Color[]{Colors.BLUE_CARD, Colors.BLUE_TEXT};
+            case BLACK : return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
+            case YELLOW : return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
+            default : return null;
+        }
     }
 
     private static Color[] getAdminCardColor(Card card) {
-        if (card.getGameColor() == GameColor.RED)
-            return new Color[]{Colors.RED_OPEN_CARD, Colors.RED_OPEN_TEXT};
-        if (card.getGameColor() == GameColor.BLUE)
-            return new Color[]{Colors.BLUE_OPEN_CARD, Colors.BLUE_OPEN_TEXT};
-        if (card.getGameColor() == GameColor.BLACK)
-            return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
-        if (card.getGameColor() == GameColor.YELLOW)
-            return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_OPEN_TEXT};
-        return null;
+        switch (card.getGameColor()) {
+            case RED : return new Color[]{Colors.RED_OPEN_CARD, Colors.RED_OPEN_TEXT};
+            case BLUE : return new Color[]{Colors.BLUE_OPEN_CARD, Colors.BLUE_OPEN_TEXT};
+            case BLACK : return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
+            case YELLOW : return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_OPEN_TEXT};
+            default: return null;
+        }
     }
 
 }

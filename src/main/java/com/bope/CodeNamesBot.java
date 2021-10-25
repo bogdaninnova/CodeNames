@@ -30,9 +30,8 @@ import java.util.*;
 @Component
 public class CodeNamesBot extends TelegramLongPollingBot {
 
-    @Autowired private UsersListMongo usersListMongo;
-    @Autowired private CodeNamesDuet codeNamesDuet;
-
+    private UsersListMongo usersListMongo;
+    private CodeNamesDuet codeNamesDuet;
     protected final Map<Long, Game> games = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
@@ -510,7 +509,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
 
     protected static String getFilePath(long chatId, boolean isAdmin) {
-        return chatId + "_admin" + isAdmin + ".jpg";
+        return String.format("%s_admin%s.jpg", chatId, isAdmin);
+    }
+
+    @Autowired
+    public void setUsersListMongo(UsersListMongo usersListMongo) {
+        this.usersListMongo = usersListMongo;
+    }
+
+    @Autowired
+    public void setCodeNamesDuet(CodeNamesDuet codeNamesDuet) {
+        this.codeNamesDuet = codeNamesDuet;
     }
 
     @Override
