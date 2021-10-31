@@ -25,6 +25,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.util.*;
 
 @Component
@@ -465,8 +466,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(text);
-        if (eraseKeyboard)
-            sendMessage.setReplyMarkup(new ReplyKeyboardRemove());
+        sendMessage.setReplyMarkup(new ReplyKeyboardRemove(eraseKeyboard));
         try {
             execute(sendMessage);
             LOG.info("Message sent");
@@ -492,12 +492,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         else if (game instanceof PicturesGame)
             new PicturesDrawer((PicturesGame) game, filepath, isAdmin);
         SendPhoto photo = new SendPhoto();
-        photo.setPhoto(new InputFile(filepath));
+        photo.setPhoto(new InputFile(new File(filepath)));
         photo.setChatId(String.valueOf(chatId));
         if (sendKeyboard)
             photo.setReplyMarkup(getGameKeyboard(chatId));
         else
-            photo.setReplyMarkup(new ReplyKeyboardRemove());
+            photo.setReplyMarkup(new ReplyKeyboardRemove(true));
 
         if (!caption.equals(""))
             photo.setCaption(caption);
@@ -506,10 +506,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         LOG.info("Picture sent");
     }
 
-
-
     protected static String getFilePath(long chatId, boolean isAdmin) {
-        return String.format("%s_admin%s.jpg", chatId, isAdmin);
+        return String.format("%s_admin_%s.jpg", chatId, isAdmin);
     }
 
     @Autowired
