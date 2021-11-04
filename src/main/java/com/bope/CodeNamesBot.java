@@ -87,6 +87,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         LOG.info("User = " + user);
         LOG.info("ChatId = " + chatId);
 
+        if (text == null)
+            return;
+
         if (text.equals(" ") || update.getMessage().getForwardFrom() != null) {
             LOG.info("Empty message");
             return;
@@ -492,7 +495,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         else if (game instanceof PicturesGame)
             new PicturesDrawer((PicturesGame) game, filepath, isAdmin);
         SendPhoto photo = new SendPhoto();
-        photo.setPhoto(new InputFile(new File(filepath)));
+        File file = new File(filepath);
+        photo.setPhoto(new InputFile(file));
         photo.setChatId(String.valueOf(chatId));
         if (sendKeyboard)
             photo.setReplyMarkup(getGameKeyboard(chatId));
@@ -503,7 +507,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             photo.setCaption(caption);
 
         execute(photo);
+
         LOG.info("Picture sent");
+        boolean isDeleted = file.delete();
+        LOG.info("File deleted: " + isDeleted);
     }
 
     protected static String getFilePath(long chatId, boolean isAdmin) {
