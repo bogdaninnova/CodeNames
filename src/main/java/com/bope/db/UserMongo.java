@@ -6,8 +6,10 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 @Document(collection = "users")
-public class UserMongo {
+public class UserMongo implements Serializable {
 
     @Id private ObjectId id;
     @Getter @Setter private String userName;

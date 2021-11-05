@@ -3,10 +3,12 @@ package com.bope.model.abstr;
 import com.bope.db.UserMongo;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.binary.Base64;
 
+import java.io.*;
 import java.util.ArrayList;
 
-public abstract class Game {
+public abstract class Game implements Serializable {
 
     @Getter @Setter private long chatId;
     @Getter @Setter private String lang;
@@ -57,5 +59,32 @@ public abstract class Game {
             sb.append(cap.getUserName());
         }
         return sb.toString();
+    }
+
+    public String getBinaryText() {
+        try (
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream)
+        ) {
+            oos.writeObject(this);
+            oos.flush();
+            byte[] binary =  byteArrayOutputStream.toByteArray();
+            return Base64.encodeBase64String(binary);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Game getFromBinary(String binaryText) {
+        try (
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(Base64.decodeBase64(binaryText));
+                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)
+        ) {
+            return (Game) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

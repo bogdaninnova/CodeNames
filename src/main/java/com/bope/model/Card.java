@@ -3,7 +3,9 @@ package com.bope.model;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Card {
+import java.io.Serializable;
+
+public class Card implements Serializable {
 
     @Getter @Setter private String word;
     @Getter @Setter private boolean isOpen;

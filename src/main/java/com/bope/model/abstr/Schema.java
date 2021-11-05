@@ -8,11 +8,12 @@ import com.bope.model.GameColor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public abstract class Schema {
+public abstract class Schema implements Serializable {
 
     @Getter protected final Card[][] array = new Card[5][5];
     protected final Random rand = new Random();

@@ -99,13 +99,10 @@ public class CodeNamesDuet {
     protected void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
         LOG.info("Duet game starting");
         Game game;
-        if (codeNamesBot.games.containsKey(firstUser.getLongId()))
-            game = new DuetGame(codeNamesBot.games.get(firstUser.getLongId())).setSecondPlayerId(secondUser.getLongId()).createSchema();
+        if (codeNamesBot.isGameExists(firstUser.getLongId()))
+            game = new DuetGame(codeNamesBot.getGame(firstUser.getLongId())).setSecondPlayerId(secondUser.getLongId()).createSchema();
         else
             game = new DuetGame(firstUser.getLongId(), codeNamesBot.LANG_RUS, false).setSecondPlayerId(secondUser.getLongId()).createSchema();
-
-        codeNamesBot.games.put(firstUser.getLongId(), game);
-        codeNamesBot.games.put(secondUser.getLongId(), game);
 
         if (game.getSchema().isRedFirst())
             game.setCaps(firstUser, secondUser);
@@ -115,6 +112,9 @@ public class CodeNamesDuet {
         sendDuetPicture((DuetGame) game, firstUser.getLongId(), true);
         sendDuetPicture((DuetGame) game, secondUser.getLongId(), false);
         switchTurnDuet((DuetGame) game);
+
+        codeNamesBot.saveGame(firstUser.getLongId(), game);
+        codeNamesBot.saveGame(secondUser.getLongId(), game);
     }
 
     protected void switchTurnDuet(DuetGame game) {
@@ -135,7 +135,7 @@ public class CodeNamesDuet {
 
     protected void botCheckWordDuet(UserMongo userMongo, String text) {
         LOG.info("Duet game starting word checking: " + text);
-        DuetGame game = (DuetGame) codeNamesBot.games.get(userMongo.getLongId());
+        DuetGame game = (DuetGame) codeNamesBot.getGame(userMongo.getLongId());
 
         if (game.getPrompt() == null) {
             LOG.info("Duet game prompt is not sent yet");
