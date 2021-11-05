@@ -7,7 +7,7 @@ import com.bope.model.abstr.Drawer;
 
 import java.awt.*;
 
-public class DuetDrawer extends Drawer {
+public class DuetDrawer extends Drawer implements Colors {
 
     public DuetDrawer(DuetGame game, String fileName, boolean isFirstPlayer) {
         super(500, 200, 200);
@@ -25,23 +25,23 @@ public class DuetDrawer extends Drawer {
             Color[] colors = getCardColor(card, isFirstPlayer);
             drawRectangle(card.getWord(), i, j, colors[0], colors[1]);
         } else if ((card.isOpen() && card.getSecondGameColor() == GameColor.GREEN) || (card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.GREEN)) {
-            drawRectangle(card.getWord(), i, j, Colors.GREEN_OPEN_CARD, Colors.GREEN_OPEN_TEXT);
+            drawRectangle(card.getWord(), i, j, GREEN_OPEN_CARD, GREEN_OPEN_TEXT);
         } else if (card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangle(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, Colors.BROWN_OPEN_TEXT);
+            drawRectangle(card.getWord(), i, j, BROWN_OPEN_CARD, BROWN_OPEN_TEXT);
         }
 
         else if (!isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
-            drawRectangleDiagonal(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, false)[0]);
+            drawRectangleDiagonal(card.getWord(), i, j, BROWN_OPEN_CARD, getCardColor(card, false)[0]);
         } else if (!isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangleDiagonal(card.getWord(), i, j, getCardColor(card, false)[0], Colors.BROWN_OPEN_CARD);
+            drawRectangleDiagonal(card.getWord(), i, j, getCardColor(card, false)[0], BROWN_OPEN_CARD);
         } else if (isFirstPlayer && card.isOpenBySecondPlayer() && card.getGameColor() == GameColor.YELLOW) {
-            drawRectangleDiagonal(card.getWord(), i, j, Colors.BROWN_OPEN_CARD, getCardColor(card, true)[0]);
+            drawRectangleDiagonal(card.getWord(), i, j, BROWN_OPEN_CARD, getCardColor(card, true)[0]);
         } else if (isFirstPlayer && card.isOpen() && card.getSecondGameColor() == GameColor.YELLOW) {
-            drawRectangleDiagonal(card.getWord(), i, j, getCardColor(card, true)[0], Colors.BROWN_OPEN_CARD);
+            drawRectangleDiagonal(card.getWord(), i, j, getCardColor(card, true)[0], BROWN_OPEN_CARD);
         }
 
         else {
-            drawRectangle(card.getWord(), i, j, Colors.WHITE_CARD, Colors.WHITE_TEXT);
+            drawRectangle(card.getWord(), i, j, WHITE_CARD, WHITE_TEXT);
         }
 
     }
@@ -85,7 +85,7 @@ public class DuetDrawer extends Drawer {
         g.fillPolygon(p1);
         g.setColor(lowerFillColor);
         g.fillPolygon(p2);
-        g.setColor(Colors.BROWN_OPEN_TEXT);
+        g.setColor(BROWN_OPEN_TEXT);
         g.drawString(word, i * SIZE_X + 100, j * SIZE_Y + 120);
     }
 
@@ -93,10 +93,10 @@ public class DuetDrawer extends Drawer {
     private static Color[] getCardColor(Card card, boolean isFirst) {
         GameColor color = isFirst ? card.getGameColor() : card.getSecondGameColor();
         switch (color) {
-            case BLACK: return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
-            case GREEN: return new Color[]{Colors.GREEN_CARD, Colors.GREEN_TEXT};
-            case YELLOW: return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
-            default: return new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
+            case BLACK: return new Color[]{BLACK_CARD, BLACK_TEXT};
+            case GREEN: return new Color[]{GREEN_CARD, GREEN_TEXT};
+            case YELLOW: return new Color[]{YELLOW_CARD, YELLOW_TEXT};
+            default: return new Color[]{WHITE_CARD, WHITE_TEXT};
         }
     }
 

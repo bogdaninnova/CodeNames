@@ -1,4 +1,4 @@
-package com.bope.db;
+package com.bope.dao.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

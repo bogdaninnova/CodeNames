@@ -7,7 +7,7 @@ import com.bope.model.GameColor;
 import com.bope.model.abstr.Game;
 import java.awt.*;
 
-public class OriginalDrawer extends Drawer {
+public class OriginalDrawer extends Drawer implements Colors {
 
     public OriginalDrawer(Game game, String fileName, boolean isAdmin) {
         super(500, 200, 200);
@@ -20,12 +20,12 @@ public class OriginalDrawer extends Drawer {
     }
 
     private void drawCard(Card card, int i, int j, boolean isAdmin) {
-        Color[] colors = new Color[]{Colors.WHITE_CARD, Colors.WHITE_TEXT};
+        Color[] colors = new Color[]{WHITE_CARD, WHITE_TEXT};
         if (card.isOpen() || isAdmin)
-            colors = getCardColor(card);
+            colors = getCardColor(card, false);
 
         if (card.isOpen() && isAdmin)
-            colors = getAdminCardColor(card);
+            colors = getCardColor(card, true);
 
         assert colors != null;
         g.setColor(colors[0]);
@@ -49,23 +49,12 @@ public class OriginalDrawer extends Drawer {
         }
     }
 
-
-    private static Color[] getCardColor(Card card) {
+    private static Color[] getCardColor(Card card, boolean isAdmin) {
         switch (card.getGameColor()) {
-            case RED : return new Color[]{Colors.RED_CARD, Colors.RED_TEXT};
-            case BLUE : return new Color[]{Colors.BLUE_CARD, Colors.BLUE_TEXT};
-            case BLACK : return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
-            case YELLOW : return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_TEXT};
-            default : return null;
-        }
-    }
-
-    private static Color[] getAdminCardColor(Card card) {
-        switch (card.getGameColor()) {
-            case RED : return new Color[]{Colors.RED_OPEN_CARD, Colors.RED_OPEN_TEXT};
-            case BLUE : return new Color[]{Colors.BLUE_OPEN_CARD, Colors.BLUE_OPEN_TEXT};
-            case BLACK : return new Color[]{Colors.BLACK_CARD, Colors.BLACK_TEXT};
-            case YELLOW : return new Color[]{Colors.YELLOW_CARD, Colors.YELLOW_OPEN_TEXT};
+            case RED : return isAdmin ? new Color[]{RED_OPEN_CARD, RED_OPEN_TEXT} : new Color[]{RED_CARD, RED_TEXT};
+            case BLUE : return isAdmin ? new Color[]{BLUE_OPEN_CARD, BLUE_OPEN_TEXT} : new Color[]{BLUE_CARD, BLUE_TEXT};
+            case BLACK : return new Color[]{BLACK_CARD, BLACK_TEXT};
+            case YELLOW : return isAdmin ? new Color[]{YELLOW_CARD, YELLOW_OPEN_TEXT} : new Color[]{YELLOW_CARD, YELLOW_TEXT};
             default: return null;
         }
     }

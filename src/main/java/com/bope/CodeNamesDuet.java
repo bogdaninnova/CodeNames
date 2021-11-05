@@ -1,6 +1,6 @@
 package com.bope;
 
-import com.bope.db.UserMongo;
+import com.bope.dao.model.UserMongo;
 import com.bope.model.GameColor;
 import com.bope.model.Prompt;
 import com.bope.model.abstr.Game;

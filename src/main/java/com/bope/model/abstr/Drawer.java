@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class Drawer {
+public abstract class Drawer implements Colors {
 
     protected final int SIZE_X;
     protected final int SIZE_Y;
@@ -63,17 +63,17 @@ public abstract class Drawer {
     }
 
     protected void drawScores(int redLeft, int blueLeft) {
-        g.setColor(Colors.RED_CARD);
+        g.setColor(RED_CARD);
         g.fillRect(0, SIZE_Y * 5, SIZE_X * 5 / 2, SIZE_Y_SCORES);
-        g.setColor(Colors.BLUE_CARD);
+        g.setColor(BLUE_CARD);
         g.fillRect(SIZE_X * 5 / 2, SIZE_Y * 5, SIZE_X * 5 / 2, SIZE_Y_SCORES);
 
         g.setFont(SCORE_FONT);
         //int wordHeight = g.getFontMetrics(SCORE_FONT).getHeight();
 
-        g.setColor(Colors.RED_TEXT);
+        g.setColor(RED_TEXT);
         g.drawString(String.valueOf(redLeft), SIZE_X * 5 / 4, SIZE_Y * 5 + (int) (SIZE_Y_SCORES * 0.85));
-        g.setColor(Colors.BLUE_TEXT);
+        g.setColor(BLUE_TEXT);
         g.drawString(String.valueOf(blueLeft), SIZE_X * 15 / 4, SIZE_Y * 5 + (int) (SIZE_Y_SCORES * 0.85));
 
     }

@@ -1,6 +1,6 @@
 package com.bope.model.abstr;
 
-import com.bope.db.UserMongo;
+import com.bope.dao.model.UserMongo;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;

@@ -1,9 +1,10 @@
 package com.bope;
 
-import com.bope.db.GameMongo;
-import com.bope.db.GamesListMongo;
-import com.bope.db.UserMongo;
-import com.bope.db.UsersListMongo;
+import com.bope.dao.model.GameMongo;
+import com.bope.dao.repo.GamesListMongo;
+import com.bope.dao.model.UserMongo;
+import com.bope.dao.repo.UsersListMongo;
+import com.bope.model.Card;
 import com.bope.model.original.OriginalDrawer;
 import com.bope.model.abstr.Game;
 import com.bope.model.GameColor;
@@ -431,10 +432,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         for (int j = 0; j < 5; j++) {
             KeyboardRow keyboardRow = new KeyboardRow();
             for (int i = 0; i < 5; i++) {
-                if (game.getSchema().getArray()[i][j].isOpen())
-                    keyboardRow.add(" ");
-                else
-                    keyboardRow.add(game.getSchema().getArray()[i][j].getWord());
+                Card card = game.getSchema().getArray()[i][j];
+                keyboardRow.add(card.isOpen() ? " " : card.getWord());
             }
             keyboard.add(keyboardRow);
         }
@@ -503,11 +502,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     public Game getGame(long chatId) {
-        return Game.getFromBinary(gamesListMongo.findByGameId(chatId).getBinaryGameString());
+        return Game.getFromBinary(gamesListMongo.findFirstByGameIdOrderByDateDesc(chatId).getBinaryGameString());
     }
 
     public void saveGame(long chatId, Game game) {
-        gamesListMongo.removeByGameId(chatId);
         gamesListMongo.save(new GameMongo(chatId, game.getBinaryText()));
     }
 
@@ -526,10 +524,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         File file = new File(filepath);
         photo.setPhoto(new InputFile(file));
         photo.setChatId(String.valueOf(chatId));
-        if (sendKeyboard)
-            photo.setReplyMarkup(getGameKeyboard(chatId));
-        else
-            photo.setReplyMarkup(new ReplyKeyboardRemove(true));
+        photo.setReplyMarkup(sendKeyboard ? getGameKeyboard(chatId) : new ReplyKeyboardRemove(true));
 
         if (!caption.equals(""))
             photo.setCaption(caption);
