@@ -1,10 +1,10 @@
-package com.bope.model.abstr;
+package com.bope.model.game.abstr;
 
 import com.bope.Main;
-import com.bope.dao.model.WordMongo;
-import com.bope.dao.repo.WordsListMongo;
-import com.bope.model.Card;
-import com.bope.model.GameColor;
+import com.bope.model.dao.model.WordMongo;
+import com.bope.model.dao.repo.WordsListMongo;
+import com.bope.model.game.Card;
+import com.bope.model.game.GameColor;
 import lombok.Getter;
 import lombok.Setter;
 

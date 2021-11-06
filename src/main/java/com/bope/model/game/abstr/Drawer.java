@@ -1,6 +1,6 @@
-package com.bope.model.abstr;
+package com.bope.model.game.abstr;
 
-import com.bope.model.Colors;
+import com.bope.model.game.Colors;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.TextAttribute;

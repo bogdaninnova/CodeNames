@@ -1,6 +1,6 @@
-package com.bope.model.original;
+package com.bope.model.game.original;
 
-import com.bope.model.abstr.Game;
+import com.bope.model.game.abstr.Game;
 
 public class OriginalGame extends Game {
 

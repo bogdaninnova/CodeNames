@@ -1,4 +1,4 @@
-package com.bope.model;
+package com.bope.model.game;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,8 +1,8 @@
-package com.bope.model.pictures;
+package com.bope.model.game.pictures;
 
-import com.bope.model.Card;
-import com.bope.model.GameColor;
-import com.bope.model.abstr.Schema;
+import com.bope.model.game.Card;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.abstr.Schema;
 
 import java.util.ArrayList;
 import java.util.HashMap;

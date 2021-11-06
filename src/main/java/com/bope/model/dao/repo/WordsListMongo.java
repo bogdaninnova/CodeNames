@@ -1,5 +1,5 @@
-package com.bope.dao.repo;
-import com.bope.dao.model.WordMongo;
+package com.bope.model.dao.repo;
+import com.bope.model.dao.model.WordMongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 

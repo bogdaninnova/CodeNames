@@ -1,8 +1,8 @@
-package com.bope.model.pictures;
+package com.bope.model.game.pictures;
 
-import com.bope.model.Card;
-import com.bope.model.GameColor;
-import com.bope.model.abstr.Drawer;
+import com.bope.model.game.Card;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.abstr.Drawer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

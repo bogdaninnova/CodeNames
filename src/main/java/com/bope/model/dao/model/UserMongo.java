@@ -1,4 +1,4 @@
-package com.bope.dao.model;
+package com.bope.model.dao.model;
 
 import lombok.Getter;
 import lombok.Setter;

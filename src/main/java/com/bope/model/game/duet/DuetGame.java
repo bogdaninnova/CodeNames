@@ -1,8 +1,8 @@
-package com.bope.model.duet;
+package com.bope.model.game.duet;
 
-import com.bope.model.GameColor;
-import com.bope.model.Prompt;
-import com.bope.model.abstr.Game;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.Prompt;
+import com.bope.model.game.abstr.Game;
 import lombok.Getter;
 import lombok.Setter;
 

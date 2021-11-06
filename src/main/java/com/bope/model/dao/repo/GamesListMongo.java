@@ -1,6 +1,6 @@
-package com.bope.dao.repo;
+package com.bope.model.dao.repo;
 
-import com.bope.dao.model.GameMongo;
+import com.bope.model.dao.model.GameMongo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface GamesListMongo extends MongoRepository<GameMongo, String> {

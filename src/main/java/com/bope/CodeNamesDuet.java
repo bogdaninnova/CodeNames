@@ -1,11 +1,11 @@
 package com.bope;
 
-import com.bope.dao.model.UserMongo;
-import com.bope.model.GameColor;
-import com.bope.model.Prompt;
-import com.bope.model.abstr.Game;
-import com.bope.model.duet.DuetDrawer;
-import com.bope.model.duet.DuetGame;
+import com.bope.model.dao.model.UserMongo;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.Prompt;
+import com.bope.model.game.abstr.Game;
+import com.bope.model.game.duet.DuetDrawer;
+import com.bope.model.game.duet.DuetGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
-package com.bope.model.original;
+package com.bope.model.game.original;
 
-import com.bope.model.Card;
-import com.bope.model.GameColor;
-import com.bope.model.abstr.Schema;
+import com.bope.model.game.Card;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.abstr.Schema;
 
 public class OriginalSchema extends Schema {
 

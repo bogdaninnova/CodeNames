@@ -1,10 +1,10 @@
-package com.bope.model.original;
+package com.bope.model.game.original;
 
-import com.bope.model.Card;
-import com.bope.model.Colors;
-import com.bope.model.abstr.Drawer;
-import com.bope.model.GameColor;
-import com.bope.model.abstr.Game;
+import com.bope.model.game.Card;
+import com.bope.model.game.Colors;
+import com.bope.model.game.abstr.Drawer;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.abstr.Game;
 import java.awt.*;
 
 public class OriginalDrawer extends Drawer implements Colors {

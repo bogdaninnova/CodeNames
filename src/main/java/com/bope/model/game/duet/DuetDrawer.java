@@ -1,9 +1,9 @@
-package com.bope.model.duet;
+package com.bope.model.game.duet;
 
-import com.bope.model.Card;
-import com.bope.model.Colors;
-import com.bope.model.GameColor;
-import com.bope.model.abstr.Drawer;
+import com.bope.model.game.Card;
+import com.bope.model.game.Colors;
+import com.bope.model.game.GameColor;
+import com.bope.model.game.abstr.Drawer;
 
 import java.awt.*;
 

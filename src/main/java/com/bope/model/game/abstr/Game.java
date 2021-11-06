@@ -1,6 +1,6 @@
-package com.bope.model.abstr;
+package com.bope.model.game.abstr;
 
-import com.bope.dao.model.UserMongo;
+import com.bope.model.dao.model.UserMongo;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
