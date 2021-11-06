@@ -105,11 +105,9 @@ public class CodeNamesDuet {
             game = new DuetGame(firstUser.getLongId(), codeNamesBot.LANG_RUS, false);
         game.setSecondPlayerId(secondUser.getLongId());
         game.createSchema();
-
-        if (game.getSchema().isRedFirst())
-            game.setCaps(firstUser, secondUser);
-        else
-            game.setCaps(secondUser, firstUser);
+        game.setCaps(firstUser, secondUser);
+        if (!game.getSchema().isRedFirst())
+            game.swapCaptains();
 
         sendDuetPicture(game, firstUser.getLongId(), true);
         sendDuetPicture(game, secondUser.getLongId(), false);

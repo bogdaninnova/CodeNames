@@ -24,9 +24,8 @@ public class DuetGame extends Game {
         this.openGreensLeft = 18;
     }
 
-    public Game setSecondPlayerId(long secondPlayerId) {
+    public void setSecondPlayerId(long secondPlayerId) {
         this.secondPlayerId = secondPlayerId;
-        return this;
     }
 
     public void swapCaptains() {
@@ -35,7 +34,6 @@ public class DuetGame extends Game {
 
     public long getPartnerId(long chatId) {
         return getChatId() != chatId ? getChatId() : getSecondPlayerId();
-
     }
 
     public void refreshGreenLeft() {
