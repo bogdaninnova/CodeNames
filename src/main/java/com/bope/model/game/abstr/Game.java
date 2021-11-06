@@ -36,14 +36,12 @@ public abstract class Game implements Serializable {
 
     public abstract void reset();
 
-    public Game createSchema() {
+    public void createSchema() {
         schema.update(getLang());
-        return this;
     }
 
-    public Game setCaps(ArrayList<UserMongo> list) {
-        caps = list;
-        return this;
+    public void setCaps(ArrayList<UserMongo> caps) {
+        this.caps = caps;
     }
 
     public void setCaps(UserMongo cap1, UserMongo cap2) {

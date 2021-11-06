@@ -42,7 +42,7 @@ public abstract class Schema implements Serializable {
         return count;
     }
 
-    public List<WordMongo> getWordList(String lang) {
+    private List<WordMongo> getWordList(String lang) {
         if (allWordList.size() < 25 || !getLang().equals(lang))
             allWordList = Main.ctx.getBean(WordsListMongo.class).findByLang(lang);
 

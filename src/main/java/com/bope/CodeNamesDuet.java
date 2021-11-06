@@ -98,20 +98,22 @@ public class CodeNamesDuet {
 
     protected void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
         LOG.info("Duet game starting");
-        Game game;
+        DuetGame game;
         if (codeNamesBot.isGameExists(firstUser.getLongId()))
-            game = new DuetGame(codeNamesBot.getGame(firstUser.getLongId())).setSecondPlayerId(secondUser.getLongId()).createSchema();
+            game = new DuetGame(codeNamesBot.getGame(firstUser.getLongId()));
         else
-            game = new DuetGame(firstUser.getLongId(), codeNamesBot.LANG_RUS, false).setSecondPlayerId(secondUser.getLongId()).createSchema();
+            game = new DuetGame(firstUser.getLongId(), codeNamesBot.LANG_RUS, false);
+        game.setSecondPlayerId(secondUser.getLongId());
+        game.createSchema();
 
         if (game.getSchema().isRedFirst())
             game.setCaps(firstUser, secondUser);
         else
             game.setCaps(secondUser, firstUser);
 
-        sendDuetPicture((DuetGame) game, firstUser.getLongId(), true);
-        sendDuetPicture((DuetGame) game, secondUser.getLongId(), false);
-        switchTurnDuet((DuetGame) game);
+        sendDuetPicture(game, firstUser.getLongId(), true);
+        sendDuetPicture(game, secondUser.getLongId(), false);
+        switchTurnDuet(game);
 
         codeNamesBot.saveGame(firstUser.getLongId(), game);
         codeNamesBot.saveGame(secondUser.getLongId(), game);

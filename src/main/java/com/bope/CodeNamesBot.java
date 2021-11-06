@@ -339,16 +339,17 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         Game game;
         if (isPicturesGame) {
             if (isGameExists(chatId) && getGame(chatId) != null && getGame(chatId) instanceof PicturesGame)
-                game = new PicturesGame(getGame(chatId)).setCaps(captains).createSchema();
+                game = new PicturesGame(getGame(chatId));
             else
-                game = new PicturesGame(chatId).setCaps(captains).createSchema();
+                game = new PicturesGame(chatId);
         } else {
             if (isGameExists(chatId) && getGame(chatId) != null && getGame(chatId) instanceof OriginalGame)
-                game = new OriginalGame(getGame(chatId)).setCaps(captains).createSchema();
+                game = new OriginalGame(getGame(chatId));
             else
-                game = new OriginalGame(chatId, LANG_RUS, false).setCaps(captains).createSchema();
+                game = new OriginalGame(chatId, LANG_RUS, false);
         }
-
+        game.setCaps(captains);
+        game.createSchema();
         saveGame(game.getChatId(), game);
         sendPicturesToAll(game, (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS);
     }
