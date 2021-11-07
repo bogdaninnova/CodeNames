@@ -90,4 +90,8 @@ public abstract class Drawer implements Colors {
         }
         return font;
     }
+
+    public BufferedImage getBufferedImage() {
+        return bi;
+    }
 }

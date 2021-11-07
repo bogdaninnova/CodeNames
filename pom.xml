@@ -95,7 +95,7 @@
                     <assembleDirectory>target</assembleDirectory>
                     <programs>
                         <program>
-                            <mainClass>com.bope.Main</mainClass>
+                            <mainClass>com.bope.bot.Main</mainClass>
                             <name>CodeNames</name>
                         </program>
                     </programs>

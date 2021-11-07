@@ -1,10 +1,9 @@
-package com.bope;
+package com.bope.bot;
 
 import com.bope.model.dao.model.UserMongo;
 import com.bope.model.dao.repo.WordsListMongo;
 import com.bope.model.game.GameColor;
 import com.bope.model.game.Prompt;
-import com.bope.model.game.abstr.Game;
 import com.bope.model.game.duet.DuetDrawer;
 import com.bope.model.game.duet.DuetGame;
 import org.slf4j.Logger;

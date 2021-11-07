@@ -1,4 +1,4 @@
-package com.bope;
+package com.bope.bot;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

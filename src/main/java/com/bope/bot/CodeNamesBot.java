@@ -1,4 +1,4 @@
-package com.bope;
+package com.bope.bot;
 
 import com.bope.model.dao.model.GameMongo;
 import com.bope.model.dao.repo.GamesListMongo;
@@ -34,12 +34,12 @@ import java.util.*;
 
 @Component
 public class CodeNamesBot extends TelegramLongPollingBot {
+    private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
     private UsersListMongo usersListMongo;
     private CodeNamesDuet codeNamesDuet;
     private GamesListMongo gamesListMongo;
     private WordsListMongo wordsListMongo;
-    private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
     @Value("${TOKEN}") private String token;
     @Value("${BOT_USER_NAME}") private String botUsername;
