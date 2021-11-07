@@ -86,4 +86,15 @@ public abstract class Game implements Serializable {
             return null;
         }
     }
+
+//    public BufferedImage draw(String fileName, boolean isAdmin) {
+//        BufferedImage bi = null;
+//        switch (this) {
+//            case OriginalGame originalGame -> bi = new OriginalDrawer(originalGame, fileName, isAdmin).getBufferedImage();
+//            case DuetGame duetGame -> bi = new DuetDrawer(duetGame, fileName, isAdmin).getBufferedImage();
+//            case PicturesGame picturesGame -> bi = new PicturesDrawer(picturesGame, fileName, isAdmin).getBufferedImage();
+//            default -> LOG.error("Wrong Type in Pattern Matching");
+//        }
+//        return bi;
+//    }
 }

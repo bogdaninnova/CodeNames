@@ -1,4 +1,4 @@
-package com.bope.bot;
+package com.bope;
 
 import com.bope.model.dao.model.GameMongo;
 import com.bope.model.dao.repo.GamesListMongo;

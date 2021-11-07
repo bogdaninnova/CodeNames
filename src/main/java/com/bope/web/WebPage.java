@@ -22,14 +22,15 @@ public class WebPage {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebPage.class);
 
-    private GamesListMongo gamesListMongo;
+    @Autowired private GamesListMongo gamesListMongo;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "image/jpg")
     public byte[] greeting(@PathVariable String id) {
 
         Game game = getGame(-Long.parseLong(id));
         String filepath = id + ".jpg";
-        Drawer drawer = new OriginalDrawer(game, filepath, true);
+        Drawer drawer = new OriginalDrawer(game, filepath, false);
+
 
         try {
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
@@ -47,10 +48,5 @@ public class WebPage {
 
     public Game getGame(long chatId) {
         return Game.getFromBinary(gamesListMongo.findFirstByGameIdOrderByDateDesc(chatId).getBinaryGameString());
-    }
-
-    @Autowired
-    public void setGamesListMongo(GamesListMongo gamesListMongo) {
-        this.gamesListMongo = gamesListMongo;
     }
 }

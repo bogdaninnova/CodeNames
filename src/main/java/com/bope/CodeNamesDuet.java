@@ -1,4 +1,4 @@
-package com.bope.bot;
+package com.bope;
 
 import com.bope.model.dao.model.UserMongo;
 import com.bope.model.dao.repo.WordsListMongo;

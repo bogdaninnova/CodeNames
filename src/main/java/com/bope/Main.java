@@ -1,4 +1,4 @@
-package com.bope.bot;
+package com.bope;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
