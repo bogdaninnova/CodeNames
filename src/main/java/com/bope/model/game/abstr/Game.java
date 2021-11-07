@@ -1,6 +1,7 @@
 package com.bope.model.game.abstr;
 
 import com.bope.model.dao.model.UserMongo;
+import com.bope.model.dao.repo.WordsListMongo;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
@@ -36,8 +37,8 @@ public abstract class Game implements Serializable {
 
     public abstract void reset();
 
-    public void createSchema() {
-        schema.update(getLang());
+    public void createSchema(WordsListMongo wordsListMongo) {
+        schema.update(getLang(), wordsListMongo);
     }
 
     public void setCaps(ArrayList<UserMongo> caps) {

@@ -4,6 +4,7 @@ import com.bope.model.dao.model.GameMongo;
 import com.bope.model.dao.repo.GamesListMongo;
 import com.bope.model.dao.model.UserMongo;
 import com.bope.model.dao.repo.UsersListMongo;
+import com.bope.model.dao.repo.WordsListMongo;
 import com.bope.model.game.Card;
 import com.bope.model.game.original.OriginalDrawer;
 import com.bope.model.game.abstr.Game;
@@ -37,6 +38,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     private UsersListMongo usersListMongo;
     private CodeNamesDuet codeNamesDuet;
     private GamesListMongo gamesListMongo;
+    private WordsListMongo wordsListMongo;
     private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
     @Value("${TOKEN}") private String token;
@@ -173,7 +175,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, username), chatId);
                     return;
                 }
-                codeNamesDuet.botStartNewGameDuet(usersListMongo.findByUserName(user.getUserName()), userMongo);
+                codeNamesDuet.botStartNewGameDuet(usersListMongo.findByUserName(user.getUserName()), userMongo, wordsListMongo);
                 return;
             }
         }
@@ -242,7 +244,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     } else
                         userList.add(userMongo);
                 }
-                botStartNewGame(chatId, userList, isGameExists(chatId) && getGame(chatId).getLang().equals(LANG_PICTURES));
+                botStartNewGame(chatId, userList, isGameExists(chatId) && getGame(chatId).getLang().equals(LANG_PICTURES), wordsListMongo);
                 return;
             }
         }
@@ -335,7 +337,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             sendSimpleMessage(GAME_NOT_STARTED, chatId, true);
     }
 
-    private void botStartNewGame(long chatId, ArrayList<UserMongo> captains, boolean isPicturesGame) {
+    private void botStartNewGame(long chatId, ArrayList<UserMongo> captains, boolean isPicturesGame, WordsListMongo wordsListMongo) {
         Game game;
         if (isPicturesGame) {
             if (isGameExists(chatId) && getGame(chatId) != null && getGame(chatId) instanceof PicturesGame)
@@ -349,7 +351,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 game = new OriginalGame(chatId, LANG_RUS, false);
         }
         game.setCaps(captains);
-        game.createSchema();
+        game.createSchema(wordsListMongo);
         saveGame(game.getChatId(), game);
         sendPicturesToAll(game, (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS);
     }
@@ -566,4 +568,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return token;
     }
 
+    @Autowired
+    public void setWordsListMongo(WordsListMongo wordsListMongo) {
+        this.wordsListMongo = wordsListMongo;
+    }
 }

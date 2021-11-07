@@ -1,6 +1,5 @@
 package com.bope.model.game.abstr;
 
-import com.bope.Main;
 import com.bope.model.dao.model.WordMongo;
 import com.bope.model.dao.repo.WordsListMongo;
 import com.bope.model.game.Card;
@@ -22,8 +21,8 @@ public abstract class Schema implements Serializable {
     @Getter @Setter protected boolean isRedFirst;
     @Getter @Setter protected String lang = "rus";
 
-    public void update(String lang) {
-        wordList = getWordList(lang);
+    public void update(String lang, WordsListMongo wordsListMongo) {
+        wordList = getWordList(lang, wordsListMongo);
         setLang(lang);
         setRedFirst(rand.nextBoolean());
         setArray(isRedFirst());
@@ -42,9 +41,9 @@ public abstract class Schema implements Serializable {
         return count;
     }
 
-    private List<WordMongo> getWordList(String lang) {
+    private List<WordMongo> getWordList(String lang, WordsListMongo wordsListMongo) {
         if (allWordList.size() < 25 || !getLang().equals(lang))
-            allWordList = Main.ctx.getBean(WordsListMongo.class).findByLang(lang);
+            allWordList = wordsListMongo.findByLang(lang);
 
         List<WordMongo> resultWordsList = new ArrayList<>();
         for (int i = 0; i < 25; i++)

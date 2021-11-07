@@ -1,6 +1,7 @@
 package com.bope;
 
 import com.bope.model.dao.model.UserMongo;
+import com.bope.model.dao.repo.WordsListMongo;
 import com.bope.model.game.GameColor;
 import com.bope.model.game.Prompt;
 import com.bope.model.game.abstr.Game;
@@ -96,7 +97,7 @@ public class CodeNamesDuet {
         }
     }
 
-    protected void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser) {
+    protected void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser, WordsListMongo wordsListMongo) {
         LOG.info("Duet game starting");
         DuetGame game;
         if (codeNamesBot.isGameExists(firstUser.getLongId()))
@@ -104,7 +105,7 @@ public class CodeNamesDuet {
         else
             game = new DuetGame(firstUser.getLongId(), codeNamesBot.LANG_RUS, false);
         game.setSecondPlayerId(secondUser.getLongId());
-        game.createSchema();
+        game.createSchema(wordsListMongo);
         game.setCaps(firstUser, secondUser);
         if (!game.getSchema().isRedFirst())
             game.swapCaptains();
