@@ -90,13 +90,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         LOG.info("User = " + user);
         LOG.info("ChatId = " + chatId);
 
-        if (text == null)
-            return;
-
-        if (text.equals(" ") || update.getMessage().getForwardFrom() != null) {
+        if (text == null || text.equals(" ") || update.getMessage().getForwardFrom() != null) {
             LOG.info("Empty message");
             return;
         }
+
+        if (text.endsWith("@" + getBotUsername()))
+            text = text.substring(0, text.lastIndexOf("@"));
+        text = text.toLowerCase();
 
         if (update.getMessage().getReplyToMessage() != null && chatId != user.getId()) {
             LOG.info("Keyboard reply received");
@@ -119,52 +120,54 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
         }
 
-        if (chatId != user.getId() && (
-                text.toLowerCase().equals(KEYBOARD_COMMAND) ||
-                text.toLowerCase().equals(KEYBOARD_COMMAND + "@" + getBotUsername().toLowerCase())
-        )) {
-            LOG.info("Keyboard usage check");
-            sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(new String[]{ENABLE_BUTTON, DISABLE_BUTTON}), chatId);
-            return;
-        }
-
-        if (chatId != user.getId() && (
-                text.toLowerCase().equals(LANG_COMMAND) ||
-                text.toLowerCase().equals(LANG_COMMAND + "@" + getBotUsername().toLowerCase())
-        )) {
-            LOG.info("Keyboard language check");
-            sendSimpleMessage(CHOOSE_LANGUAGE, getKeyboard(new String[]{LANG_RUS, LANG_ENG, LANG_UKR}, new String[]{LANG_PICTURES, LANG_RUS2}), chatId);
-            return;
-        }
-
-        if (chatId != user.getId() && (
-                text.toLowerCase().equals(BOARD_COMMAND) ||
-                text.toLowerCase().equals(BOARD_COMMAND + "@" + getBotUsername().toLowerCase())
-        )) {
-            LOG.info("Send board to chat");
-            botBoardCommand(chatId);
-            return;
-        }
-
-        if (text.toLowerCase().equals(START_COMMAND) ||
-                text.toLowerCase().equals(START_COMMAND + "@" + getBotUsername().toLowerCase())
-        ) {
-            LOG.info("Original game start");
+        if (text.equals(START_COMMAND)) {
             botStartCommand(chatId, user);
             return;
         }
 
-        if (chatId != user.getId() && (
-                text.toLowerCase().equals(CAPS_COMMAND) ||
-                text.toLowerCase().equals(CAPS_COMMAND + "@" + getBotUsername().toLowerCase()))
-        ) {
-            LOG.info("Send captains to chat");
-            botSendCaptainsCommand(chatId);
-            return;
+        if (chatId != user.getId()) {
+            if (text.equals(KEYBOARD_COMMAND)) {
+                LOG.info("Keyboard usage check");
+                sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(new String[]{ENABLE_BUTTON, DISABLE_BUTTON}), chatId);
+                return;
+            }
+            if (text.equals(LANG_COMMAND)) {
+                LOG.info("Keyboard language check");
+                sendSimpleMessage(
+                        CHOOSE_LANGUAGE,
+                        getKeyboard(new String[]{LANG_RUS, LANG_ENG, LANG_UKR}, new String[]{LANG_PICTURES, LANG_RUS2}),
+                        chatId
+                );
+                return;
+            }
+            if (text.equals(BOARD_COMMAND)) {
+                LOG.info("Send board to chat");
+                botBoardCommand(chatId);
+                return;
+            }
+            if (text.equals(CAPS_COMMAND)) {
+                LOG.info("Send captains to chat");
+                botSendCaptainsCommand(chatId);
+                return;
+            }
+            if (isGameExists(chatId)) {
+                if (text.startsWith("/"))
+                    text = text.substring(1);
+
+                Game game = getGame(chatId);
+                if (game.getSchema().checkWord(text, true)) {
+                    if (botChooseWord(game))
+                        gamesListMongo.removeByGameId(chatId);
+                    else
+                        saveGame(chatId, game);
+                }
+                return;
+            }
         }
 
-        if (chatId == user.getId() && text.length() > 7) {
-            if (text.toLowerCase().startsWith(DUET_COMMAND + " @")) {
+        //Duet game
+        if (chatId == user.getId()) {
+            if (text.startsWith(DUET_COMMAND + " @")) {
                 LOG.info("Duet game starting");
                 String username = text.substring(text.indexOf('@') + 1);
                 UserMongo userMongo = usersListMongo.findByUserName(username);
@@ -176,89 +179,65 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 codeNamesDuet.botStartNewGameDuet(usersListMongo.findByUserName(user.getUserName()), userMongo, wordsListMongo);
                 return;
             }
-        }
-
-        if (chatId == user.getId() && isGameExists(chatId)) {
-            if (codeNamesDuet.sendPromptDuet((DuetGame) getGame(chatId), user, text)) {
-                LOG.info("Try to send prompt in duet game: " + text);
-                return;
-            }
-        }
-
-        if (chatId == user.getId() && isGameExists(chatId) &&
-                (text.toLowerCase().equals(DUET_PASS_WORD) || text.toLowerCase().equals(DUET_PASS_WORD_RUS))) {
-            LOG.info("Duet game - try to pass the turn");
-            DuetGame game = (DuetGame) getGame(chatId);
-            if (game.getCaps().get(0).getUserName().equals(user.getUserName())) {
-                if (game.getPrompt().getNumbersLeft() != game.getPrompt().getNumber())
-                    codeNamesDuet.switchTurnDuet(game);
-                else {
-                    LOG.info("Duet game - player should choose at least one card");
-                    sendSimpleMessage(DUET_YOU_NEED_CHOOSE_ONE, chatId);
-                }
-            }
-            saveGame(chatId, game);
-            return;
-        }
-
-        if (chatId == user.getId() && isGameExists(chatId)) {
-            LOG.info("Duet game - start checking word");
-            DuetGame game = (DuetGame) getGame(chatId);
-            UserMongo currentUserMongo = game.getCaps().get(0);
-            if (game.getSchema().howMuchLeft(GameColor.GREEN, game.getChatId() != user.getId()) > 0) {
-                LOG.info("Duet game - word checked");
-                if (currentUserMongo.getUserName().equals(user.getUserName())) {
-                    codeNamesDuet.botCheckWordDuet(currentUserMongo, text);
-                } else if (game.getTurnsLeft() == 0) {
-                    codeNamesDuet.botCheckWordDuet(game.getCaps().get(1), text);
-                }
-            }
-            saveGame(chatId, game);
-            return;
-        }
-
-        if (text.length() > (START_COMMAND + " @").length()) {
-            if (text.toLowerCase().substring(0, 8).equals(START_COMMAND + " @")) {
-                LOG.info("Original game starting");
-                Set<String> set = new HashSet<>(
-                        Arrays.asList(text.replace(" ", "")
-                                .substring(text.indexOf("@")).split("@"))
-                );
-
-                if (set.size() != 2) {
-                    LOG.info("Original game starting - wrong captains amount");
-                    sendSimpleMessage(CHOOSE_CAPTAINS, chatId, true);
-                    return;
-                }
-                ArrayList<UserMongo> userList = new ArrayList<>();
-                for (String cap : set) {
-                    if (cap.equals("me"))
-                        cap = user.getUserName();
-                    UserMongo userMongo = usersListMongo.findByUserName(cap);
-                    if (userMongo == null) {
-                        LOG.info("Original game starting - user is not registered: " + cap);
-                        sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, cap), chatId, true);
-                        return;
-                    } else
-                        userList.add(userMongo);
-                }
-                botStartNewGame(chatId, userList, isGameExists(chatId) && getGame(chatId).getLang().equals(LANG_PICTURES), wordsListMongo);
-                return;
-            }
-        }
-
-        if (chatId != user.getId() && isGameExists(chatId)) {
-            if (text.startsWith("/")) {
-                LOG.info("Added / to text: " + text);
-                text = text.substring(1);
-            }
-            Game game = getGame(chatId);
-            if (game.getSchema().checkWord(text, true)) {
-                if (botChooseWord(game))
-                    gamesListMongo.removeByGameId(chatId);
-                else
+            if (isGameExists(chatId)) {
+                if (codeNamesDuet.sendPromptDuet((DuetGame) getGame(chatId), user, text)) {
+                    LOG.info("Try to send prompt in duet game: " + text);
+                } else if (text.equals(DUET_PASS_WORD) || text.equals(DUET_PASS_WORD_RUS)) {
+                    LOG.info("Duet game - try to pass the turn");
+                    DuetGame game = (DuetGame) getGame(chatId);
+                    if (game.getCaps().get(0).getUserName().equals(user.getUserName())) {
+                        if (game.getPrompt().getNumbersLeft() != game.getPrompt().getNumber())
+                            codeNamesDuet.switchTurnDuet(game);
+                        else {
+                            LOG.info("Duet game - player should choose at least one card");
+                            sendSimpleMessage(DUET_YOU_NEED_CHOOSE_ONE, chatId);
+                        }
+                    }
                     saveGame(chatId, game);
+                } else {
+                    LOG.info("Duet game - start checking word");
+                    DuetGame game = (DuetGame) getGame(chatId);
+                    UserMongo currentUserMongo = game.getCaps().get(0);
+                    if (game.getSchema().howMuchLeft(GameColor.GREEN, game.getChatId() != user.getId()) > 0) {
+                        LOG.info("Duet game - word checked");
+                        if (currentUserMongo.getUserName().equals(user.getUserName())) {
+                            codeNamesDuet.botCheckWordDuet(currentUserMongo, text);
+                        } else if (game.getTurnsLeft() == 0) {
+                            codeNamesDuet.botCheckWordDuet(game.getCaps().get(1), text);
+                        }
+                    }
+                    saveGame(chatId, game);
+                }
+                return;
             }
+        }
+
+        if (text.startsWith(START_COMMAND)) {
+            LOG.info("Original game starting");
+            Set<String> set = new HashSet<>(
+                    Arrays.asList(text.replace(" ", "")
+                            .substring(text.indexOf("@")).split("@"))
+            );
+
+            if (set.size() != 2) {
+                LOG.info("Original game starting - wrong captains amount");
+                sendSimpleMessage(CHOOSE_CAPTAINS, chatId, true);
+                return;
+            }
+            ArrayList<UserMongo> userList = new ArrayList<>();
+            for (String cap : set) {
+                if (cap.equals("me"))
+                    cap = user.getUserName();
+                UserMongo userMongo = usersListMongo.findByUserName(cap);
+                if (userMongo == null) {
+                    LOG.info("Original game starting - user is not registered: " + cap);
+                    sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, cap), chatId, true);
+                    return;
+                } else
+                    userList.add(userMongo);
+            }
+            botStartNewGame(chatId, userList, isGameExists(chatId) && getGame(chatId).getLang().equals(LANG_PICTURES), wordsListMongo);
+
         }
     }
 
