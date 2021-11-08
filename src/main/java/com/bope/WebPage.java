@@ -1,9 +1,7 @@
-package com.bope.web;
+package com.bope;
 
 import com.bope.model.dao.repo.GamesListMongo;
-import com.bope.model.game.abstr.Drawer;
 import com.bope.model.game.abstr.Game;
-import com.bope.model.game.original.OriginalDrawer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +27,9 @@ public class WebPage {
 
         Game game = getGame(-Long.parseLong(id));
         String filepath = id + ".jpg";
-        Drawer drawer = new OriginalDrawer(game, filepath, false);
-
-
         try {
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
-            ImageIO.write(drawer.getBufferedImage(), "jpg", bao);
+            ImageIO.write(game.draw(filepath, false), "jpg", bao);
             return bao.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,14 +2,25 @@ package com.bope.model.game.abstr;
 
 import com.bope.model.dao.model.UserMongo;
 import com.bope.model.dao.repo.WordsListMongo;
+import com.bope.model.game.duet.DuetDrawer;
+import com.bope.model.game.duet.DuetGame;
+import com.bope.model.game.original.OriginalDrawer;
+import com.bope.model.game.original.OriginalGame;
+import com.bope.model.game.pictures.PicturesDrawer;
+import com.bope.model.game.pictures.PicturesGame;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 
 public abstract class Game implements Serializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Game.class);
 
     @Getter @Setter private long chatId;
     @Getter @Setter private String lang;
@@ -87,14 +98,14 @@ public abstract class Game implements Serializable {
         }
     }
 
-//    public BufferedImage draw(String fileName, boolean isAdmin) {
-//        BufferedImage bi = null;
-//        switch (this) {
-//            case OriginalGame originalGame -> bi = new OriginalDrawer(originalGame, fileName, isAdmin).getBufferedImage();
-//            case DuetGame duetGame -> bi = new DuetDrawer(duetGame, fileName, isAdmin).getBufferedImage();
-//            case PicturesGame picturesGame -> bi = new PicturesDrawer(picturesGame, fileName, isAdmin).getBufferedImage();
-//            default -> LOG.error("Wrong Type in Pattern Matching");
-//        }
-//        return bi;
-//    }
+    public BufferedImage draw(String fileName, boolean isAdmin) {
+        BufferedImage bi = null;
+        if (this instanceof OriginalGame)
+            bi = new OriginalDrawer(this, fileName, isAdmin).getBufferedImage();
+        else if (this instanceof PicturesGame)
+            bi = new PicturesDrawer((PicturesGame) this, fileName, isAdmin).getBufferedImage();
+        else if (this instanceof DuetGame)
+            bi = new DuetDrawer((DuetGame) this, fileName, isAdmin).getBufferedImage();
+        return bi;
+    }
 }

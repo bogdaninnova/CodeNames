@@ -6,12 +6,10 @@ import com.bope.model.dao.model.UserMongo;
 import com.bope.model.dao.repo.UsersListMongo;
 import com.bope.model.dao.repo.WordsListMongo;
 import com.bope.model.game.Card;
-import com.bope.model.game.original.OriginalDrawer;
 import com.bope.model.game.abstr.Game;
 import com.bope.model.game.GameColor;
 import com.bope.model.game.duet.DuetGame;
 import com.bope.model.game.original.OriginalGame;
-import com.bope.model.game.pictures.PicturesDrawer;
 import com.bope.model.game.pictures.PicturesGame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -519,10 +517,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException {
         LOG.info("Picture sending");
         String filepath = getFilePath(game.getChatId(), isAdmin);
-        if (game instanceof OriginalGame)
-            new OriginalDrawer(game, filepath, isAdmin);
-        else if (game instanceof PicturesGame)
-            new PicturesDrawer((PicturesGame) game, filepath, isAdmin);
+        game.draw(filepath, isAdmin);
         SendPhoto photo = new SendPhoto();
         File file = new File(filepath);
         photo.setPhoto(new InputFile(file));

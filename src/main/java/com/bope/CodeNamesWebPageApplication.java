@@ -1,4 +1,4 @@
-package com.bope.web;
+package com.bope;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
