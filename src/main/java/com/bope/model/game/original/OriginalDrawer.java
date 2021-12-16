@@ -59,4 +59,15 @@ public class OriginalDrawer extends Drawer implements Colors {
         }
     }
 
+    public static Color getColor(Card card, boolean isAdmin) {
+        Color[] colors = new Color[]{WHITE_CARD, WHITE_TEXT};
+        if (card.isOpen() || isAdmin)
+            colors = getCardColor(card, false);
+
+        if (card.isOpen() && isAdmin)
+            colors = getCardColor(card, true);
+
+        assert colors != null;
+        return colors[0];
+    }
 }

@@ -126,6 +126,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
 
         if (chatId != user.getId()) {
+            if (text.equals("/link")) {
+                if (gamesListMongo.existsByGameId(chatId)) {
+                    sendLink(chatId);
+                } else
+                    sendSimpleMessage("Game hasn't started", chatId);
+                return;
+            }
+
             if (text.equals(KEYBOARD_COMMAND)) {
                 LOG.info("Keyboard usage check");
                 sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(new String[]{ENABLE_BUTTON, DISABLE_BUTTON}), chatId);
@@ -150,16 +158,15 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 botSendCaptainsCommand(chatId);
                 return;
             }
-            if (isGameExists(chatId)) {
+            if (isGameExists(chatId) && !text.startsWith(START_COMMAND)) {
+                Game game = getGame(chatId);
+                if (game.getSchema().isGameOver())
+                    return;
                 if (text.startsWith("/"))
                     text = text.substring(1);
-
-                Game game = getGame(chatId);
                 if (game.getSchema().checkWord(text, true)) {
-                    if (botChooseWord(game))
-                        gamesListMongo.removeByGameId(chatId);
-                    else
-                        saveGame(chatId, game);
+                    botChooseWord(game);
+                    saveGame(chatId, game);
                 }
                 return;
             }
@@ -329,6 +336,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
         game.setCaps(captains);
         game.createSchema(wordsListMongo);
+        if (gamesListMongo.existsByGameId(chatId))
+            gamesListMongo.removeByGameId(chatId);
         saveGame(game.getChatId(), game);
         sendPicturesToAll(game, (game.getSchema().howMuchLeft(GameColor.RED) == 9) ? RED_TEAM_STARTS : BLUE_TEAM_STARTS);
     }
@@ -366,10 +375,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
     }
 
-    private boolean botChooseWord(Game game) {
+    private void botChooseWord(Game game) {
         LOG.info("Original game -- word chosen");
-
-        boolean isGameFinished = false;
 
         int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
         int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
@@ -379,6 +386,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             sendPicturesToAll(game, "");
         } else {
             LOG.info("Original game finished -- update boards");
+            game.getSchema().setGameOver(true);
             String capture;
             if (redLeft == 0) {
                 capture = RED_TEAM_WIN;
@@ -386,7 +394,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 capture = BLUE_TEAM_WIN;
             } else {
                 capture = BLACK_CARD_OPENED;
-                isGameFinished = true;
             }
 
             try {
@@ -395,7 +402,6 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         }
-        return isGameFinished;
     }
 
     private ReplyKeyboardMarkup getGameKeyboard(long chatId) {
@@ -475,6 +481,20 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
     protected void sendSimpleMessage(String text, long chatId) {
         sendSimpleMessage(text, chatId, true);
+    }
+
+    private void sendLink(long chatId) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(String.valueOf(chatId));
+        sendMessage.setText(String.format("[Link to the game](http://127.0.0.1:8080/game/%s)", -chatId));
+        sendMessage.enableMarkdownV2(true);
+        try {
+            execute(sendMessage);
+            LOG.info("Message sent");
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            LOG.error("Error occurred while message sending");
+        }
     }
 
     private void sendPicture(Game game, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException {

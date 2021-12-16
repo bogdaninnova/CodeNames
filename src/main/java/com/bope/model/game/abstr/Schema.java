@@ -18,10 +18,12 @@ public abstract class Schema implements Serializable {
     protected final Random rand = new Random();
     protected List<WordMongo> wordList;
     protected List<WordMongo> allWordList = new ArrayList<>();
+    private boolean isGameOver = false;
     @Getter @Setter protected boolean isRedFirst;
     @Getter @Setter protected String lang = "rus";
 
     public void update(String lang, WordsListMongo wordsListMongo) {
+        setGameOver(false);
         wordList = getWordList(lang, wordsListMongo);
         setLang(lang);
         setRedFirst(rand.nextBoolean());
@@ -101,4 +103,11 @@ public abstract class Schema implements Serializable {
         return false;
     }
 
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
 }

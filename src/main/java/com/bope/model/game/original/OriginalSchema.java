@@ -22,4 +22,5 @@ public class OriginalSchema extends Schema {
     public int howMuchLeft(GameColor gameColor, boolean isFirst) {
         return -1;
     }
+
 }
