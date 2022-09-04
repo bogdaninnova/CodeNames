@@ -11,8 +11,7 @@ import com.bope.model.game.GameColor;
 import com.bope.model.game.duet.DuetGame;
 import com.bope.model.game.original.OriginalGame;
 import com.bope.model.game.pictures.PicturesGame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,8 +30,8 @@ import java.io.File;
 import java.util.*;
 
 @Component
+@Slf4j
 public class CodeNamesBot extends TelegramLongPollingBot {
-    private static final Logger LOG = LoggerFactory.getLogger(CodeNamesBot.class);
 
     private UsersListMongo usersListMongo;
     private CodeNamesDuet codeNamesDuet;
@@ -86,12 +85,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         User user = update.getMessage().getFrom();
         long chatId = update.getMessage().getChatId();
 
-        LOG.info("Sent text = " + text);
-        LOG.info("User = " + user);
-        LOG.info("ChatId = " + chatId);
+        log.info("Sent text = " + text);
+        log.info("User = " + user);
+        log.info("ChatId = " + chatId);
 
         if (text == null || text.equals(" ") || update.getMessage().getForwardFrom() != null) {
-            LOG.info("Empty message");
+            log.info("Empty message");
             return;
         }
 
@@ -100,12 +99,12 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         text = text.toLowerCase();
 
         if (update.getMessage().getReplyToMessage() != null && chatId != user.getId()) {
-            LOG.info("Keyboard reply received");
+            log.info("Keyboard reply received");
             if ((text.equals(LANG_ENG) || text.equals(LANG_UKR) || text.equals(LANG_RUS) || text.equals(LANG_RUS2) || text.equals(LANG_PICTURES))
                     && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
                     && update.getMessage().getReplyToMessage().getText().equals(CHOOSE_LANGUAGE)
             ) {
-                LOG.info("Language keyboard reply: " + text);
+                log.info("Language keyboard reply: " + text);
                 botLangCommand(chatId, text);
                 return;
             }
@@ -114,7 +113,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     && update.getMessage().getReplyToMessage().getFrom().getUserName().equals(getBotUsername())
                     && update.getMessage().getReplyToMessage().getText().equals(KEYBOARD_USAGE)
             )) {
-                LOG.info("Keyboard usage reply: " + text);
+                log.info("Keyboard usage reply: " + text);
                 botKeyboardCommand(chatId, text);
                 return;
             }
@@ -135,26 +134,26 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
 
             if (text.equals(KEYBOARD_COMMAND)) {
-                LOG.info("Keyboard usage check");
-                sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(new String[]{ENABLE_BUTTON, DISABLE_BUTTON}), chatId);
+                log.info("Keyboard usage check");
+                sendSimpleMessage(KEYBOARD_USAGE, getKeyboard(List.of(List.of(ENABLE_BUTTON, DISABLE_BUTTON))), chatId);
                 return;
             }
             if (text.equals(LANG_COMMAND)) {
-                LOG.info("Keyboard language check");
+                log.info("Keyboard language check");
                 sendSimpleMessage(
                         CHOOSE_LANGUAGE,
-                        getKeyboard(new String[]{LANG_RUS, LANG_ENG, LANG_UKR}, new String[]{LANG_PICTURES, LANG_RUS2}),
+                        getKeyboard(List.of(List.of(LANG_RUS, LANG_ENG, LANG_UKR), List.of(LANG_PICTURES, LANG_RUS2))),
                         chatId
                 );
                 return;
             }
             if (text.equals(BOARD_COMMAND)) {
-                LOG.info("Send board to chat");
+                log.info("Send board to chat");
                 botBoardCommand(chatId);
                 return;
             }
             if (text.equals(CAPS_COMMAND)) {
-                LOG.info("Send captains to chat");
+                log.info("Send captains to chat");
                 botSendCaptainsCommand(chatId);
                 return;
             }
@@ -175,11 +174,11 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         //Duet game
         if (chatId == user.getId()) {
             if (text.startsWith(DUET_COMMAND + " @")) {
-                LOG.info("Duet game starting");
+                log.info("Duet game starting");
                 String username = text.substring(text.indexOf('@') + 1);
                 UserMongo userMongo = usersListMongo.findByUserName(username);
                 if (userMongo == null) {
-                    LOG.info("User is not registered: " + username);
+                    log.info("User is not registered: " + username);
                     sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, username), chatId);
                     return;
                 }
@@ -188,25 +187,25 @@ public class CodeNamesBot extends TelegramLongPollingBot {
             }
             if (isGameExists(chatId)) {
                 if (codeNamesDuet.sendPromptDuet((DuetGame) getGame(chatId), user, text)) {
-                    LOG.info("Try to send prompt in duet game: " + text);
+                    log.info("Try to send prompt in duet game: " + text);
                 } else if (text.equals(DUET_PASS_WORD) || text.equals(DUET_PASS_WORD_RUS)) {
-                    LOG.info("Duet game - try to pass the turn");
+                    log.info("Duet game - try to pass the turn");
                     DuetGame game = (DuetGame) getGame(chatId);
                     if (game.getCaps().get(0).getUserName().equals(user.getUserName())) {
                         if (game.getPrompt().getNumbersLeft() != game.getPrompt().getNumber())
                             codeNamesDuet.switchTurnDuet(game);
                         else {
-                            LOG.info("Duet game - player should choose at least one card");
+                            log.info("Duet game - player should choose at least one card");
                             sendSimpleMessage(DUET_YOU_NEED_CHOOSE_ONE, chatId);
                         }
                     }
                     saveGame(chatId, game);
                 } else {
-                    LOG.info("Duet game - start checking word");
+                    log.info("Duet game - start checking word");
                     DuetGame game = (DuetGame) getGame(chatId);
                     UserMongo currentUserMongo = game.getCaps().get(0);
                     if (game.getSchema().howMuchLeft(GameColor.GREEN, game.getChatId() != user.getId()) > 0) {
-                        LOG.info("Duet game - word checked");
+                        log.info("Duet game - word checked");
                         if (currentUserMongo.getUserName().equals(user.getUserName())) {
                             codeNamesDuet.botCheckWordDuet(currentUserMongo, text);
                         } else if (game.getTurnsLeft() == 0) {
@@ -220,14 +219,14 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         }
 
         if (text.startsWith(START_COMMAND)) {
-            LOG.info("Original game starting");
+            log.info("Original game starting");
             Set<String> set = new HashSet<>(
                     Arrays.asList(text.replace(" ", "")
                             .substring(text.indexOf("@")).split("@"))
             );
 
             if (set.size() != 2) {
-                LOG.info("Original game starting - wrong captains amount");
+                log.info("Original game starting - wrong captains amount");
                 sendSimpleMessage(CHOOSE_CAPTAINS, chatId, true);
                 return;
             }
@@ -237,7 +236,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
                     cap = user.getUserName();
                 UserMongo userMongo = usersListMongo.findByUserName(cap);
                 if (userMongo == null) {
-                    LOG.info("Original game starting - user is not registered: " + cap);
+                    log.info("Original game starting - user is not registered: " + cap);
                     sendSimpleMessage(String.format(USER_IS_NOT_REGISTERED, cap), chatId, true);
                     return;
                 } else
@@ -250,7 +249,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
 
     private void botLangCommand(long chatId, String text) {
-        LOG.info("Choose language command");
+        log.info("Choose language command");
         Game game;
         if (isGameExists(chatId)) {
             game = getGame(chatId);
@@ -264,20 +263,18 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void botKeyboardCommand(long chatId, String text) {
-        LOG.info("Choose keyboard usage command");
+        log.info("Choose keyboard usage command");
         boolean isEnable = text.equals(ENABLE_BUTTON);
         sendSimpleMessage(isEnable ? ENABLED_KEYBOARD : DISABLED_KEYBOARD, chatId);
         Game game;
         if (isGameExists(chatId) && getGame(chatId) != null) {
             game = getGame(chatId);
             game.setUseKeyboard(isEnable);
-            if (isEnable && game.getSchema() != null) {
-                if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
-                    try {
-                        sendPicture(game, game.isUseKeyboard(), false, chatId);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
+            if (isEnable && game.getSchema() != null && game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
+                try {
+                    sendPicture(game, game.isUseKeyboard(), false, chatId);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
                 }
             }
         } else {
@@ -288,7 +285,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void botBoardCommand(long chatId) {
-        LOG.info("Bot board command");
+        log.info("Bot board command");
         if (isGameExists(chatId) && getGame(chatId) != null) {
             Game game = getGame(chatId);
             if (game.getSchema().howMuchLeft(GameColor.BLACK) != 0) {
@@ -305,16 +302,16 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void botStartCommand(long chatId, User user) {
-        LOG.info("Bot start command");
+        log.info("Bot start command");
         if (chatId == user.getId() && usersListMongo.findByUserName(user.getUserName()) == null) {
-            LOG.info("New player registered: " + user.getUserName());
+            log.info("New player registered: " + user.getUserName());
             usersListMongo.save(new UserMongo(user.getUserName(), String.valueOf(user.getId())));
         }
         sendSimpleMessage(START_INSTRUCTION, chatId, false);
     }
 
     private void botSendCaptainsCommand(long chatId) {
-        LOG.info("Bot send captains command");
+        log.info("Bot send captains command");
         if (isGameExists(chatId))
             sendSimpleMessage(getGame(chatId).getCaptainsToString(), chatId, false);
         else
@@ -343,7 +340,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void sendPicturesToAll(Game game, String capture) {
-            LOG.info("Original game update boards");
+        log.info("Original game update boards");
             UserMongo blockedUser = null;
             try {
                 sendPicture(game, false,true, game.getCaps().get(0).getLongId());
@@ -376,7 +373,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void botChooseWord(Game game) {
-        LOG.info("Original game -- word chosen");
+        log.info("Original game -- word chosen");
 
         int blackLeft = game.getSchema().howMuchLeft(GameColor.BLACK);
         int redLeft = game.getSchema().howMuchLeft(GameColor.RED);
@@ -385,7 +382,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         if (blackLeft != 0 && redLeft != 0 && blueLeft != 0) {
             sendPicturesToAll(game, "");
         } else {
-            LOG.info("Original game finished -- update boards");
+            log.info("Original game finished -- update boards");
             game.getSchema().setGameOver(true);
             String capture;
             if (redLeft == 0) {
@@ -405,7 +402,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private ReplyKeyboardMarkup getGameKeyboard(long chatId) {
-        LOG.info("Game Keyboard build");
+        log.info("Game Keyboard build");
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         replyKeyboardMarkup.setSelective(false);
@@ -428,8 +425,8 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    private ReplyKeyboardMarkup getKeyboard(String[]... args) {
-        LOG.info("Option Keyboard build");
+    private ReplyKeyboardMarkup getKeyboard(List<List<String>> args) {
+        log.info("Option Keyboard build");
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         replyKeyboardMarkup.setSelective(false);
@@ -437,45 +434,43 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         replyKeyboardMarkup.setOneTimeKeyboard(true);
 
         List<KeyboardRow> keyboard= new ArrayList<>();
-
-        for (String[] arg : args) {
+        for (List<String> list : args) {
             KeyboardRow keyboardRow = new KeyboardRow();
-            Arrays.stream(arg).forEach(keyboardRow::add);
+            list.forEach(keyboardRow::add);
             keyboard.add(keyboardRow);
         }
-
         replyKeyboardMarkup.setKeyboard(keyboard);
 
         return replyKeyboardMarkup;
     }
 
     private void sendSimpleMessage(String text, ReplyKeyboardMarkup keyboard, long chatId) {
-        LOG.info("Message sending");
+        log.info("Message sending");
         try {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(String.valueOf(chatId));
             sendMessage.setText(text);
             sendMessage.setReplyMarkup(keyboard);
             execute(sendMessage);
-            LOG.info("Message sent");
+            log.info("Message sent");
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            LOG.error("Error occurred while message sending");
+            log.error("Error occurred while message sending");
         }
     }
 
     private void sendSimpleMessage(String text, long chatId, boolean eraseKeyboard) {
-        LOG.info("Message sending. keyboard erase = " + eraseKeyboard);
+        log.info("Message sending. keyboard erase = " + eraseKeyboard);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
         sendMessage.setText(text);
         sendMessage.setReplyMarkup(new ReplyKeyboardRemove(eraseKeyboard));
         try {
             execute(sendMessage);
-            LOG.info("Message sent");
+            log.info("Message sent");
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            LOG.error("Error occurred while message sending");
+            log.error("Error occurred while message sending");
         }
     }
 
@@ -490,10 +485,10 @@ public class CodeNamesBot extends TelegramLongPollingBot {
         sendMessage.enableMarkdownV2(true);
         try {
             execute(sendMessage);
-            LOG.info("Message sent");
+            log.info("Message sent");
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            LOG.error("Error occurred while message sending");
+            log.error("Error occurred while message sending");
         }
     }
 
@@ -514,7 +509,7 @@ public class CodeNamesBot extends TelegramLongPollingBot {
     }
 
     private void sendPicture(Game game, String caption, boolean sendKeyboard, boolean isAdmin, long chatId) throws TelegramApiException {
-        LOG.info("Picture sending");
+        log.info("Picture sending");
         String filepath = getFilePath(game.getChatId(), isAdmin);
         game.draw(filepath, isAdmin);
         SendPhoto photo = new SendPhoto();
@@ -528,9 +523,9 @@ public class CodeNamesBot extends TelegramLongPollingBot {
 
         execute(photo);
 
-        LOG.info("Picture sent");
+        log.info("Picture sent");
         boolean isDeleted = file.delete();
-        LOG.info("File deleted: " + isDeleted);
+        log.info("File deleted: " + isDeleted);
     }
 
     protected static String getFilePath(long chatId, boolean isAdmin) {

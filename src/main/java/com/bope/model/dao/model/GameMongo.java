@@ -10,12 +10,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 @Document(collection = "games")
+@Getter
+@Setter
 public class GameMongo {
 
     @Id private ObjectId id;
-    @Getter @Setter private String binaryGameString;
-    @Getter @Setter private Long gameId;
-    @Setter private Date date;
+    private String binaryGameString;
+    private Long gameId;
+    private Date date;
 
     public GameMongo(Long gameId, String binaryGameString) {
         setBinaryGameString(binaryGameString);

@@ -11,8 +11,10 @@ import java.io.Serializable;
 
 @Document(collection = "vocabulary")
 @RequiredArgsConstructor
+@Setter
+@Getter
 public class WordMongo implements Serializable {
     @Id private ObjectId id;
-    @Getter @Setter private String lang;
-    @Getter @Setter private String word;
+    private String lang;
+    private String word;
 }

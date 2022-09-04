@@ -8,26 +8,24 @@ import com.bope.model.game.original.OriginalDrawer;
 import com.bope.model.game.original.OriginalGame;
 import com.bope.model.game.pictures.PicturesDrawer;
 import com.bope.model.game.pictures.PicturesGame;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 
+@Getter
+@Setter
 public abstract class Game implements Serializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Game.class);
-
-    @Getter @Setter private long chatId;
-    @Getter @Setter private String lang;
-    @Getter @Setter private boolean useKeyboard;
-    @Getter @Setter private Schema schema;
-
-    @Getter private ArrayList<UserMongo> caps;
+    private long chatId;
+    private String lang;
+    private boolean useKeyboard;
+    private Schema schema;
+    private List<UserMongo> caps;
 
     protected Game(Game game) {
         setChatId(game.getChatId());
@@ -52,7 +50,7 @@ public abstract class Game implements Serializable {
         schema.update(getLang(), wordsListMongo);
     }
 
-    public void setCaps(ArrayList<UserMongo> caps) {
+    public void setCaps(List<UserMongo> caps) {
         this.caps = caps;
     }
 

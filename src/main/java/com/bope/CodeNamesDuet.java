@@ -6,8 +6,7 @@ import com.bope.model.game.GameColor;
 import com.bope.model.game.Prompt;
 import com.bope.model.game.duet.DuetDrawer;
 import com.bope.model.game.duet.DuetGame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,9 +15,8 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 @Component
+@Slf4j
 public class CodeNamesDuet {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CodeNamesDuet.class);
     private CodeNamesBot codeNamesBot;
 
     @Value("${DUET_GAME_OVER}") protected String DUET_GAME_OVER;
@@ -38,27 +36,27 @@ public class CodeNamesDuet {
     private static Prompt getPromptDuet(String text) {
         Prompt prompt = null;
         try {
-            LOG.info("Duet game prompt parsing: " + text);
+            log.info("Duet game prompt parsing: " + text);
             prompt = new Prompt(text.substring(0, text.indexOf(' ')), Integer.parseInt(text.substring(text.indexOf(' ') + 1)));
         } catch (Exception e) {
-            LOG.warn("Duet game prompt parse error!");
+            log.warn("Duet game prompt parse error!");
         }
         return prompt;
     }
 
     protected boolean sendPromptDuet(DuetGame game, User user, String text) {
-        LOG.info("Duet game - prompt sending");
+        log.info("Duet game - prompt sending");
         if (game.getCaps().get(1).getUserName().equals(user.getUserName()) && game.getPrompt() == null) {
-            LOG.info("Duet game - prompt checking");
+            log.info("Duet game - prompt checking");
             Prompt prompt = getPromptDuet(text);
             if (prompt == null) {
-                LOG.info("Duet game - prompt incorrect");
+                log.info("Duet game - prompt incorrect");
                 codeNamesBot.sendSimpleMessage(DUET_INCORRECT_PROMPT, user.getId());
                 return true;
             }
 
             if (game.getPrompt() == null) {
-                LOG.info("Duet game - prompt sent");
+                log.info("Duet game - prompt sent");
                 game.setPrompt(prompt);
                 codeNamesBot.sendSimpleMessage(String.format(DUET_PLAYERS_PROMPT, user.getUserName(), prompt.getWord(), prompt.getNumber()), game.getPartnerId(user.getId()));
                 codeNamesBot.sendSimpleMessage(DUET_PROMPT_SENT, user.getId());
@@ -69,7 +67,7 @@ public class CodeNamesDuet {
     }
 
     private void finishGameDuet(DuetGame game, String text) {
-        LOG.info("Duet game - finishing");
+        log.info("Duet game - finishing");
         game.getSchema().openCards(false);
         sendDuetPicture(game, game.getChatId(), true);
         sendDuetPicture(game, game.getChatId(), false);
@@ -81,7 +79,7 @@ public class CodeNamesDuet {
     }
 
     private void sendDuetPicture(DuetGame game, long chatId, boolean isFirst) {
-        LOG.info("Duet picture sending");
+        log.info("Duet picture sending");
         String filepath = CodeNamesBot.getFilePath(game.getChatId(), isFirst);
         new DuetDrawer(game, filepath, isFirst);
         try {
@@ -89,15 +87,15 @@ public class CodeNamesDuet {
             photo.setPhoto(new InputFile(filepath));
             photo.setChatId(String.valueOf(chatId));
             codeNamesBot.execute(photo);
-            LOG.info("Duet picture sent");
+            log.info("Duet picture sent");
         } catch (Exception e) {
             e.printStackTrace();
-            LOG.error("Error occurred while duet picture sending");
+            log.error("Error occurred while duet picture sending");
         }
     }
 
     protected void botStartNewGameDuet(UserMongo firstUser, UserMongo secondUser, WordsListMongo wordsListMongo) {
-        LOG.info("Duet game starting");
+        log.info("Duet game starting");
         DuetGame game;
         if (codeNamesBot.isGameExists(firstUser.getLongId()))
             game = new DuetGame(codeNamesBot.getGame(firstUser.getLongId()));
@@ -118,10 +116,10 @@ public class CodeNamesDuet {
     }
 
     protected void switchTurnDuet(DuetGame game) {
-        LOG.info("Duet game - turn switching");
+        log.info("Duet game - turn switching");
         game.minusTurnsLeft();
         if (game.getTurnsLeft() == 0) {
-            LOG.info("Duet game - turn switching: last turn");
+            log.info("Duet game - turn switching: last turn");
             codeNamesBot.sendSimpleMessage(DUET_LAST_TURN, game.getCaps().get(0).getLongId());
             codeNamesBot.sendSimpleMessage(DUET_LAST_TURN, game.getCaps().get(1).getLongId());
         } else {
@@ -134,42 +132,42 @@ public class CodeNamesDuet {
     }
 
     protected void botCheckWordDuet(UserMongo userMongo, String text) {
-        LOG.info("Duet game starting word checking: " + text);
+        log.info("Duet game starting word checking: " + text);
         DuetGame game = (DuetGame) codeNamesBot.getGame(userMongo.getLongId());
 
         if (game.getPrompt() == null) {
-            LOG.info("Duet game prompt is not sent yet");
+            log.info("Duet game prompt is not sent yet");
             codeNamesBot.sendSimpleMessage(DUET_WAIT_FOR_PROMPT, userMongo.getLongId());
             return;
         }
 
         if (game.getSchema().checkWord(text, game.getChatId() == userMongo.getLongId())) {
-            LOG.info("Duet game word checked");
+            log.info("Duet game word checked");
             if (game.getSchema().howMuchLeft(GameColor.BLACK) < 6) {
-                LOG.info("Duet game black card opened");
+                log.info("Duet game black card opened");
                 finishGameDuet(game, codeNamesBot.BLACK_CARD_OPENED);
             } else if (game.getTurnsLeft() == 0 && game.getOpenGreensLeft() == game.getSchema().howMuchLeft(GameColor.GREEN)) {
-                LOG.info("Duet game - game over");
+                log.info("Duet game - game over");
                 finishGameDuet(game, DUET_GAME_OVER);
             } else if (game.getSchema().howMuchLeft(GameColor.GREEN) == 0) {
-                LOG.info("Duet game - win");
+                log.info("Duet game - win");
                 finishGameDuet(game, DUET_YOU_WON);
             } else {
-                LOG.info("Duet game - word checked -- pictures sending");
+                log.info("Duet game - word checked -- pictures sending");
                 sendDuetPicture(game, game.getChatId(), true);
                 sendDuetPicture(game, game.getSecondPlayerId(), false);
 
                 game.getPrompt().decrementNumbersLeft();
                 if (game.getOpenGreensLeft() == game.getSchema().howMuchLeft(GameColor.GREEN)) {
-                    LOG.info("Duet game - incorrect word, switch turn");
+                    log.info("Duet game - incorrect word, switch turn");
                     switchTurnDuet(game);
                 } else {
-                    LOG.info("Duet game - correct word");
+                    log.info("Duet game - correct word");
                     codeNamesBot.sendSimpleMessage(DUET_CORRECT, game.getCaps().get(0).getLongId());
                     codeNamesBot.sendSimpleMessage(DUET_CORRECT, game.getCaps().get(1).getLongId());
 
                     if (game.getSchema().howMuchLeft(GameColor.GREEN, game.getSecondPlayerId() == userMongo.getLongId()) == 0) {
-                        LOG.info("Duet game - player finished his words!");
+                        log.info("Duet game - player finished his words!");
                         codeNamesBot.sendSimpleMessage(DUET_YOU_FINISHED, game.getCaps().get(0).getLongId());
                         codeNamesBot.sendSimpleMessage(String.format(DUET_PLAYER_FINISHED, userMongo.getUserName()), game.getCaps().get(1).getLongId());
                         game.swapCaptains();

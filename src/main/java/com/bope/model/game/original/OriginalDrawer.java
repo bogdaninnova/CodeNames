@@ -27,12 +27,10 @@ public class OriginalDrawer extends Drawer implements Colors {
         if (card.isOpen() && isAdmin)
             colors = getCardColor(card, true);
 
-        assert colors != null;
         g.setColor(colors[0]);
         g.fillRect(i * SIZE_X + 2, j * SIZE_Y + 2, SIZE_X - 2, SIZE_Y - 2);
         g.setColor(colors[1]);
 
-        //drawWord(card.getWord().toUpperCase(), i, j);
         drawWord(card.getWord().toLowerCase(), i, j);
     }
 
@@ -42,10 +40,10 @@ public class OriginalDrawer extends Drawer implements Colors {
             int wordWidth = g.getFontMetrics(WORD_FONT).stringWidth(word);
             g.drawString(word, i * SIZE_X + (SIZE_X -wordWidth)/2, j * SIZE_Y + 120);
         } else {
-            int wordWidth_part1 = g.getFontMetrics(WORD_FONT).stringWidth(word.substring(0, 9));
-            int wordWidth_part2 = g.getFontMetrics(WORD_FONT).stringWidth(word.substring(9));
-            g.drawString(word.substring(0, 9), i * SIZE_X + (SIZE_X -wordWidth_part1)/2, j * SIZE_Y + 95);
-            g.drawString(word.substring(9), i * SIZE_X + (SIZE_X -wordWidth_part2)/2, j * SIZE_Y + 155);
+            int wordWidthPart1 = g.getFontMetrics(WORD_FONT).stringWidth(word.substring(0, 9));
+            int wordWidthPart2 = g.getFontMetrics(WORD_FONT).stringWidth(word.substring(9));
+            g.drawString(word.substring(0, 9), i * SIZE_X + (SIZE_X - wordWidthPart1)/2, j * SIZE_Y + 95);
+            g.drawString(word.substring(9), i * SIZE_X + (SIZE_X - wordWidthPart2)/2, j * SIZE_Y + 155);
         }
     }
 
@@ -55,7 +53,7 @@ public class OriginalDrawer extends Drawer implements Colors {
             case BLUE : return isAdmin ? new Color[]{BLUE_OPEN_CARD, BLUE_OPEN_TEXT} : new Color[]{BLUE_CARD, BLUE_TEXT};
             case BLACK : return new Color[]{BLACK_CARD, BLACK_TEXT};
             case YELLOW : return isAdmin ? new Color[]{YELLOW_CARD, YELLOW_OPEN_TEXT} : new Color[]{YELLOW_CARD, YELLOW_TEXT};
-            default: return null;
+            default: return new Color[0];
         }
     }
 
@@ -67,7 +65,6 @@ public class OriginalDrawer extends Drawer implements Colors {
         if (card.isOpen() && isAdmin)
             colors = getCardColor(card, true);
 
-        assert colors != null;
         return colors[0];
     }
 }

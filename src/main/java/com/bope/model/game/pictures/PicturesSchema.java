@@ -1,11 +1,13 @@
 package com.bope.model.game.pictures;
 
+import com.bope.model.dao.repo.WordsListMongo;
 import com.bope.model.game.Card;
 import com.bope.model.game.GameColor;
 import com.bope.model.game.abstr.Schema;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class PicturesSchema extends Schema {
 
@@ -13,7 +15,8 @@ public class PicturesSchema extends Schema {
 
     private HashMap<Integer, String> picturesMapping;
 
-    public void update(String lang) {
+    @Override
+    public void update(String lang, WordsListMongo wordsListMongo) {
         if (picturesList.isEmpty())
             for (int i = 0; i < 100; i++)
                 picturesList.add(i);
@@ -27,8 +30,7 @@ public class PicturesSchema extends Schema {
         int num = 0;
         for (int j = 0; j < 5; j++)
             for (int i = 0; i < 5; i++) {
-                String pic_num = getRandomCard();
-                picturesMapping.put(++num, pic_num);
+                picturesMapping.put(++num, getRandomCard());
                 array[i][j] = new Card(String.valueOf(num), GameColor.YELLOW);
             }
         setColorsOnCard(GameColor.RED,  8);
@@ -51,7 +53,7 @@ public class PicturesSchema extends Schema {
         return String.valueOf(picNumber);
     }
 
-    public HashMap<Integer, String> getPicturesMapping() {
+    public Map<Integer, String> getPicturesMapping() {
         return picturesMapping;
     }
 }

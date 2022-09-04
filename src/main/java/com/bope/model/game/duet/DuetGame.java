@@ -6,12 +6,14 @@ import com.bope.model.game.abstr.Game;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
 public class DuetGame extends Game {
 
-    @Getter private long secondPlayerId;
-    @Getter @Setter private Prompt prompt;
-    @Getter private int openGreensLeft;
-    @Getter private int turnsLeft;
+    private long secondPlayerId;
+    private Prompt prompt;
+    private int openGreensLeft;
+    private int turnsLeft;
 
     public DuetGame(Game game) {
         super(game);

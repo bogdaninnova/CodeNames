@@ -3,41 +3,32 @@ package com.bope.model.game.pictures;
 import com.bope.model.game.Card;
 import com.bope.model.game.GameColor;
 import com.bope.model.game.abstr.Drawer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+@Slf4j
 public class PicturesDrawer extends Drawer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PicturesDrawer.class);
 
     public PicturesDrawer(PicturesGame game, String fileName, boolean isAdmin) {
         super(614, 614, 400);
-        LOG.info("PicturesDrawer starts");
+        log.info("PicturesDrawer starts");
         try {
             BufferedImage image;
             PicturesSchema schema = (PicturesSchema) game.getSchema();
             for (int i = 0; i < 5; i++)
                 for (int j = 0; j < 5; j++) {
-                    LOG.info("Starting to draw card: i=" + i + ", j=" + j);
+                    log.info("Starting to draw card: i=" + i + ", j=" + j);
                     Card card = schema.getArray()[i][j];
-                    LOG.info("Starting to draw card (path = " + RES_PATH + "pictures/" + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg)");
                     image = ImageIO.read(new File(RES_PATH + "pictures/" + schema.getPicturesMapping().get(Integer.parseInt(card.getWord())) + ".jpg"));
-                    LOG.info("Adding image on board");
                     addImage(image, i, j, card, isAdmin);
-                    LOG.info("Adding number to image");
                     addNumber(i, j, card, isAdmin);
                 }
-            LOG.info("Adding scores on board");
             drawScores(schema.howMuchLeft(GameColor.RED), game.getSchema().howMuchLeft(GameColor.BLUE));
-            LOG.info("Drawing grid");
             drawGrid();
-            LOG.info("File saving");
             save(fileName);
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,12 +45,13 @@ public class PicturesDrawer extends Drawer {
 
     private void addImage(BufferedImage image, int x, int y, Card card, boolean isAdmin) {
         if (card.isOpen() || isAdmin) {
-            int mask = 0;
+            int mask;
             switch (card.getGameColor()) {
                 case RED: mask = 0xff6450; break;
                 case BLUE: mask = 0x52bbff; break;
                 case YELLOW: mask = 0xffd9b3; break;
                 case BLACK: mask = 0xcccccc; invertColors(image); break;
+                default: throw new IllegalArgumentException();
             }
             applyFilter(image, mask);
         }

@@ -9,11 +9,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.io.Serializable;
 
 @Document(collection = "users")
+@Getter
+@Setter
 public class UserMongo implements Serializable {
 
     @Id private ObjectId id;
-    @Getter @Setter private String userName;
-    @Getter @Setter private String userId;
+    private String userName;
+    private String userId;
 
     public UserMongo(String userName, String userId) {
         setUserName(userName);

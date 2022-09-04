@@ -16,6 +16,5 @@ public class PicturesGame extends Game {
 
     @Override
     public void reset() {
-
     }
 }
